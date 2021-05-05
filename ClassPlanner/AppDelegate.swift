@@ -17,7 +17,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Create the SwiftUI view and set the context as the value for the managedObjectContext environment keyPath.
         // Add `@Environment(\.managedObjectContext)` in the views that will need the context.
+        
         let contentView = ContentView().environment(\.managedObjectContext, persistentContainer.viewContext)
+        
+//        let contentView = ScheduleView(viewModel: ClassPlannerVM(request: Course.fetchRequest(.all), in: persistentContainer.viewContext)).environment(\.managedObjectContext, persistentContainer.viewContext)
 
         // Create the window and set the content view.
         window = NSWindow(
@@ -46,6 +49,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let container = NSPersistentCloudKitContainer(name: "ClassPlanner")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error {
+//                    print("Error adding persistent store: \(error). Will try with a new one.")
+//                        try? FileManager.default.removeItem(at: storeDescription.url!)
+//                        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+//                            if let error = error {
+//                                fatalError("Unresolved error \(error)")
+//                            }
+//                        })
+                print(storeDescription.url!)
                 // Replace this implementation with code to handle the error appropriately.
                 // fatalError() causes the application to generate a crash log and terminate. You should not use this function in a shipping application, although it may be useful during development.
                  
