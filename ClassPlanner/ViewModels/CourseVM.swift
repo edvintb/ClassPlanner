@@ -85,7 +85,7 @@ class CourseVM: ObservableObject {
     
     
     // MARK: - Dragging
-    private (set) var dragCourse: Course?
+    @Published private (set) var dragCourse: Course?
     private (set) var dragConcentration: Concentration?
     private (set) var dragCategory: Category?
     
@@ -98,8 +98,11 @@ class CourseVM: ObservableObject {
     private var startIndex: Int?
     private var dragIndex: Int?
     
+    var insideConcentration: Bool = false
+    
     // MARK: - Starting Drag
     func setDragCourse(to course: Course) {
+        print("Setting dragcourse to \(course.name)")
         self.dragCourse = course
         self.dragSemester = course.semester
         self.dragPosition = course.position
@@ -118,6 +121,8 @@ class CourseVM: ObservableObject {
         startIndex = category.index
         dragIndex = category.index
     }
+    
+    func drag() { if insideConcentration { objectWillChange.send() } }
     
     
     // MARK: - Ending Drag
@@ -141,7 +146,15 @@ class CourseVM: ObservableObject {
     
 
     // MARK: - Hovering
+    
+    func setToStart() -> Bool {
+        dragSemester = startSemester
+        dragPosition = startPosition
+        return false
+    }
+    
     func hoverOverCourse(course: Course, _ entered: Bool) -> Bool {
+        if insideConcentration { return setToStart() }
         if dragCourse != nil && dragCourse != course {
             if entered {
                 // print("Dragging over course \(course.position)")
@@ -149,35 +162,24 @@ class CourseVM: ObservableObject {
                 dragPosition = course.position
                 return true
             }
-            else {
-                // print("Setting back to start position")
-                dragSemester = startSemester
-                dragPosition = startPosition
-                return false
-            }
+            else { return setToStart() }
         }
         else { return false }
     }
     
     func hoverOverEmptyCourse(entered: Bool, inCourse: Bool, semester: Int) -> Bool {
+        if insideConcentration { return setToStart() }
         if let course = dragCourse {
-            if entered {
-//                print("Entering Empty")
+            if entered, let context = course.managedObjectContext {
                 dragSemester = semester
-                let context = course.managedObjectContext!
                 let request = Course.fetchRequest(NSPredicate(format: "semester_ = %@", argumentArray: [semester]))
                 let numberOfCourses = (try? context.count(for: request)) ?? 0
                 dragPosition = numberOfCourses + (semester == course.semester ? -1 : 0)
                 return true
             }
-            else {
-//                print("Exiting empty")
-                dragSemester = startSemester
-                dragPosition = startPosition
-                return false
-            }
+            else { return setToStart() }
         }
-        if entered && inCourse { print("In empty"); return true }
+        if entered && inCourse { return true }
         else { return false }
     }
     

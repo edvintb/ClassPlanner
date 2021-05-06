@@ -14,7 +14,7 @@ struct EmptyCourseView: View {
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
             RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
-                .opacity((isTargeted || isOverCourse) ? emptyHoverOpacity : 0)
+                .opacity((isTargeted || isOverCourse) ? viewModel.insideConcentration ? 0 : emptyHoverOpacity : 0)
                 .frame(width: courseWidth, height: courseHeight)
                 .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
                 .onTapGesture { viewModel.addEmptyCourse(to: semester, context: context) }

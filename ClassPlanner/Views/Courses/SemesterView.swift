@@ -14,12 +14,21 @@ struct ScheduleView: View {
 
     var body: some View {
         Text("Courses").padding([.horizontal], 10)
-        ScrollView([.vertical, .horizontal]) {
-            HStack {
-                ForEach (viewModel.semesters, id: \.self) { semester in
-                    SemesterView(for: semester, viewModel)
+        ZStack {
+            ScrollView([.vertical, .horizontal]) {
+                HStack {
+                    ForEach (viewModel.semesters, id: \.self) { semester in
+                        SemesterView(for: semester, viewModel)
+                    }
                 }
             }
+//            if let course = viewModel.dragCourse {
+//                CourseView(course: course)
+//                    .onAppear {
+//                        print("Dummycourse appeared")
+//                    }
+//                    .environmentObject(viewModel)
+//            }
         }
     }
 }

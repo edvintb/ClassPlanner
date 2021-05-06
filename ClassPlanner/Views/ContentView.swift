@@ -12,7 +12,7 @@ struct ContentView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/) {
             let vm = CourseVM()
-            ScheduleView(viewModel: vm)
+            ScheduleView(viewModel: vm).zIndex(1)
             ConcentrationContainerView(viewModel: vm)
         }
     }

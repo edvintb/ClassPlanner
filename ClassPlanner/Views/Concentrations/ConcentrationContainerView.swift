@@ -13,6 +13,8 @@ struct ConcentrationContainerView: View {
     @Environment(\.managedObjectContext) var context
     @FetchRequest private var concentrations: FetchedResults<Concentration>
 //    @State private var isAdding: Bool = false
+
+    @State private var pointOfEnter: CGPoint?
     
     init(viewModel: CourseVM) {
         self.viewModel = viewModel
@@ -21,20 +23,34 @@ struct ConcentrationContainerView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: nil) {
-            HStack {
-                Text("Concentrations")
-                Spacer()
-            }
-            ScrollView {
-                ForEach (concentrations) {
-                    ConcentrationView($0).zIndex( viewModel.dragConcentration == $0 ? 1 : 0)
+        GeometryReader { geo in
+            ZStack {
+                VStack(alignment: .leading, spacing: nil) {
+                    HStack {
+                        Text("Concentrations")
+                        Spacer()
+                    }
+                    ScrollView {
+                        ForEach (concentrations) {
+                            ConcentrationView($0).zIndex( viewModel.dragConcentration == $0 ? 1 : 0)
+                        }
+                        EmptyConcentrationView()
+                    }
                 }
-                EmptyConcentrationView()
+                if viewModel.insideConcentration, let name = viewModel.dragCourse?.name {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
+                        Text(name)
+                    }
+                    .frame(width: courseWidth/2, height: courseHeight/2, alignment: .center)
+                    .position(geo.convert(NSEvent.mouseLocation, from: .global))
+                    .opacity(0.4)
+                }
             }
         }
         .padding([.horizontal], 10)
         .environmentObject(viewModel)
+        .onHover { viewModel.insideConcentration = $0 }
 //            .onMove(perform: { indices, newOffset in
 //                indices.map { index in concentrations[index] }
 //                    .forEach{ concentration in concentration.index = newOffset }
@@ -42,6 +58,8 @@ struct ConcentrationContainerView: View {
 //                print("\(newOffset)")
 //            })
         }
+    
+    
 }
     
     
