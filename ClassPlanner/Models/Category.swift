@@ -41,10 +41,11 @@ extension Category {
     
     func move(to index: Int) {
         if self.index == index { return }
-        if let context = managedObjectContext {
+        if let context = managedObjectContext, let concentration = self.concentration {
             let topIndex = max(self.index, index)
             let bottomIndex = min(self.index, index)
-            let predicate = NSPredicate(format: "index_ <= %@ AND index_ >= %@ AND SELF != %@", argumentArray: [topIndex, bottomIndex, self])
+            let predicate = NSPredicate(format: "concentration == %@ AND index_ <= %@ AND index_ >= %@ AND SELF != %@",
+                                        argumentArray: [concentration, topIndex, bottomIndex, self])
             let request = Category.fetchRequest(predicate)
             let otherCategories = (try? context.fetch(request)) ?? []
             let down = self.index < index

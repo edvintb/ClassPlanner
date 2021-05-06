@@ -26,8 +26,6 @@ struct CategoryView: View {
         category.courses.sorted { $0.semester < $1.semester }
     }
     
-
-    
     var body: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: frameCornerRadius)
@@ -39,6 +37,7 @@ struct CategoryView: View {
                     Text("- \(course.name)")
                 }
                 Text("\(category.index)")
+                Text(category.concentration?.name ?? "-")
             }.padding(4)
         }
         .scaleEffect(isTargeted ? 1.03 : 1)
