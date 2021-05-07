@@ -63,6 +63,41 @@ extension Array {
     
 }
 
+
+struct MultilineTextField: NSViewRepresentable {
+    
+    typealias NSViewType = NSTextView
+    private let textView = NSTextView()
+    @Binding var text: String
+    
+    func makeNSView(context: Context) -> NSTextView {
+        textView.delegate = context.coordinator
+        let color = textView.backgroundColor
+        let allows = textView.allowsDocumentBackgroundColorChange
+        textView.allowsDocumentBackgroundColorChange = true
+        print(allows)
+        print(color)
+        textView.changeDocumentBackgroundColor(NSColor.systemRed)
+        return textView
+    }
+    func updateNSView(_ nsView: NSTextView, context: Context) {
+        nsView.string = text
+    }
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(self)
+    }
+    class Coordinator: NSObject, NSTextViewDelegate {
+        let parent: MultilineTextField
+        init(_ textView: MultilineTextField) {
+            parent = textView
+        }
+        func textDidChange(_ notification: Notification) {
+            guard let textView = notification.object as? NSTextView else { return }
+            self.parent.text = textView.string
+        }
+    }
+}
+
 //struct NumberTextField<V>: UIViewRepresentable where V: Numeric & LosslessStringConvertible {
 //    @Binding var value: V
 //
