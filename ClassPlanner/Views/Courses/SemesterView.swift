@@ -13,8 +13,8 @@ struct ScheduleView: View {
     @ObservedObject var viewModel: CourseVM
 
     var body: some View {
-        Text("Courses").padding([.horizontal], 10)
-        ZStack {
+//        Text("Courses").padding([.horizontal], 10)
+//        ZStack {
             ScrollView([.vertical, .horizontal]) {
                 HStack {
                     ForEach (viewModel.semesters, id: \.self) { semester in
@@ -29,7 +29,7 @@ struct ScheduleView: View {
 //                    }
 //                    .environmentObject(viewModel)
 //            }
-        }
+//        }
     }
 }
 

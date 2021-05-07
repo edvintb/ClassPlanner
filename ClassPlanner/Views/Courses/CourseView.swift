@@ -20,10 +20,13 @@ struct CourseView: View {
     
     @ObservedObject var course: Course
     @EnvironmentObject var viewModel: CourseVM
+    
     @State private var dragOffset: CGSize = .zero
     @State private var isTargeted: Bool = false
     @State private var isFrontUp: Bool = true
     @State private var isEditing: Bool = false
+    @State private var color: Color?
+    
     private var empty: Bool {
         course.name == ""
     }
@@ -34,16 +37,17 @@ struct CourseView: View {
     }
     
     var body: some View {
-        ZStack(alignment: .center){
+        ZStack(alignment: .center) {
             RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
+                .foregroundColor(color)
                 .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
-                .shadow(color: isTargeted ? .green : .white, radius: isTargeted ? 10 : 0)
+                .shadow(color: isTargeted ? .green : color ?? .white, radius: isTargeted ? 10 : 0)
             
             if empty            { Text("+").font(.system(size: 2.5*titleSize)) }
-            else if isFrontUp   { Text("\(course.name)").font(.system(size: 1.5*titleSize)) }
+            else if isFrontUp   { front.padding(5) }
             else                { back }
         }
-        .opacity(empty ? 0.4 : 1)
+        .opacity(dragOffset != .zero && viewModel.insideConcentration ? 0.001 : empty ? 0.2 : 1)
         .scaleEffect(isTargeted ? hoverScaleFactor : 1)
         .onHover { isTargeted = viewModel.hoverOverCourse(course: course, $0) }
         .zIndex(dragOffset == .zero ? 0 : 1)
@@ -53,32 +57,40 @@ struct CourseView: View {
         .frame(width: courseWidth, height: courseHeight, alignment: .center)
         .padding([.horizontal], 5)
         .popover(isPresented: $isEditing, content: {
-            CourseEditorView(isPresented: $isEditing, course: course)
+            CourseEditorView(color: $color, isPresented: $isEditing)
                 .environmentObject(viewModel)
+                .environmentObject(course)
         })
     }
     
-    var back: some View {
-        Group {
-            VStack(spacing: 0) {
-                HStack(spacing: 0) {
-                    Text("\(course.name)").font(.system(size: titleSize)).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                    Text("+").font(.system(size: titleSize, weight: .semibold)).onTapGesture { isEditing.toggle() }
-                }
-                    .padding([.horizontal], 7)
-//                Divider()
-//                    .padding([.horizontal], 5)
-                ZStack {
-                    HStack {
-                        leftProperties()
-                        rightProperties()
-                    }
-                }
-                .padding(5)
-            }
-            .lineLimit(1)
+    var front: some View {
+        Text("\(course.name)")
+            .font(.system(size: 1.3*titleSize))
+            .allowsTightening(true)
+            .lineLimit(3)
+            .multilineTextAlignment(.center)
             .truncationMode(.tail)
+    }
+    
+    var back: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Text("\(course.name)").font(.system(size: titleSize)).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+                Text("+").font(.system(size: 1.2*titleSize, weight: .semibold)).onTapGesture { isEditing.toggle() }
+            }
+                .padding([.horizontal], 7)
+            Divider()
+                .padding([.horizontal], 5)
+            ZStack {
+                HStack {
+                    leftProperties()
+                    rightProperties()
+                }
+            }
+            .padding(5)
         }
+        .lineLimit(1)
+        .truncationMode(.tail)
     }
 
     var dragGesture: some Gesture {
@@ -108,8 +120,9 @@ struct CourseView: View {
     func leftProperties() -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(" 🕑 \(NSNumber(value: course.workload), formatter: numberFormatter)")
-            Text(" 👥 \(NSNumber(value: course.enrollment), formatter: numberFormatter)")
             Text("  𝗤  ").foregroundColor(.red) + Text("\(NSNumber(value: course.qscore), formatter: numberFormatter)")
+            Text(" 👥 \(NSNumber(value: course.enrollment), formatter: numberFormatter)")
+            
         }
         .font(.system(size: iconSize, weight: .regular, design: .default))
         .frame(maxWidth: .infinity, alignment: .leading)

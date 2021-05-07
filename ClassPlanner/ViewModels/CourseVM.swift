@@ -61,6 +61,15 @@ class CourseVM: ObservableObject {
     
     // MARK: - Adding
     
+    func save(context: NSManagedObjectContext) {
+        do {
+            try context.save()
+        } catch {
+            print("Caught error: \(error)")
+        }
+        
+    }
+    
     func addEmptyCourse(to semester: Int, context: NSManagedObjectContext) {
         print("VM: Creating empty course")
         let request = Course.fetchRequest(NSPredicate(format: "semester_ = %@", argumentArray: [semester]))

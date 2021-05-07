@@ -150,6 +150,11 @@ extension Course {
         get { Int(self.enrollment_) }
         set { self.enrollment_ = Int16(newValue) }
     }
+    
+    var color: Int {
+        get { Int(self.color_) }
+        set { self.color_ = Int16(newValue) }
+    }
 }
 
 

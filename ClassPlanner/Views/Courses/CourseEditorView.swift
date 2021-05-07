@@ -39,11 +39,13 @@ import CoreData
 // Then we can bind to it with our TextFields and have what we write show up at once
 struct CourseEditorView: View {
     
+    @EnvironmentObject var course: Course
     @EnvironmentObject var viewModel: CourseVM
-    @Environment(\.managedObjectContext) var context
+    
+    @Binding var color: Color?
     @Binding var isPresented: Bool
-    @ObservedObject var course: Course
-
+    let colors: Array<Color> = [.red, .blue, .yellow, .green, .orange, .purple]
+    
 //    init(_ course: Course, to semester: Int, at position: Int, _ isPresented: Binding<Bool>) {
 //        _isPresented = isPresented
 //        course.position = position
@@ -57,39 +59,91 @@ struct CourseEditorView: View {
 //    }
     
     var body: some View {
-        ZStack {
-            Text(course.name)
-            deleteButton.frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, minHeight: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxHeight: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .topLeading)
-                .padding([.horizontal], 8)
-        }
-        // Add notes, color, professor, prereqs
-        // Suggestions as typed for prereq and professor
-        // Multiline textfields for the others
-        Form {
-            TextField("Name", text: $course.name, onCommit: { try? context.save() })
-            HStack(alignment: .center, spacing: 10) {
-                Spacer()
-                Toggle(isOn: $course.fall) { Text("🍁") }
-                Toggle(isOn: $course.spring) { Text("🌱") }
-                Spacer()
+        VStack(alignment: .leading) {
+            Spacer(minLength: 20)
+            GeometryReader { title.frame(width: $0.frame(in: .local).width, alignment: .leading) }
+            // Add professor & prereqs
+            // Suggestions as typed for prereq and professor
+            // Multiline textfields for the others
+            Form {
+                TextField("Name", text: $course.name, onCommit: { save() })
+                semesterSelector
+                TextField("Workload", value: $course.workload, formatter: numberFormatter, onCommit: { save() })
+                TextField("QScore", value: $course.qscore, formatter: numberFormatter, onCommit: { save() })
+                TextField("Enrollment", value: $course.enrollment, formatter: numberFormatter, onCommit: { save() })
+                noteEditor
+                Grid(colors, id: \.self) { color in
+                    RoundedRectangle(cornerRadius: frameCornerRadius)
+                        .onTapGesture { self.color = color }
+                        .foregroundColor(color)
+                        .padding(3)
+                }
+                bottomButtons
+                
             }
-            TextField("Workload", value: $course.workload, formatter: numberFormatter, onCommit: { try? context.save() })
-            TextField("Enrollment", value: $course.enrollment, formatter: numberFormatter, onCommit: { try? context.save() })
-            TextField("QScore", value: $course.qscore, formatter: numberFormatter, onCommit: { try? context.save() })
+            .frame(width: 200, height: 300, alignment: .center)
+            .padding()
             
         }
-        .frame(width: 200, height: 300, alignment: .center)
-        .padding()
+
     }
     
-    var deleteButton: some View {
-        Text("+").font(.title)
-            .rotationEffect(Angle(degrees: 45))
-            .foregroundColor(.red)
-            .onTapGesture {
-                self.isPresented = false
-                viewModel.deleteCourse(course)
+    var title: some View {
+        let empty = course.name == ""
+        return
+            Text(empty ? "Name" : course.name)
+            .lineLimit(2)
+            .truncationMode(.tail)
+            .font(.system(size: 20))
+            .padding([.horizontal], 15)
+            .opacity(empty ? 0.2 : 1)
+    }
+    
+    var semesterSelector: some View {
+        HStack(alignment: .center, spacing: 10) {
+            Spacer()
+            Button(action: { course.fall.toggle(); save() }, label: {
+                Text("🍁")
+                    .shadow(color: course.fall ? .green : .black, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
+            })
+            Button(action: { course.spring.toggle(); save() }, label: {
+                Text("🌱")
+                    .shadow(color: course.spring ? .green : .black, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
+            })
+            Spacer()
+        }
+    }
+    
+    var noteEditor: some View {
+        ZStack {
+            if #available(OSX 11.0, *) {
+                TextEditor(text: $course.notes)
+            } else {
+                TextField("Notes...", text: $course.notes, onCommit: { save() })
             }
+        }
+    }
+    
+    var bottomButtons: some View {
+        HStack {
+            Button("Close") {
+                withAnimation { self.isPresented = false }
+            }
+            Spacer()
+            Button("Delete") {
+                withAnimation {
+                    self.isPresented = false
+                    viewModel.deleteCourse(course)
+                }
+            }
+        }
+//        Text("+").font(.title)
+//            .rotationEffect(Angle(degrees: 45))
+//            .foregroundColor(.red)
+//            .onTapGesture {
+//                self.isPresented = false
+//                viewModel.deleteCourse(course)
+//            }
     }
     
     var numberFormatter: NumberFormatter {
@@ -98,6 +152,16 @@ struct CourseEditorView: View {
         numberFormatter.roundingMode = .ceiling
         numberFormatter.zeroSymbol = ""
         return numberFormatter
+    }
+    
+    func save() {
+        if let context = course.managedObjectContext {
+            do {
+                try context.save()
+            } catch {
+                print("Unexpected Error: \(error)")
+            }
+        }
     }
     
 //    var cancel: some View {
