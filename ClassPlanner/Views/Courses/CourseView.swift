@@ -56,11 +56,11 @@ struct CourseView: View {
         .gesture(dragGesture)
         .frame(width: courseWidth, height: courseHeight, alignment: .center)
         .padding([.horizontal], 5)
-        .popover(isPresented: $isEditing, content: {
+        .popover(isPresented: $isEditing) {
             CourseEditorView(color: $color, isPresented: $isEditing)
                 .environmentObject(viewModel)
                 .environmentObject(course)
-        })
+        }
     }
     
     var front: some View {
