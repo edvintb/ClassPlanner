@@ -98,8 +98,10 @@ struct CourseView: View {
             .onChanged {
 //              repositionCorrection = CGFloat(viewModel.startPosition! - course.position)
                 dragOffset = CGSize(width: $0.translation.width, height: -$0.translation.height)
-                viewModel.objectWillChange.send()
-                if viewModel.dragCourse == nil { viewModel.setDragCourse(to: course) }
+                if viewModel.insideConcentration { viewModel.objectWillChange.send() }
+                DispatchQueue.main.async {
+                    if viewModel.dragCourse == nil { viewModel.setDragCourse(to: course) }
+                }
             }
             .onEnded { _ in
                 viewModel.courseDragEnded()
