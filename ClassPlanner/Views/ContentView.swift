@@ -10,9 +10,9 @@ import SwiftUI
 struct ContentView: View {
     
     var body: some View {
-        VStack(alignment: .leading, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/) {
+        VStack(alignment: .leading, spacing: 0) {
             let vm = CourseVM()
-            ScheduleView(viewModel: vm).zIndex(1)
+            ScheduleView(viewModel: vm)
             ConcentrationContainerView(viewModel: vm)
         }
     }

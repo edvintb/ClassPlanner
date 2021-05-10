@@ -35,6 +35,7 @@
 		5CC35F85264580AF005A9CAB /* GridLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC35F83264580AF005A9CAB /* GridLayout.swift */; };
 		5CC35F86264580AF005A9CAB /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC35F84264580AF005A9CAB /* Grid.swift */; };
 		5CEFD291264045010087A77E /* ConcentrationContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CEFD290264045010087A77E /* ConcentrationContainerView.swift */; };
+		5CF96E4126480BB200314288 /* CategoryEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CF96E4026480BB200314288 /* CategoryEditorView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -69,6 +70,7 @@
 		5CC35F83264580AF005A9CAB /* GridLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GridLayout.swift; sourceTree = "<group>"; };
 		5CC35F84264580AF005A9CAB /* Grid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Grid.swift; sourceTree = "<group>"; };
 		5CEFD290264045010087A77E /* ConcentrationContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrationContainerView.swift; sourceTree = "<group>"; };
+		5CF96E4026480BB200314288 /* CategoryEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryEditorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +103,7 @@
 				5C04D614263F41E5008F20DA /* CategoryView.swift */,
 				5C528B63263F398F00891BE9 /* EmptyConcentrationView.swift */,
 				5C04D61A263F4711008F20DA /* EmptyCategoryView.swift */,
+				5CF96E4026480BB200314288 /* CategoryEditorView.swift */,
 			);
 			path = Concentrations;
 			sourceTree = "<group>";
@@ -264,6 +267,7 @@
 				5C528B64263F398F00891BE9 /* EmptyConcentrationView.swift in Sources */,
 				5C5574FE26063D6E001C1037 /* Course.swift in Sources */,
 				5C04D60E263F3B0E008F20DA /* DrawingConstants.swift in Sources */,
+				5CF96E4126480BB200314288 /* CategoryEditorView.swift in Sources */,
 				5C8D51DC260797ED00CDEAB5 /* FoundationExtensions.swift in Sources */,
 				5C6C2D9626343100000C8644 /* ContentView.swift in Sources */,
 				5C5574E92606331C001C1037 /* ClassPlanner.xcdatamodeld in Sources */,

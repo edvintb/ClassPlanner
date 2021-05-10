@@ -34,24 +34,31 @@ struct ConcentrationView: View {
     var body: some View {
         // Why can't I use the textfield in place????
 //        TextField("Name", text: $concentration.name, onCommit: { try? context.save() })
-        VStack(alignment: .leading, spacing: /*@START_MENU_TOKEN@*/nil/*@END_MENU_TOKEN@*/) {
-            HStack {
-                titleText
-                Text("Categories: \(categories.count)")
-                Text("Index: \(concentration.index)")
-                Spacer()
-                Text("Delete").onTapGesture { withAnimation(Animation.easeInOut(duration: 0.5)) {
-                    viewModel.deleteConcentration(concentration: concentration)
+        ZStack {
+            RoundedRectangle(cornerRadius: frameCornerRadius)
+                .stroke()
+                .opacity(0.2)
+            VStack(alignment: .leading, spacing: 1) {
+                HStack {
+                    titleText
+    //                Text("Categories: \(categories.count)")
+    //                Text("Index: \(concentration.index)")
+                    Spacer()
+                    Text("Delete").onTapGesture { withAnimation(Animation.easeInOut(duration: 0.5)) {
+                        viewModel.deleteConcentration(concentration)
+                        }
                     }
+                }.gesture(dragGesture)
+                Divider()
+                HStack {
+                    ForEach (categories) { category in
+                        CategoryView(category: category)
+                    }
+                    EmptyCategoryView(concentration: concentration)
                 }
-            }.gesture(dragGesture)
-            HStack {
-                ForEach (categories) { category in
-                    CategoryView(category: category)
-                }
-                EmptyCategoryView(concentration: concentration)
-            }
-            .environmentObject(viewModel)
+                .environmentObject(viewModel)
+            }.padding(7)
+
         }
         .scaleEffect(isTargeted ? 1.01 : 1)
         .onHover { isTargeted = viewModel.hoverOverConcentration(concentration, entered: $0) }
@@ -84,6 +91,7 @@ struct ConcentrationView: View {
     
     var titleText: some View {
         Text(empty ? "Name" : concentration.name)
+            .font(.system(size: 20))
             .opacity(empty ? 0.4 : 1)
             .onTapGesture { isEditingName.toggle() }
             .popover(isPresented: $isEditingName, content: { nameEditor.padding(5) })

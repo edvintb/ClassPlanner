@@ -26,21 +26,25 @@ struct ConcentrationContainerView: View {
         GeometryReader { geo in
             ZStack {
                 VStack(alignment: .leading, spacing: nil) {
-                    HStack {
-                        Text("Concentrations")
-                        Spacer()
-                    }
+//                    HStack {
+//                        Text("Concentrations")
+//                        Spacer()
+//                    }
                     ScrollView {
                         ForEach (concentrations) {
-                            ConcentrationView($0).zIndex( viewModel.dragConcentration == $0 ? 1 : 0)
+                            ConcentrationView($0)
+                                .zIndex( viewModel.dragConcentration == $0 ? 1 : 0)
+                                .padding([.horizontal], 10)
                         }
                         EmptyConcentrationView()
+                            .padding([.horizontal], 10)
                     }
                 }
-                if viewModel.insideConcentration, let name = viewModel.dragCourse?.name {
+                if viewModel.insideConcentration, let course = viewModel.dragCourse {
                     ZStack {
                         RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
-                        Text(name)
+                            .foregroundColor(viewModel.colors[course.color])
+                        Text(course.name)
                     }
                     .frame(width: courseWidth/2, height: courseHeight/2, alignment: .center)
                     .position(geo.convert(NSEvent.mouseLocation, from: .global))
@@ -48,7 +52,6 @@ struct ConcentrationContainerView: View {
                 }
             }
         }
-        .padding([.horizontal], 10)
         .environmentObject(viewModel)
         .onHover { viewModel.insideConcentration = $0 }
 //            .onMove(perform: { indices, newOffset in

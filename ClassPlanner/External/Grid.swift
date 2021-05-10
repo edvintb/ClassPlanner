@@ -9,10 +9,11 @@
 import SwiftUI
 
 extension Grid where Item: Identifiable , ID == Item.ID{
-    init(_ items: [Item], viewForItem: @escaping (Item) -> ItemView){
+    init(_ items: [Item], desiredAspectRatio: Double = 1, viewForItem: @escaping (Item) -> ItemView){
         self.items = items
         self.id = \Item.id
         self.viewForItem = viewForItem
+        self.desiredAspectRatio = desiredAspectRatio
     }
 }
 
@@ -22,18 +23,20 @@ struct Grid<Item, ItemView, ID> : View where ItemView : View, ID: Hashable {
     var items : [Item]
     var viewForItem : (Item) -> ItemView
     var id: KeyPath<Item, ID>
+    var desiredAspectRatio: Double
     
     
-    init (_ items : [Item], id: KeyPath<Item, ID>, viewForItem : @escaping (Item) -> ItemView) {
+    init (_ items : [Item], id: KeyPath<Item, ID>, desiredAspectRatio: Double = 1, viewForItem : @escaping (Item) -> ItemView) {
         self.items = items
         self.id = id
         self.viewForItem = viewForItem
+        self.desiredAspectRatio = desiredAspectRatio
     }
     
     
     var body: some View {
         GeometryReader {geometry in
-            self.body(for: GridLayout(itemCount: items.count, in: geometry.size))
+            self.body(for: GridLayout(itemCount: items.count, nearAspectRatio: desiredAspectRatio, in: geometry.size))
         }
     }
     

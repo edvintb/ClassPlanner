@@ -20,28 +20,29 @@ struct CourseView: View {
     
     @ObservedObject var course: Course
     @EnvironmentObject var viewModel: CourseVM
+    @Environment(\.colorScheme) var colorScheme
     
     @State private var dragOffset: CGSize = .zero
     @State private var isTargeted: Bool = false
     @State private var isFrontUp: Bool = true
     @State private var isEditing: Bool = false
-    @State private var color: Color?
     
-    private var empty: Bool {
-        course.name == ""
-    }
+    private var color: Color { viewModel.getColor(course.color, dark: colorScheme == .dark) }
+    private var empty: Bool { course.name == "" }
     
     init(course: Course) {
         self.course = course
         _isFrontUp = State(wrappedValue: course.name != "")
     }
     
+    
+    // Fix scrolling offset
     var body: some View {
         ZStack(alignment: .center) {
             RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
                 .foregroundColor(color)
                 .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
-                .shadow(color: isTargeted ? .green : color ?? .white, radius: isTargeted ? 10 : 0)
+                .shadow(color: isTargeted ? .green : color, radius: isTargeted ? 10 : 0)
             
             if empty            { Text("+").font(.system(size: 2.5*titleSize)) }
             else if isFrontUp   { front.padding(5) }
@@ -57,7 +58,7 @@ struct CourseView: View {
         .frame(width: courseWidth, height: courseHeight, alignment: .center)
         .padding([.horizontal], 5)
         .popover(isPresented: $isEditing) {
-            CourseEditorView(color: $color, isPresented: $isEditing)
+            CourseEditorView(isPresented: $isEditing)
                 .environmentObject(viewModel)
                 .environmentObject(course)
         }
@@ -98,10 +99,8 @@ struct CourseView: View {
             .onChanged {
 //              repositionCorrection = CGFloat(viewModel.startPosition! - course.position)
                 dragOffset = CGSize(width: $0.translation.width, height: -$0.translation.height)
-                if viewModel.insideConcentration { viewModel.objectWillChange.send() }
-                DispatchQueue.main.async {
-                    if viewModel.dragCourse == nil { viewModel.setDragCourse(to: course) }
-                }
+                viewModel.drag()
+                if viewModel.dragCourse == nil { viewModel.setDragCourse(to: course) }
             }
             .onEnded { _ in
                 viewModel.courseDragEnded()

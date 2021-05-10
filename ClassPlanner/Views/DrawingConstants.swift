@@ -23,3 +23,6 @@ let emptyHoverOpacity: Double = 0.2
 let concentrationHeight: CGFloat = courseHeight
 let categoryHeight: CGFloat = concentrationHeight
 let categoryWidth: CGFloat = courseWidth
+
+let editorWidth: CGFloat = 200
+let editorHeight: CGFloat = 300

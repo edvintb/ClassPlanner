@@ -44,6 +44,18 @@ extension Concentration {
         }
     }
     
+    func delete() {
+        if let context = managedObjectContext{
+            context.delete(self)
+            let request = Concentration.fetchRequest(.all)
+            let otherConcentration = (try? context.fetch(request)) ?? []
+            for index in 0..<otherConcentration.count {
+                otherConcentration[index].index = index
+            }
+            try? context.save()
+        }
+    }
+    
     // MARK: - Property Access
 
     var index: Int {

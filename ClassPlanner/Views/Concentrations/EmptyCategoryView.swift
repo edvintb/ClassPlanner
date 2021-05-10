@@ -24,7 +24,6 @@ struct EmptyCategoryView: View {
                 .onTapGesture { viewModel.addEmptyCategory(to: concentration, in: context) }
             RoundedRectangle(cornerRadius: frameCornerRadius).opacity(0.001)
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxHeight: categoryHeight, alignment: .center)
-                .background(Color.red)
         }
     }
     

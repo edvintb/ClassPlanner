@@ -13,32 +13,42 @@ struct CategoryView: View {
     
     @EnvironmentObject var viewModel: CourseVM
     @Environment(\.managedObjectContext) var context
+    @Environment(\.colorScheme) var colorScheme
 //    @FetchRequest private var categoryCourses: FetchedResults<Course>
     
-    @State private var isEditingName: Bool = false
+    @State private var isEditing: Bool = false
     @State private var dragOffset: CGSize = .zero
     @State private var isTargeted: Bool = false
     
-    private var empty: Bool {
-        category.name == ""
+    private var color: Color {
+        category.color != 0 ? viewModel.colors[category.color] :
+            colorScheme == .dark ? .white : .black
     }
-    var courses: [Course] {
-        category.courses.sorted { $0.semester < $1.semester }
-    }
+
+    private var courses: [Course] { category.courses.sorted { $0.name < $1.name } }
     
     var body: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: frameCornerRadius)
                 .stroke()
-                .opacity(0.2)
-            VStack(alignment: .leading) {
-                categoryName
-                ForEach (courses) { course in
-                    Text("- \(course.name)")
+                .opacity(0.001)
+            VStack(alignment: .leading, spacing: 0) {
+                title
+                Divider()
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach (courses) { course in
+                            Text("- ") + Text("\(course.name)")
+                                .foregroundColor(viewModel.colors[course.color])
+                                .font(.system(size: 11))
+                        }
+                    }
                 }
-                Text("\(category.index)")
-                Text(category.concentration?.name ?? "-")
-            }.padding(4)
+
+                
+//                Text("\(category.index)")
+//                Text(category.concentration?.name ?? "-")
+            }
         }
         .scaleEffect(isTargeted ? 1.03 : 1)
         .onHover { isTargeted = viewModel.hoverOverCategory(category, entered: $0) }
@@ -46,8 +56,29 @@ struct CategoryView: View {
         .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
         .frame(width: categoryWidth, height: categoryHeight, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
         .gesture(dragGesture)
-        .gesture(deleteGesture)
         
+    }
+    
+    var title: some View {
+        let emptyName = category.name == ""
+        let noRequired = category.numberOfRequired == 0
+        return
+            HStack {
+                Text(emptyName ? "Name" : category.name)
+                    .opacity(emptyName ? 0.4 : 1)
+                    .foregroundColor(color)
+                Spacer()
+                Text("\(category.numberOfRequired)")
+                    .opacity(noRequired ? 0.4 : 1)
+            }
+            .font(.system(size: 13))
+            .contentShape(Rectangle())
+            .onTapGesture { isEditing.toggle() }
+            .popover(isPresented: $isEditing) {
+                    CategoryEditorView(isPresented: $isEditing).padding(5)
+                        .environmentObject(viewModel)
+                        .environmentObject(category)
+            }
     }
     
     var dragGesture: some Gesture {
@@ -57,33 +88,11 @@ struct CategoryView: View {
                 if viewModel.dragCategory == nil { viewModel.setDragCategory(to: category) }
             }
             .onEnded { _ in
-                print("Ended")
+//                print("Ended")
                 viewModel.categoryDragEnded()
                 dragOffset = .zero
             }
     }
     
-    
-    var deleteGesture: some Gesture {
-        TapGesture(count: 2).onEnded { withAnimation {
-            viewModel.deleteCategory(category: category)
-            }
-        }
-    }
-    
-    var categoryName: some View {
-        Text(empty ? "Name" : category.name)
-            .opacity(empty ? 0.4 : 1)
-            .onTapGesture { isEditingName.toggle() }
-            .popover(isPresented: $isEditingName, content: { nameEditor.padding(5) })
-    }
-    
-    var nameEditor: some View {
-        VStack {
-            TextField("Name", text: $category.name, onCommit: {
-                        isEditingName = false
-                        try? context.save()
-            })
-        }
-    }
+
 }

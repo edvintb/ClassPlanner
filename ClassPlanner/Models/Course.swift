@@ -80,6 +80,34 @@ extension Course {
         }
     }
     
+    func moveToSemester(_ semester: Int, and position: Int) {
+        if let context = managedObjectContext {
+            let requestForNew = Course.fetchRequest(NSPredicate(format: "semester_ == %@ and position_ >= %@", argumentArray: [semester, position]))
+            let newCourses = (try? context.fetch(requestForNew)) ?? []
+            newCourses.forEach { course in course.position += 1 }
+            
+            let requestForOld = Course.fetchRequest(NSPredicate(format: "semester_ == %@ and position_ > %@", argumentArray: [self.semester, self.position]))
+            let oldCourses = (try? context.fetch(requestForOld)) ?? []
+            oldCourses.forEach { course in course.position -= 1 }
+            
+            self.semester = semester
+            self.position = position
+            try? context.save()
+        }
+    }
+    
+    func delete() {
+        if let context = self.managedObjectContext {
+            let request = Course.fetchRequest(NSPredicate(format: "semester_ = %@", argumentArray: [self.semester]))
+            let courses = (try? context.fetch(request)) ?? []
+            for index in 0..<courses.count {
+                courses[index].position = index
+            }
+            context.delete(self)
+            try? context.save()
+        }
+    }
+    
 //    func moveInSemester(to position: Int) {
 //        if let context = managedObjectContext {
 //            let request = Course.fetchRequest(NSPredicate(format: "semester_ == %@", argumentArray: [self.semester]))
@@ -99,21 +127,7 @@ extension Course {
 //        }
 //    }
     
-    func moveToSemester(_ semester: Int, and position: Int) {
-        if let context = managedObjectContext {
-            let requestForNew = Course.fetchRequest(NSPredicate(format: "semester_ == %@ and position_ >= %@", argumentArray: [semester, position]))
-            let newCourses = (try? context.fetch(requestForNew)) ?? []
-            newCourses.forEach { course in course.position += 1 }
-            
-            let requestForOld = Course.fetchRequest(NSPredicate(format: "semester_ == %@ and position_ > %@", argumentArray: [self.semester, self.position]))
-            let oldCourses = (try? context.fetch(requestForOld)) ?? []
-            oldCourses.forEach { course in course.position -= 1 }
-            
-            self.semester = semester
-            self.position = position
-            try? context.save()
-        }
-    }
+
     
 
     

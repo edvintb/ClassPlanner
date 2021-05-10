@@ -13,6 +13,7 @@ import Combine
 class CourseVM: ObservableObject {
     
     @Published var model = ClassPlannerModel()
+    @Environment(\.colorScheme) var colorScheme
     
     // MARK: - Access to Model
     
@@ -20,55 +21,23 @@ class CourseVM: ObservableObject {
         model.semesters
     }
     
+    // MARK: - Coloring
     
+    let colors: Array<Color> = [.white, .black, .white, .red, .blue, .yellow, .green, .orange, .purple]
+    
+    func getColor(_ index: Int, dark: Bool) -> Color {
+        if index == 0 { return (dark ? .white : .black) }
+        return colors[index]
+    }
+        
     // MARK: - Deleting
-    func deleteCourse(_ courseToDelete: Course) {
-        if let context = courseToDelete.managedObjectContext {
-            context.delete(courseToDelete)
-            let request = Course.fetchRequest(NSPredicate(format: "semester_ = %@", argumentArray: [courseToDelete.semester]))
-            let courses = (try? context.fetch(request)) ?? []
-            for index in 0..<courses.count {
-                courses[index].position = index
-            }
-            try? context.save()
-        }
-    }
+    func deleteCourse(_ course: Course) { course.delete() }
     
-
-    func deleteCategory(category: Category) {
-        if let context = category.managedObjectContext, let concentration = category.concentration {
-            context.delete(category)
-            let request = Category.fetchRequest(NSPredicate(format: "concentration = %@", argumentArray: [concentration]))
-            let otherCategories = (try? context.fetch(request)) ?? []
-            for index in 0..<otherCategories.count {
-                otherCategories[index].index = index
-            }
-            try? context.save()
-        }
-    }
+    func deleteCategory(_ category: Category) { category.delete() }
     
-    func deleteConcentration(concentration: Concentration) {
-        if let context = concentration.managedObjectContext{
-            context.delete(concentration)
-            let request = Concentration.fetchRequest(.all)
-            let otherConcentration = (try? context.fetch(request)) ?? []
-            for index in 0..<otherConcentration.count {
-                otherConcentration[index].index = index
-            }
-            try? context.save()
-        }
-    }
+    func deleteConcentration(_ concentration: Concentration) { concentration.delete() }
     
     // MARK: - Adding
-    
-    func save(context: NSManagedObjectContext) {
-        do {
-            try context.save()
-        } catch {
-            print("Caught error: \(error)")
-        }
-        
-    }
     
     func addEmptyCourse(to semester: Int, context: NSManagedObjectContext) {
         print("VM: Creating empty course")
@@ -107,7 +76,7 @@ class CourseVM: ObservableObject {
     private var startIndex: Int?
     private var dragIndex: Int?
     
-    var insideConcentration: Bool = false
+    @Published var insideConcentration: Bool = false
     
     // MARK: - Starting Drag
     func setDragCourse(to course: Course) {
@@ -209,23 +178,26 @@ class CourseVM: ObservableObject {
         else { return false }
     }
     
+    private var added: Bool = false
+    
     func hoverOverCategory(_ category: Category, entered: Bool) -> Bool {
+        if let course = dragCourse {
+            if entered { (added, _) = category.courses.insert(course) }
+            if added && !entered { category.removeCourse(course); added = false }
+            return entered
+        }
         if dragCategory != nil && dragCategory != category {
             if entered {
                 print("Dragging over category \(category.index)")
                 dragIndex = category.index
-                return true
             }
             else {
                 print("Setting back to start position")
                 dragIndex = startIndex
-                return false
             }
-        }
-        else if dragCourse != nil {
             return entered
         }
-        else { return false }
+        return false
     }
     
     //    func deleteAll(from context: NSManagedObjectContext) {

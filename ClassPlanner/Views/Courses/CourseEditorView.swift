@@ -41,10 +41,10 @@ struct CourseEditorView: View {
     
     @EnvironmentObject var course: Course
     @EnvironmentObject var viewModel: CourseVM
-    
-    @Binding var color: Color?
+    @Environment(\.colorScheme) var colorScheme
+
     @Binding var isPresented: Bool
-    let colors: Array<Color> = [.red, .blue, .yellow, .green, .orange, .purple]
+    private var color: Color { viewModel.getColor(course.color, dark: colorScheme == .dark) }
     
 //    init(_ course: Course, to semester: Int, at position: Int, _ isPresented: Binding<Bool>) {
 //        _isPresented = isPresented
@@ -59,9 +59,11 @@ struct CourseEditorView: View {
 //    }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            Spacer(minLength: 20)
-            GeometryReader { title.frame(width: $0.frame(in: .local).width, alignment: .leading) }
+        VStack(alignment: .leading, spacing: 0) {
+            Spacer(minLength: 15)
+            title.frame(width: editorWidth, alignment: .leading)
+            Divider().padding(5)
+            notes.frame(width: editorWidth, alignment: .leading)
             // Add professor & prereqs
             // Suggestions as typed for prereq and professor
             // Multiline textfields for the others
@@ -72,16 +74,10 @@ struct CourseEditorView: View {
                 TextField("QScore", value: $course.qscore, formatter: numberFormatter, onCommit: { save() })
                 TextField("Enrollment", value: $course.enrollment, formatter: numberFormatter, onCommit: { save() })
                 noteEditor
-                Grid(colors, id: \.self) { color in
-                    RoundedRectangle(cornerRadius: frameCornerRadius)
-                        .onTapGesture { self.color = color }
-                        .foregroundColor(color)
-                        .padding(3)
-                }
+                colorGrid
                 bottomButtons
-                
             }
-            .frame(width: 200, height: 300, alignment: .center)
+            .frame(width: editorWidth, height: editorHeight, alignment: .center)
             .padding()
             
         }
@@ -89,14 +85,27 @@ struct CourseEditorView: View {
     }
     
     var title: some View {
-        let empty = course.name == ""
-        return
-            Text(empty ? "Name" : course.name)
-            .lineLimit(2)
-            .truncationMode(.tail)
+        let emptyName = course.name == ""
+        return Text(emptyName ? "Name" : course.name)
             .font(.system(size: 20))
+            .foregroundColor(color)
+            .opacity(emptyName ? 0.2 : 1)
+            .lineLimit(2)
+            .fixedSize(horizontal: false, vertical: true)
             .padding([.horizontal], 15)
-            .opacity(empty ? 0.2 : 1)
+            
+    }
+
+    
+    var notes: some View {
+        let emptyNotes = course.notes == ""
+        return Text(emptyNotes ? "Notes..." : course.notes)
+            .font(.system(size: 12))
+            .opacity(emptyNotes ? 0.2 : 0.5)
+            .lineLimit(nil)
+            .fixedSize(horizontal: false, vertical: true)
+            .padding([.horizontal], 10)
+
     }
     
     var semesterSelector: some View {
@@ -124,17 +133,41 @@ struct CourseEditorView: View {
         }
     }
     
+
+    
+//    var colorGrid: some View {
+//        Grid(Array(0..<viewModel.colors.count), id: \.self) { index in
+//            ZStack {
+//                if index == 0 { RoundedRectangle(cornerRadius: frameCornerRadius).stroke().opacity(0.2).contentShape(Rectangle()) }
+//                else { RoundedRectangle(cornerRadius: frameCornerRadius).foregroundColor(viewModel.colors[index]) }
+//            }
+//            .onTapGesture { course.color = index; save(); print(course.color) }
+//            .padding(3)
+//
+//        }
+//    }
+    
+    var colorGrid: some View {
+        Grid(Array(1..<viewModel.colors.count), id: \.self) { index in
+            RoundedRectangle(cornerRadius: frameCornerRadius)
+            .foregroundColor(viewModel.colors[index])
+            .onTapGesture { course.color = index; save(); print(course.color) }
+            .padding(3)
+        }
+    }
+    
+    
     var bottomButtons: some View {
         HStack {
-            Button("Close") {
-                withAnimation { self.isPresented = false }
-            }
-            Spacer()
             Button("Delete") {
                 withAnimation {
                     self.isPresented = false
                     viewModel.deleteCourse(course)
                 }
+            }
+            Spacer()
+            Button("Save") {
+                withAnimation { self.isPresented = false; save() }
             }
         }
 //        Text("+").font(.title)
@@ -157,6 +190,7 @@ struct CourseEditorView: View {
     func save() {
         if let context = course.managedObjectContext {
             do {
+                course.objectWillChange.send()
                 try context.save()
             } catch {
                 print("Unexpected Error: \(error)")

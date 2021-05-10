@@ -18,7 +18,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Create the SwiftUI view and set the context as the value for the managedObjectContext environment keyPath.
         // Add `@Environment(\.managedObjectContext)` in the views that will need the context.
         
-        let contentView = ContentView().environment(\.managedObjectContext, persistentContainer.viewContext)
+        let contentView = ContentView()
+            .environment(\.managedObjectContext, persistentContainer.viewContext)
         
 //        let contentView = ScheduleView(viewModel: ClassPlannerVM(request: Course.fetchRequest(.all), in: persistentContainer.viewContext)).environment(\.managedObjectContext, persistentContainer.viewContext)
 
