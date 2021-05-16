@@ -20,10 +20,7 @@ struct CategoryView: View {
     @State private var dragOffset: CGSize = .zero
     @State private var isTargeted: Bool = false
     
-    private var color: Color {
-        category.color != 0 ? viewModel.colors[category.color] :
-            colorScheme == .dark ? .white : .black
-    }
+    private var color: Color { viewModel.getColor(category.color, dark: colorScheme == .dark) }
 
     private var courses: [Course] { category.courses.sorted { $0.name < $1.name } }
     
@@ -39,7 +36,7 @@ struct CategoryView: View {
                     VStack(alignment: .leading, spacing: 0) {
                         ForEach (courses) { course in
                             Text("- ") + Text("\(course.name)")
-                                .foregroundColor(viewModel.colors[course.color])
+                                .foregroundColor(viewModel.getColor(course.color, dark: colorScheme == .dark))
                                 .font(.system(size: 11))
                         }
                     }
@@ -73,12 +70,12 @@ struct CategoryView: View {
             }
             .font(.system(size: 13))
             .contentShape(Rectangle())
-            .onTapGesture { isEditing.toggle() }
-            .popover(isPresented: $isEditing) {
-                    CategoryEditorView(isPresented: $isEditing).padding(5)
-                        .environmentObject(viewModel)
-                        .environmentObject(category)
-            }
+            .onTapGesture { viewModel.setEditCategory(category) }
+//            .popover(isPresented: $isEditing) {
+//                    CategoryEditorView(isPresented: $isEditing).padding(5)
+//                        .environmentObject(viewModel)
+//                        .environmentObject(category)
+//            }
     }
     
     var dragGesture: some Gesture {

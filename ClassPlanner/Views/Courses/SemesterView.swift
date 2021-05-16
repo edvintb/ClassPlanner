@@ -11,25 +11,33 @@ import CoreData
 struct ScheduleView: View {
     
     @ObservedObject var viewModel: CourseVM
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
 
     var body: some View {
-//        Text("Courses").padding([.horizontal], 10)
-//        ZStack {
-            ScrollView([.vertical, .horizontal]) {
-                HStack {
-                    ForEach (viewModel.semesters, id: \.self) { semester in
-                        SemesterView(for: semester, viewModel)
+            ZStack {
+                VStack {
+                    ScrollView([.vertical, .horizontal]) {
+                        HStack {
+                            ForEach (viewModel.semesters, id: \.self) { semester in
+                                SemesterView(for: semester, viewModel)
+                            }
+                        }
+                    }
+                }
+                GeometryReader{ geo in
+                if viewModel.draggedPanelToSchedule {
+                    if let course = viewModel.dragCourse, let pos = viewModel.mouseLocation {
+                        CourseView(course: course)
+                        .frame(width: courseWidth, height: courseHeight, alignment: .center)
+                        .position(geo.convert(pos, from: .global))
+                        .onHover { _ in print(geo.frame(in: .global)); print(pos); print(geo.convert(pos, from: .global))}
+                        .environmentObject(viewModel)
+                        .zIndex(1)
                     }
                 }
             }
-//            if let course = viewModel.dragCourse {
-//                CourseView(course: course)
-//                    .onAppear {
-//                        print("Dummycourse appeared")
-//                    }
-//                    .environmentObject(viewModel)
-//            }
-//        }
+//            .background(Color.red)
+        }
     }
 }
 
@@ -52,6 +60,7 @@ struct SemesterView: View {
     
     var body: some View {
         VStack(spacing: courseSpacing) {
+            Spacer(minLength: 3)
             ForEach (courses) { course in
                 CourseView(course: course)
             }

@@ -27,6 +27,7 @@ extension Category {
     // MARK: - Instance functions
     
     func addCourse(_ course: Course) {
+        if course.name == "" { return }
         if let context = managedObjectContext {
             self.courses.insert(course)
             try? context.save()

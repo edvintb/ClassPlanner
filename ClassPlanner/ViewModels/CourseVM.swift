@@ -13,7 +13,6 @@ import Combine
 class CourseVM: ObservableObject {
     
     @Published var model = ClassPlannerModel()
-    @Environment(\.colorScheme) var colorScheme
     
     // MARK: - Access to Model
     
@@ -21,15 +20,64 @@ class CourseVM: ObservableObject {
         model.semesters
     }
     
+    // MARK: - Panel
+    
+    @Published var currentPanelSelection: PanelOption = .concentrations
+    
+    // MARK: - Searching
+    
+    private var subscription: Set<AnyCancellable> = []
+    
+    @Published private (set) var foundCourses: [Course] = []
+    @Published var courseQuery: String = ""
+    
+    init(context: NSManagedObjectContext) {
+        $courseQuery
+            .removeDuplicates()
+            .map({ (string) -> String? in
+                if string.count > 0 { return string }
+                self.foundCourses = []
+                return nil
+            }) // prevents sending numerous requests and sends nil if the count of the characters is less than 1.
+            .compactMap{ $0 } // removes the nil values so the search string does not get passed down to the publisher chain
+            .sink { [unowned self] query in searchCourses(query: query, context: context) }
+            .store(in: &subscription)
+    }
+    
+    func searchCourses(query: String, context: NSManagedObjectContext) {
+        let predicate = NSPredicate(format: "name_ contains[cd] %@", argumentArray: [query])
+        print(predicate)
+        let request = Course.fetchRequest(predicate)
+        let courses = (try? context.fetch(request)) ?? []
+        self.foundCourses = courses
+        print(foundCourses.count)
+    }
+    
+    // MARK: - Editing
+    
+    @Published private (set) var currentEditSelection: EditOption = .none
+    
+    func setEditCourse(_ course: Course) {
+        currentEditSelection = .course(course: course)
+        currentPanelSelection = .editor(selection: currentEditSelection)
+    }
+
+    func setEditCategory(_ category: Category) {
+        currentEditSelection = .category(category: category)
+        currentPanelSelection = .editor(selection: currentEditSelection)
+    }
+
+    func stopEdit() { currentEditSelection = .none }
+    
     // MARK: - Coloring
     
-    let colors: Array<Color> = [.white, .black, .white, .red, .blue, .yellow, .green, .orange, .purple]
+    let colors: Array<Color> = [.clear, .black, .white, .red, .blue, .yellow, .green, .orange, .purple]
     
     func getColor(_ index: Int, dark: Bool) -> Color {
         if index == 0 { return (dark ? .white : .black) }
         return colors[index]
     }
-        
+    
     // MARK: - Deleting
     func deleteCourse(_ course: Course) { course.delete() }
     
@@ -43,6 +91,7 @@ class CourseVM: ObservableObject {
         print("VM: Creating empty course")
         let request = Course.fetchRequest(NSPredicate(format: "semester_ = %@", argumentArray: [semester]))
         let existingCourses = (try? context.count(for: request)) ?? 0
+        print(existingCourses)
         Course.createEmpty(in: semester, at: existingCourses, in: context)
     }
 
@@ -53,7 +102,6 @@ class CourseVM: ObservableObject {
         Concentration.createEmpty(at: existingConcentrations, in: context)
     }
     
-    
     func addEmptyCategory(to concentration: Concentration, in context: NSManagedObjectContext) {
         print("VM: Creating empty category")
         let request = Category.fetchRequest(NSPredicate(format: "concentration == %@", argumentArray: [concentration]))
@@ -61,6 +109,17 @@ class CourseVM: ObservableObject {
         Category.createEmpty(concentration: concentration, index: existingCategories, in: context)
     }
     
+    
+    var numberFormatter: NumberFormatter {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.maximumIntegerDigits = maxIntegers
+        numberFormatter.maximumFractionDigits = maxDecimals
+        numberFormatter.maximumSignificantDigits = maxSignificant
+        numberFormatter.roundingMode = .down
+        numberFormatter.zeroSymbol = ""
+        numberFormatter.localizesFormat = true
+        return numberFormatter
+    }
     
     // MARK: - Dragging
     @Published private (set) var dragCourse: Course?
@@ -77,6 +136,10 @@ class CourseVM: ObservableObject {
     private var dragIndex: Int?
     
     @Published var insideConcentration: Bool = false
+    @Published var draggedPanelToSchedule: Bool = false
+    
+    var window: NSWindow?
+    var mouseLocation: NSPoint? { window?.mouseLocationOutsideOfEventStream }
     
     // MARK: - Starting Drag
     func setDragCourse(to course: Course) {
@@ -100,7 +163,7 @@ class CourseVM: ObservableObject {
         dragIndex = category.index
     }
     
-    func drag() { if insideConcentration { objectWillChange.send() } }
+    func drag() { if insideConcentration || draggedPanelToSchedule { objectWillChange.send() } }
     
     
     // MARK: - Ending Drag
@@ -109,6 +172,8 @@ class CourseVM: ObservableObject {
             if dragSemester == startSemester { course.moveInSemester(to: pos) }
             else { course.moveToSemester(semester, and: pos) }
         }
+        insideConcentration = false
+        draggedPanelToSchedule = false
         dragCourse = nil
     }
     
@@ -121,7 +186,6 @@ class CourseVM: ObservableObject {
         if let concentration = dragConcentration, let index = dragIndex{ concentration.move(to: index) }
         dragConcentration = nil
     }
-    
 
     // MARK: - Hovering
     
@@ -216,6 +280,15 @@ class CourseVM: ObservableObject {
     //            context.delete(course)
     //        }
     //    }
+    
+    
+    // MARK: - Handling Popovers
+//
+//    private (set) var hasCoursePopover: Bool = false
+//
+//    func toggleCoursePopover() { hasCoursePopover.toggle() }
+//
+
     
     // MARK: - Adding Courses
     

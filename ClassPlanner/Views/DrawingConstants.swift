@@ -24,5 +24,20 @@ let concentrationHeight: CGFloat = courseHeight
 let categoryHeight: CGFloat = concentrationHeight
 let categoryWidth: CGFloat = courseWidth
 
-let editorWidth: CGFloat = 200
-let editorHeight: CGFloat = 300
+let editorWidth: CGFloat = 300
+let editorHeight: CGFloat = 450
+
+
+let maxIntegers: Int = 3
+let maxDecimals: Int = 2
+let maxSignificant: Int = 3
+
+let enrollmentSymbol: String = "👥"
+let qscoreSymbol: String = "𝗤"
+let workloadSymbol: String = "🕑"
+let noteSymbol: String = "🗒"
+let fallSymbol: String = "🍁"
+let springSymbol: String = "🌱"
+let gradeSymbol: String = "􀫓"
+let textFieldCornerRadius: CGFloat = 3.5
+

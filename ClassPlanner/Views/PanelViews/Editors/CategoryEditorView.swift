@@ -8,60 +8,34 @@
 import SwiftUI
 import CoreData
 
-//struct CourseInfo {
-//
-//    var name: String
-//    var workload: String
-//    var enrollment: String
-//    var semester: Int
-//    var score: String
-//    var notes: String
-//    var fall: Bool
-//    var spring: Bool
-//
-//    init(_ semester: Int) {
-//        name = ""
-//        workload = ""
-//        enrollment = ""
-//        self.semester = semester
-//        score = ""
-//        notes = ""
-//        fall = false
-//        spring = false
-//    }
-//}
-
-
-// Create separate viewModel for this view??
-
-
-// Perhaps have a state-course instead and pass in a Course.empty as an argument?
-// Then we can bind to it with our TextFields and have what we write show up at once
 struct CategoryEditorView: View {
     
-    @EnvironmentObject var category: Category
+    @ObservedObject var category: Category
     @EnvironmentObject var viewModel: CourseVM
     @Environment(\.colorScheme) var colorScheme
 
-    @Binding var isPresented: Bool
-    private var color: Color {
-        category.color != 0 ? viewModel.colors[category.color] :
-            colorScheme == .dark ? .white : .black
-    }
+
+//    @Binding var isPresented: Bool
     
+    private var color: Color { viewModel.getColor(category.color, dark: colorScheme == .dark) }
     private var courses: [Course] { category.courses.sorted { $0.name < $1.name } }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Spacer(minLength: 15)
-            title.frame(width: editorWidth, alignment: .leading)
-            Divider().padding([.horizontal, .vertical], 5)
-            notes.frame(width: editorWidth, alignment: .leading)
+            Spacer(minLength: 5)
+            title // .frame(width: editorWidth, alignment: .leading)
+            Divider().padding(5)
+            notes // .frame(width: editorWidth, alignment: .leading)
             Form {
-                TextField("Name", text: $category.name, onCommit: { save() })
+                TextField("Name", text: $category.name, onCommit: { save() }).cornerRadius(textFieldCornerRadius)
+                // Bug when not writing anything / removing everything -- check for other formatted fields
                 TextField("# Required", value: $category.numberOfRequired, formatter: numberFormatter, onCommit: { save() })
                 noteEditor
+                Spacer(minLength: 12)
+                searchField
+                Spacer(minLength: 12)
                 coursesView
+                // Make them all colorpickers for Big Sur
                 Grid(Array(1..<viewModel.colors.count), id: \.self) { index in
                     RoundedRectangle(cornerRadius: frameCornerRadius)
                         .onTapGesture { category.color = index; save() }
@@ -71,11 +45,19 @@ struct CategoryEditorView: View {
                 bottomButtons
                 
             }
-            .frame(width: editorWidth, height: editorHeight, alignment: .center)
+//            .frame(width: editorWidth, height: editorHeight, alignment: .center)
             .padding()
             
         }
 
+    }
+    
+    var requiredField: some View {
+        HStack {
+            Text(" \(enrollmentSymbol)")
+            IntTextField("# Required", integer: $category.numberOfRequired, onCommit: { save() })
+                .cornerRadius(textFieldCornerRadius)
+        }
     }
     
 //    var coursesView: some View {
@@ -97,11 +79,13 @@ struct CategoryEditorView: View {
     
     var coursesView: some View {
         Grid (courses, desiredAspectRatio: 2) { course in
-            ZStack {
-                Text(course.name)
+            HStack {
+                Text(course.name == "" ? "No name" : course.name)
                     .foregroundColor(viewModel.getColor(course.color, dark: colorScheme == .dark))
+                    .contentShape(Rectangle())
+                    .onTapGesture { category.removeCourse(course) }
             }
-        }
+        }.frame(width: editorWidth, height: CGFloat(courses.count) * 20, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
     }
     
     var title: some View {
@@ -135,18 +119,39 @@ struct CategoryEditorView: View {
         }
     }
     
+    @State var startIndex: Int = 0
+    var showingCourses: [Course] { Array(viewModel.foundCourses[startIndex..<min(startIndex + 5, viewModel.foundCourses.count)]) }
+    
+    var searchField: some View {
+        VStack(spacing: 3) {
+                SearchTextField(query: $viewModel.courseQuery, placeholder: "Search for Courses...")
+                if showingCourses.count == 0 {
+                    Text("No Results").opacity(0.2).frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
+                }
+                else {
+                    Spacer(minLength: 1)
+                    Divider()
+                    Grid(showingCourses, desiredAspectRatio: 3) { course in
+                        Text(course.name)
+                    }
+                }
+
+                Divider()
+            }.frame(height: 40 + CGFloat((showingCourses.count + 1) / 3) * 50, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+    }
+    
     var bottomButtons: some View {
         HStack {
-            Button("Delete") {
-                withAnimation {
-                    self.isPresented = false
-                    viewModel.deleteCategory(category)
-                }
-            }
-            Spacer()
-            Button("Save") {
-                withAnimation { self.isPresented = false; save() }
-            }
+//            Button("Delete") {
+//                withAnimation {
+//                    self.isPresented = false
+//                    viewModel.deleteCategory(category)
+//                }
+//            }
+//            Spacer()
+//            Button("Save") {
+//                withAnimation { self.isPresented = false; save() }
+//            }
         }
 //        Text("+").font(.title)
 //            .rotationEffect(Angle(degrees: 45))

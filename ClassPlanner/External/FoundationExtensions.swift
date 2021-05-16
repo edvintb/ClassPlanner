@@ -20,7 +20,7 @@ extension NSPredicate {
 extension GeometryProxy {
     func convert(_ point: CGPoint, from coordinateSpace: CoordinateSpace) -> CGPoint {
         let frame = self.frame(in: coordinateSpace)
-        return CGPoint(x: point.x-frame.origin.x, y: frame.height - point.y)
+        return CGPoint(x: point.x-frame.origin.x, y: frame.height - point.y + frame.origin.y )
     }
 }
 
@@ -70,6 +70,36 @@ extension CGImage {
     // keep a reference to a CIContext if calling this often
     return CIContext().createCGImage(filter.outputImage!.clamped(to: bounds), from: bounds)!
   }
+}
+
+public extension String {
+    func numericValue(allowDecimalSeparator: Bool, maxDigits: Int = 42) -> String? {
+        var hasFoundDecimal = false
+        var numbersFound = 0
+        if self.first?.isNumber != true { return nil }
+        var numeric = self.filter {
+            print("Filter called")
+            if $0.isWholeNumber {
+                numbersFound += 1
+                return true
+            } else if allowDecimalSeparator && ($0 == "." || $0 == ",") {
+                defer { print("Defered call"); hasFoundDecimal = true }
+                print("Returned")
+                return !hasFoundDecimal
+            }
+            return false
+        }
+        print("Exited filter")
+        if numbersFound > maxDigits { numeric.removeLast(numbersFound - maxDigits) }
+        return numeric
+    }
+}
+
+extension Int {
+    init(_ bool: Bool) {
+        if bool { self = 1 }
+        else { self = 0 }
+    }
 }
 
 extension NSPoint {

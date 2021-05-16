@@ -13,12 +13,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     var window: NSWindow!
 
-
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Create the SwiftUI view and set the context as the value for the managedObjectContext environment keyPath.
         // Add `@Environment(\.managedObjectContext)` in the views that will need the context.
         
-        let contentView = ContentView()
+        let courseVM = CourseVM(context: persistentContainer.viewContext)
+        
+        let contentView = ContentView(vm: courseVM)
             .environment(\.managedObjectContext, persistentContainer.viewContext)
         
 //        let contentView = ScheduleView(viewModel: ClassPlannerVM(request: Course.fetchRequest(.all), in: persistentContainer.viewContext)).environment(\.managedObjectContext, persistentContainer.viewContext)
@@ -32,6 +33,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.setFrameAutosaveName("Main Window")
         window.contentView = NSHostingView(rootView: contentView)
         window.makeKeyAndOrderFront(nil)
+        
+        courseVM.window = window
+        
+
+        
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

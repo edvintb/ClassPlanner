@@ -12,6 +12,7 @@
 		5C04D615263F41E5008F20DA /* CategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C04D614263F41E5008F20DA /* CategoryView.swift */; };
 		5C04D618263F4382008F20DA /* ConcentrationVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C04D617263F4382008F20DA /* ConcentrationVM.swift */; };
 		5C04D61B263F4711008F20DA /* EmptyCategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C04D61A263F4711008F20DA /* EmptyCategoryView.swift */; };
+		5C16AC3D264E92AE0075727A /* DoubleTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C16AC3C264E92AE0075727A /* DoubleTextField.swift */; };
 		5C246186262F434600A8E079 /* OldCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C246185262F434600A8E079 /* OldCode.swift */; };
 		5C528B64263F398F00891BE9 /* EmptyConcentrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C528B63263F398F00891BE9 /* EmptyConcentrationView.swift */; };
 		5C5574E42606331C001C1037 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C5574E32606331C001C1037 /* AppDelegate.swift */; };
@@ -21,6 +22,7 @@
 		5C5574EE2606331E001C1037 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5C5574ED2606331E001C1037 /* Preview Assets.xcassets */; };
 		5C5574F12606331E001C1037 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5C5574EF2606331E001C1037 /* Main.storyboard */; };
 		5C5574FE26063D6E001C1037 /* Course.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C5574FD26063D6E001C1037 /* Course.swift */; };
+		5C67135A264C259200491C1C /* SearchTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C671359264C259200491C1C /* SearchTextField.swift */; };
 		5C6C2D9226342D28000C8644 /* Concentration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6C2D9126342D28000C8644 /* Concentration.swift */; };
 		5C6C2D9626343100000C8644 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6C2D9526343100000C8644 /* ContentView.swift */; };
 		5C8D51DC260797ED00CDEAB5 /* FoundationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8D51DB260797ED00CDEAB5 /* FoundationExtensions.swift */; };
@@ -34,6 +36,13 @@
 		5C9BA98326122BEB00DC2D53 /* CDPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C9BA98226122BEA00DC2D53 /* CDPublisher.swift */; };
 		5CC35F85264580AF005A9CAB /* GridLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC35F83264580AF005A9CAB /* GridLayout.swift */; };
 		5CC35F86264580AF005A9CAB /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC35F84264580AF005A9CAB /* Grid.swift */; };
+		5CE46F4B264FDF2800350D7C /* Enums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE46F4A264FDF2800350D7C /* Enums.swift */; };
+		5CE46F502650235C00350D7C /* Columns.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE46F4F2650235B00350D7C /* Columns.swift */; };
+		5CE46F552651379200350D7C /* DragVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE46F542651379200350D7C /* DragVM.swift */; };
+		5CE73933264EF40200221D81 /* IntTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE73932264EF40200221D81 /* IntTextField.swift */; };
+		5CE73937264FC4A500221D81 /* PanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE73936264FC4A500221D81 /* PanelView.swift */; };
+		5CE7393D264FD2A300221D81 /* PanelCoursesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE7393C264FD2A300221D81 /* PanelCoursesView.swift */; };
+		5CEC81CA264C1A1800B2B03E /* NetworkSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CEC81C9264C1A1800B2B03E /* NetworkSearch.swift */; };
 		5CEFD291264045010087A77E /* ConcentrationContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CEFD290264045010087A77E /* ConcentrationContainerView.swift */; };
 		5CF96E4126480BB200314288 /* CategoryEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CF96E4026480BB200314288 /* CategoryEditorView.swift */; };
 /* End PBXBuildFile section */
@@ -44,6 +53,7 @@
 		5C04D614263F41E5008F20DA /* CategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryView.swift; sourceTree = "<group>"; };
 		5C04D617263F4382008F20DA /* ConcentrationVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrationVM.swift; sourceTree = "<group>"; };
 		5C04D61A263F4711008F20DA /* EmptyCategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyCategoryView.swift; sourceTree = "<group>"; };
+		5C16AC3C264E92AE0075727A /* DoubleTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoubleTextField.swift; sourceTree = "<group>"; };
 		5C246185262F434600A8E079 /* OldCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldCode.swift; sourceTree = "<group>"; };
 		5C528B63263F398F00891BE9 /* EmptyConcentrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyConcentrationView.swift; sourceTree = "<group>"; };
 		5C5574E02606331C001C1037 /* ClassPlanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClassPlanner.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -56,6 +66,7 @@
 		5C5574F22606331E001C1037 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5C5574F32606331E001C1037 /* ClassPlanner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ClassPlanner.entitlements; sourceTree = "<group>"; };
 		5C5574FD26063D6E001C1037 /* Course.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Course.swift; sourceTree = "<group>"; };
+		5C671359264C259200491C1C /* SearchTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTextField.swift; sourceTree = "<group>"; };
 		5C6C2D9126342D28000C8644 /* Concentration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Concentration.swift; sourceTree = "<group>"; };
 		5C6C2D9526343100000C8644 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		5C8D51DB260797ED00CDEAB5 /* FoundationExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationExtensions.swift; sourceTree = "<group>"; };
@@ -69,6 +80,13 @@
 		5C9BA98226122BEA00DC2D53 /* CDPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CDPublisher.swift; sourceTree = "<group>"; };
 		5CC35F83264580AF005A9CAB /* GridLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GridLayout.swift; sourceTree = "<group>"; };
 		5CC35F84264580AF005A9CAB /* Grid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Grid.swift; sourceTree = "<group>"; };
+		5CE46F4A264FDF2800350D7C /* Enums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Enums.swift; sourceTree = "<group>"; };
+		5CE46F4F2650235B00350D7C /* Columns.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Columns.swift; sourceTree = "<group>"; };
+		5CE46F542651379200350D7C /* DragVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DragVM.swift; sourceTree = "<group>"; };
+		5CE73932264EF40200221D81 /* IntTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntTextField.swift; sourceTree = "<group>"; };
+		5CE73936264FC4A500221D81 /* PanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelView.swift; sourceTree = "<group>"; };
+		5CE7393C264FD2A300221D81 /* PanelCoursesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelCoursesView.swift; sourceTree = "<group>"; };
+		5CEC81C9264C1A1800B2B03E /* NetworkSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkSearch.swift; sourceTree = "<group>"; };
 		5CEFD290264045010087A77E /* ConcentrationContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrationContainerView.swift; sourceTree = "<group>"; };
 		5CF96E4026480BB200314288 /* CategoryEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryEditorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -88,7 +106,6 @@
 			isa = PBXGroup;
 			children = (
 				5C5574E52606331C001C1037 /* CourseView.swift */,
-				5C8D51EB260907C400CDEAB5 /* CourseEditorView.swift */,
 				5C8D51EF260BE3F100CDEAB5 /* SemesterView.swift */,
 				5C9340A12632D507006AF281 /* EmptyCourseView.swift */,
 			);
@@ -100,10 +117,7 @@
 			children = (
 				5CEFD290264045010087A77E /* ConcentrationContainerView.swift */,
 				5C9340A426332592006AF281 /* ConcentrationView.swift */,
-				5C04D614263F41E5008F20DA /* CategoryView.swift */,
 				5C528B63263F398F00891BE9 /* EmptyConcentrationView.swift */,
-				5C04D61A263F4711008F20DA /* EmptyCategoryView.swift */,
-				5CF96E4026480BB200314288 /* CategoryEditorView.swift */,
 			);
 			path = Concentrations;
 			sourceTree = "<group>";
@@ -155,6 +169,7 @@
 			children = (
 				5C8D51E82608D26F00CDEAB5 /* CourseVM.swift */,
 				5C04D617263F4382008F20DA /* ConcentrationVM.swift */,
+				5CE46F542651379200350D7C /* DragVM.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -162,8 +177,10 @@
 		5C8D51EE260BE3C200CDEAB5 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				5C04D60D263F3B0E008F20DA /* DrawingConstants.swift */,
 				5C6C2D9526343100000C8644 /* ContentView.swift */,
+				5C04D60D263F3B0E008F20DA /* DrawingConstants.swift */,
+				5CE7393A264FD20E00221D81 /* PanelViews */,
+				5CF96E46264B0D3D00314288 /* Categories */,
 				5C528B66263F399600891BE9 /* Courses */,
 				5C528B67263F39AD00891BE9 /* Concentrations */,
 			);
@@ -173,14 +190,30 @@
 		5CC35F88264580B9005A9CAB /* External */ = {
 			isa = PBXGroup;
 			children = (
+				5CE46F4A264FDF2800350D7C /* Enums.swift */,
+				5C16AC3C264E92AE0075727A /* DoubleTextField.swift */,
+				5CE46F4F2650235B00350D7C /* Columns.swift */,
+				5CE73932264EF40200221D81 /* IntTextField.swift */,
 				5C246185262F434600A8E079 /* OldCode.swift */,
 				5C8D51DB260797ED00CDEAB5 /* FoundationExtensions.swift */,
 				5CC35F84264580AF005A9CAB /* Grid.swift */,
 				5CC35F83264580AF005A9CAB /* GridLayout.swift */,
 				5C9BA97E260FA2F200DC2D53 /* ViewModifiers.swift */,
 				5C9BA98226122BEA00DC2D53 /* CDPublisher.swift */,
+				5CEC81C9264C1A1800B2B03E /* NetworkSearch.swift */,
+				5C671359264C259200491C1C /* SearchTextField.swift */,
 			);
 			path = External;
+			sourceTree = "<group>";
+		};
+		5CE7393A264FD20E00221D81 /* PanelViews */ = {
+			isa = PBXGroup;
+			children = (
+				5CE73936264FC4A500221D81 /* PanelView.swift */,
+				5CE7393C264FD2A300221D81 /* PanelCoursesView.swift */,
+				5CF96E45264B0D2200314288 /* Editors */,
+			);
+			path = PanelViews;
 			sourceTree = "<group>";
 		};
 		5CEEE813260BE58900F6A8B2 /* Models */ = {
@@ -192,6 +225,24 @@
 				5C04D611263F3E5C008F20DA /* Category.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		5CF96E45264B0D2200314288 /* Editors */ = {
+			isa = PBXGroup;
+			children = (
+				5CF96E4026480BB200314288 /* CategoryEditorView.swift */,
+				5C8D51EB260907C400CDEAB5 /* CourseEditorView.swift */,
+			);
+			path = Editors;
+			sourceTree = "<group>";
+		};
+		5CF96E46264B0D3D00314288 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				5C04D614263F41E5008F20DA /* CategoryView.swift */,
+				5C04D61A263F4711008F20DA /* EmptyCategoryView.swift */,
+			);
+			path = Categories;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -265,14 +316,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				5C528B64263F398F00891BE9 /* EmptyConcentrationView.swift in Sources */,
+				5CE46F552651379200350D7C /* DragVM.swift in Sources */,
 				5C5574FE26063D6E001C1037 /* Course.swift in Sources */,
+				5CE7393D264FD2A300221D81 /* PanelCoursesView.swift in Sources */,
+				5CEC81CA264C1A1800B2B03E /* NetworkSearch.swift in Sources */,
 				5C04D60E263F3B0E008F20DA /* DrawingConstants.swift in Sources */,
 				5CF96E4126480BB200314288 /* CategoryEditorView.swift in Sources */,
 				5C8D51DC260797ED00CDEAB5 /* FoundationExtensions.swift in Sources */,
 				5C6C2D9626343100000C8644 /* ContentView.swift in Sources */,
 				5C5574E92606331C001C1037 /* ClassPlanner.xcdatamodeld in Sources */,
+				5C16AC3D264E92AE0075727A /* DoubleTextField.swift in Sources */,
 				5C04D618263F4382008F20DA /* ConcentrationVM.swift in Sources */,
 				5C8D51F0260BE3F100CDEAB5 /* SemesterView.swift in Sources */,
+				5CE73933264EF40200221D81 /* IntTextField.swift in Sources */,
 				5C5574E62606331C001C1037 /* CourseView.swift in Sources */,
 				5C04D615263F41E5008F20DA /* CategoryView.swift in Sources */,
 				5C9340A22632D508006AF281 /* EmptyCourseView.swift in Sources */,
@@ -281,11 +337,15 @@
 				5C9340A526332592006AF281 /* ConcentrationView.swift in Sources */,
 				5C04D612263F3E5C008F20DA /* Category.swift in Sources */,
 				5CC35F85264580AF005A9CAB /* GridLayout.swift in Sources */,
+				5CE46F4B264FDF2800350D7C /* Enums.swift in Sources */,
+				5CE73937264FC4A500221D81 /* PanelView.swift in Sources */,
 				5C9BA97F260FA2F200DC2D53 /* ViewModifiers.swift in Sources */,
 				5C246186262F434600A8E079 /* OldCode.swift in Sources */,
 				5CC35F86264580AF005A9CAB /* Grid.swift in Sources */,
 				5C8D51EC260907C400CDEAB5 /* CourseEditorView.swift in Sources */,
+				5CE46F502650235C00350D7C /* Columns.swift in Sources */,
 				5C5574E42606331C001C1037 /* AppDelegate.swift in Sources */,
+				5C67135A264C259200491C1C /* SearchTextField.swift in Sources */,
 				5C6C2D9226342D28000C8644 /* Concentration.swift in Sources */,
 				5C9BA98326122BEB00DC2D53 /* CDPublisher.swift in Sources */,
 				5C8D51E92608D26F00CDEAB5 /* CourseVM.swift in Sources */,
