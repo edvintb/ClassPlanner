@@ -10,9 +10,16 @@ import CoreData
 
 struct ScheduleView: View {
     
-    @ObservedObject var viewModel: CourseVM
+    @ObservedObject private var viewModel: ScheduleVM
     @Environment(\.colorScheme) var colorScheme: ColorScheme
+    
+    private var pos: () -> CGPoint
 
+    init(viewModel: ScheduleVM) {
+        self.viewModel = viewModel
+        self.pos = viewModel.mouseLocation ?? { CGPoint(x: 0, y: 0) }
+    }
+    
     var body: some View {
             ZStack {
                 VStack {
@@ -26,11 +33,13 @@ struct ScheduleView: View {
                 }
                 GeometryReader{ geo in
                 if viewModel.draggedPanelToSchedule {
-                    if let course = viewModel.dragCourse, let pos = viewModel.mouseLocation {
+                    if let course = viewModel.dragCourse {
                         CourseView(course: course)
                         .frame(width: courseWidth, height: courseHeight, alignment: .center)
-                        .position(geo.convert(pos, from: .global))
-                        .onHover { _ in print(geo.frame(in: .global)); print(pos); print(geo.convert(pos, from: .global))}
+                            .position(geo.convert(pos(), from: .global))
+        //                    .offset(x: NSEvent.mouseLocation.x, y: -NSEvent.mouseLocation.y)
+//                            .offset(getOffset(from: geo.convert(pos(), from: .global), in: geo.frame(in: .global)))
+//                        .onHover { _ in print(geo.frame(in: .global)); print(pos); print(geo.convert(pos(), from: .global))}
                         .environmentObject(viewModel)
                         .zIndex(1)
                     }
@@ -38,6 +47,12 @@ struct ScheduleView: View {
             }
 //            .background(Color.red)
         }
+    }
+    
+    func getOffset(from point: CGPoint, in frame: CGRect) -> CGSize {
+        let height = point.y
+        let width = point.x - frame.width/2
+        return CGSize(width: width, height: height)
     }
 }
 
@@ -47,10 +62,10 @@ struct SemesterView: View {
     let semester: Int
     
     @Environment(\.managedObjectContext) var context
-    @ObservedObject var viewModel: CourseVM
+    @ObservedObject var viewModel: ScheduleVM
     @FetchRequest private var courses: FetchedResults<Course>
     
-    init(for semester: Int, _ viewModel: CourseVM) {
+    init(for semester: Int, _ viewModel: ScheduleVM) {
 //        print("Initializing semester \(semester)")
         self.semester = semester
         self.viewModel = viewModel

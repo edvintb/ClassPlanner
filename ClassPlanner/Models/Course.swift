@@ -7,6 +7,58 @@
 
 import CoreData
 import Combine
+import AppKit
+
+extension CodingUserInfoKey {
+  static let managedObjectContext = CodingUserInfoKey(rawValue: "managedObjectContext")!
+}
+
+enum DecoderConfigurationError: Error {
+  case missingManagedObjectContext
+}
+
+
+public class Course: NSManagedObject, Codable {
+    
+    enum CodingKeys: CodingKey {
+       case name, workload, enrollment, qscore, spring, fall, notes, color
+     }
+
+     required convenience public init(from decoder: Decoder) throws {
+        
+        guard let context = decoder.userInfo[CodingUserInfoKey.managedObjectContext] as? NSManagedObjectContext else {
+          throw DecoderConfigurationError.missingManagedObjectContext
+        }
+        
+        self.init(context: context)
+        
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.workload = try container.decode(Double.self, forKey: .workload)
+        self.enrollment = try container.decode(Int.self, forKey: .enrollment)
+        self.qscore = try container.decode(Double.self, forKey: .qscore)
+        self.spring = try container.decode(Bool.self, forKey: .spring)
+        self.fall = try container.decode(Bool.self, forKey: .fall)
+        self.notes = try container.decode(String.self, forKey: .notes)
+        self.color = try container.decode(Int.self, forKey: .color)
+        
+    }
+    
+    
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(workload, forKey: .workload)
+        try container.encode(enrollment, forKey: .enrollment)
+        try container.encode(qscore, forKey: .qscore)
+        try container.encode(spring, forKey: .spring)
+        try container.encode(fall, forKey: .fall)
+        try container.encode(notes, forKey: .notes)
+        try container.encode(color, forKey: .color)
+    }
+    
+}
+
 
 extension Course {
     
@@ -30,22 +82,22 @@ extension Course {
         return request
     }
     
-//    static func withName(_ name: String, context: NSManagedObjectContext) -> Course {
-//         // lookup name in Core Data
-//        let request = NSFetchRequest<Course>(entityName: "Course")
-//        request.predicate = NSPredicate(format: "name_ == %@", name)
-//        request.sortDescriptors = [NSSortDescriptor(key: "position_", ascending: true)]
-//        let courses = (try? context.fetch(request)) ?? []
-//        if let course = courses.first {
-//            try? context.save()
-//            return course
-//        } else {
-//            let course = Course(context: context)
-//            course.name_ = name
-//            try? context.save()
-//            return course
-//        }
-//    }
+    static func withName(_ name: String, context: NSManagedObjectContext) -> Course {
+         // lookup name in Core Data
+        let request = NSFetchRequest<Course>(entityName: "Course")
+        request.predicate = NSPredicate(format: "name_ == %@", name)
+        request.sortDescriptors = [NSSortDescriptor(key: "position_", ascending: true)]
+        let courses = (try? context.fetch(request)) ?? []
+        if let course = courses.first {
+            try? context.save()
+            return course
+        } else {
+            let course = Course(context: context)
+            course.name_ = name
+            try? context.save()
+            return course
+        }
+    }
     
     
 //    static func createFrom(_ info: CourseInfo, in context: NSManagedObjectContext, at position: Int) {

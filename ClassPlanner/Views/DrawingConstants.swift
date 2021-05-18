@@ -16,7 +16,8 @@ let semesterPadding: CGFloat = 5
 let courseHeight: CGFloat = 100
 let courseWidth: CGFloat = 130
 let courseIdealWidth: CGFloat = 70
-let hoverScaleFactor: CGFloat = 1.08
+let hoverScaleFactor: CGFloat = 1.03
+let hoverShadowRadius: CGFloat = 3
 let courseSpacing: CGFloat = 10
 let emptyHoverOpacity: Double = 0.2
 

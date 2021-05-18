@@ -10,7 +10,18 @@ import Foundation
 import CoreData
 import Combine
 
-class ScheduleVM: ObservableObject {
+class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
+    
+    var id: UUID
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: ScheduleVM, rhs: ScheduleVM) -> Bool {
+        lhs.id == rhs.id
+    }
+
     
     @Published var model: ScheduleModel
     
@@ -20,22 +31,22 @@ class ScheduleVM: ObservableObject {
         model.semesters
     }
     
+    var schedule: [Int:[Course]] {
+        model.schedule
+    }
+    
     // MARK: - Panel
     
-    @Published var currentPanelSelection: PanelOption = .courses
     
-    // MARK: - Searching
     
-    private var subscriptions: Set<AnyCancellable> = []
+    // MARK: - Init
     
     private var autosaveCancellable: AnyCancellable?
-    
-    @Published private (set) var foundCourses: [Course] = [] // Initialize to all courses to filter
-    @Published var courseQuery: String = ""
-    
+
     var url: URL? { didSet { save(model) }}
     
     init(context: NSManagedObjectContext, url: URL) {
+        self.id = UUID()
         self.url = url
         let decoder = JSONDecoder()
         decoder.userInfo[CodingUserInfoKey.managedObjectContext] = context
@@ -43,17 +54,6 @@ class ScheduleVM: ObservableObject {
         autosaveCancellable = $model.sink { scheduleModel in
             self.save(scheduleModel)
         }
-        
-        $courseQuery
-            .removeDuplicates()
-            .map({ (string) -> String? in
-                if string.count > 0 { return string }
-                self.foundCourses = []
-                return nil
-            }) // prevents sending numerous requests and sends nil if the count of the characters is less than 1.
-            .compactMap{ $0 } // removes the nil values so the search string does not get passed down to the publisher chain
-            .sink { [unowned self] query in searchCourses(query: query, context: context) }
-            .store(in: &subscriptions)
     }
     
     private func save(_ model: ScheduleModel) {
@@ -62,16 +62,12 @@ class ScheduleVM: ObservableObject {
         }
     }
     
-    private func searchCourses(query: String, context: NSManagedObjectContext) {
-        let predicate = NSPredicate(format: "name_ contains[cd] %@", argumentArray: [query])
-        print(predicate)
-        let request = Course.fetchRequest(predicate)
-        let courses = (try? context.fetch(request)) ?? []
-        self.foundCourses = courses
-        print(foundCourses.count)
-    }
+    
+
     
     // MARK: - Editing
+    
+    @Published var currentPanelSelection: PanelOption = .courses
     
     @Published private (set) var currentEditSelection: EditOption = .none
     
@@ -138,6 +134,24 @@ class ScheduleVM: ObservableObject {
         numberFormatter.localizesFormat = true
         return numberFormatter
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     // MARK: - Dragging
@@ -209,6 +223,21 @@ class ScheduleVM: ObservableObject {
         dragConcentration = nil
     }
 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // MARK: - Hovering
     
     func setToStart() -> Bool {

@@ -17,10 +17,82 @@ extension NSPredicate {
     static var none = NSPredicate(format: "FALSEPREDICATE")
 }
 
+extension String {
+    // returns ourself without any duplicate Characters
+    // not very efficient, so only for use on small-ish Strings
+    func uniqued() -> String {
+        var uniqued = ""
+        for ch in self {
+            if !uniqued.contains(ch) {
+                uniqued.append(ch)
+            }
+        }
+        return uniqued
+    }
+    // returns ourself but with numbers appended to the end
+    // if necessary to make ourself unique with respect to those other Strings
+    func uniqued<StringCollection>(withRespectTo otherStrings: StringCollection) -> String
+        where StringCollection: Collection, StringCollection.Element == String {
+        var unique = self
+        while otherStrings.contains(unique) {
+            unique = unique.incremented
+        }
+        return unique
+    }
+    
+    // if a number is at the end of this String
+    // this increments that number
+    // otherwise, it appends the number 1
+    var incremented: String  {
+        let prefix = String(self.reversed().drop(while: { $0.isNumber }).reversed())
+        if let number = Int(self.dropFirst(prefix.count)) {
+            return "\(prefix)\(number+1)"
+        } else {
+            return "\(self) 1"
+        }
+    }
+}
+
 extension GeometryProxy {
     func convert(_ point: CGPoint, from coordinateSpace: CoordinateSpace) -> CGPoint {
         let frame = self.frame(in: coordinateSpace)
         return CGPoint(x: point.x-frame.origin.x, y: frame.height - point.y + frame.origin.y )
+    }
+}
+
+extension Array where Element == NSItemProvider {
+    func loadObjects<T>(ofType theType: T.Type, firstOnly: Bool = false, using load: @escaping (T) -> Void) -> Bool where T: NSItemProviderReading {
+        if let provider = first(where: { $0.canLoadObject(ofClass: theType) }) {
+            print(provider)
+            provider.loadObject(ofClass: theType) { object, error in
+                if let value = object as? T {
+                    DispatchQueue.main.async {
+                        load(value)
+                    }
+                }
+            }
+            return true
+        }
+        return false
+    }
+    func loadObjects<T>(ofType theType: T.Type, firstOnly: Bool = false, using load: @escaping (T) -> Void) -> Bool where T: _ObjectiveCBridgeable, T._ObjectiveCType: NSItemProviderReading {
+        if let provider = first(where: { $0.canLoadObject(ofClass: theType) }) {
+            let _ = provider.loadObject(ofClass: theType) { object, error in
+                if let value = object {
+                    DispatchQueue.main.async {
+                        load(value)
+                    }
+                }
+            }
+            return true
+        }
+        return false
+    }
+    func loadFirstObject<T>(ofType theType: T.Type, using load: @escaping (T) -> Void) -> Bool where T: NSItemProviderReading {
+        loadObjects(ofType: theType, firstOnly: true, using: load)
+    }
+    func loadFirstObject<T>(ofType theType: T.Type, using load: @escaping (T) -> Void) -> Bool where T: _ObjectiveCBridgeable, T._ObjectiveCType: NSItemProviderReading {
+        loadObjects(ofType: theType, firstOnly: true, using: load)
     }
 }
 

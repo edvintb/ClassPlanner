@@ -40,7 +40,7 @@ import CoreData
 struct CourseEditorView: View {
     
     @ObservedObject var course: Course
-    @EnvironmentObject var viewModel: CourseVM
+    @EnvironmentObject var viewModel: ScheduleVM
     @Environment(\.colorScheme) var colorScheme
 
     private var color: Color { viewModel.getColor(course.color, dark: colorScheme == .dark) }
@@ -50,10 +50,9 @@ struct CourseEditorView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Spacer(minLength: 7)
-            title
-//                .frame(width: editorWidth, alignment: .leading)
+            EditorTitleView(title: course.name).foregroundColor(color)
             Divider().padding(5)
-            notes
+            EditorNotes(notes: course.notes)
 //                .frame(width: editorWidth, alignment: .leading)
             // Add professor & prereqs & Grade
             // Suggestions as typed for prereq and professor
@@ -68,36 +67,13 @@ struct CourseEditorView: View {
                 enrollmentEntry
                 noteEditor
                 colorGrid
+                Spacer()
                 bottomButtons
             }
-//            .frame(width: editorWidth, height: editorHeight, alignment: .center)
+            
             .padding()
             
         }
-
-    }
-    
-    var title: some View {
-        let emptyName = course.name == ""
-        return Text(emptyName ? "Name" : course.name)
-            .font(.system(size: 20))
-            .foregroundColor(color)
-            .opacity(emptyName ? 0.2 : 1)
-            .lineLimit(2)
-            .fixedSize(horizontal: false, vertical: true)
-            .padding([.horizontal], 15)
-            
-    }
-
-    
-    var notes: some View {
-        let emptyNotes = course.notes == ""
-        return Text(emptyNotes ? "Notes..." : course.notes)
-            .font(.system(size: 12))
-            .opacity(emptyNotes ? 0.2 : 0.5)
-            .lineLimit(nil)
-            .fixedSize(horizontal: false, vertical: false)
-            .padding([.horizontal], 10)
 
     }
     
@@ -116,11 +92,20 @@ struct CourseEditorView: View {
         }
     }
     
+    var icons: some View {
+        VStack {
+            Text(" \(workloadSymbol)")
+            Text("  \(qscoreSymbol) ").foregroundColor(.red).font(.system(size: 14.5))
+            Text(" \(enrollmentSymbol)")
+        }
+    }
+    
     var workloadEntry: some View {
         HStack {
             Text(" \(workloadSymbol)")
             DoubleTextField("Workload", double: $course.workload, onCommit: { save() })
                 .cornerRadius(textFieldCornerRadius)
+                .focusable()
         }
     }
     
@@ -129,6 +114,7 @@ struct CourseEditorView: View {
             Text("  \(qscoreSymbol) ").foregroundColor(.red).font(.system(size: 14.5))
             DoubleTextField("QScore", double: $course.qscore, onCommit: { save() })
                 .cornerRadius(textFieldCornerRadius)
+                .focusable()
         }
     }
     
@@ -137,6 +123,7 @@ struct CourseEditorView: View {
             Text(" \(enrollmentSymbol)")
             IntTextField("Enrollment", integer: $course.enrollment, onCommit: { save() })
                 .cornerRadius(textFieldCornerRadius)
+                .focusable()
         }
     }
     
@@ -147,22 +134,25 @@ struct CourseEditorView: View {
                 if #available(OSX 11.0, *) {
                     TextEditor(text: $course.notes)
                         .cornerRadius(textFieldCornerRadius)
+                        .focusable()
                 } else {
                     TextField("Notes...", text: $course.notes, onCommit: { save() })
                         .cornerRadius(textFieldCornerRadius)
+                        .focusable()
                 }
             }
         }
-
     }
         
     var colorGrid: some View {
         Grid(Array(1..<viewModel.colors.count), id: \.self) { index in
             RoundedRectangle(cornerRadius: frameCornerRadius)
-            .foregroundColor(viewModel.colors[index])
-            .onTapGesture { course.color = index; save(); print(course.color) }
-            .padding(3)
+                .foregroundColor(viewModel.colors[index])
+                .onTapGesture { course.color = index; save(); print(course.color) }
+                .padding(3)
+                .focusable()
         }
+        .frame(height: 2*courseHeight)
     }
     
     
@@ -179,10 +169,9 @@ struct CourseEditorView: View {
             Spacer()
             if course.semester > 0 {
                 Button("Remove from Schedule") {
-                    withAnimation {
-                        course.moveToSemester(0, and: 0)
-                        save()
-                    }
+                    course.moveToSemester(0, and: 0)
+                    viewModel.stopEdit()
+                    save()
                 }
             }
             else {

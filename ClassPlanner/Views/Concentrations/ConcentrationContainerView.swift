@@ -9,18 +9,19 @@ import SwiftUI
 
 struct ConcentrationContainerView: View {
     
-    @ObservedObject var viewModel: CourseVM
+    @ObservedObject var viewModel: ScheduleVM
     @Environment(\.managedObjectContext) var context
     @Environment(\.colorScheme) var colorScheme
     @FetchRequest private var concentrations: FetchedResults<Concentration>
 //    @State private var isAdding: Bool = false
 
-    @State private var pointOfEnter: CGPoint?
+    private var pos: (() -> CGPoint)?
     
-    init(viewModel: CourseVM) {
+    init(viewModel: ScheduleVM) {
         self.viewModel = viewModel
         let request = Concentration.fetchRequest(.all)
         _concentrations = FetchRequest(fetchRequest: request)
+        self.pos = viewModel.mouseLocation
     }
     
     var body: some View {
@@ -45,14 +46,16 @@ struct ConcentrationContainerView: View {
                         }
                     }
                 }
-                if viewModel.insideConcentration, let course = viewModel.dragCourse, let pos = viewModel.mouseLocation {
+                if viewModel.insideConcentration, let course = viewModel.dragCourse, let pos = pos {
                     ZStack {
                         RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
                             .foregroundColor(viewModel.getColor(course.color, dark: colorScheme == .dark))
                         Text(course.name)
                     }
                     .frame(width: courseWidth/2, height: courseHeight/2, alignment: .center)
-                    .position(geo.convert(pos, from: .global))
+                    .position(geo.convert(pos(), from: .global))
+//                    .offset(x: NSEvent.mouseLocation.x, y: -NSEvent.mouseLocation.y)
+//                    .offset(getOffset(from: geo.convert(pos(), from: .global), in: geo.frame(in: .global)))
                     .opacity(0.4)
                 }
             }
@@ -65,7 +68,13 @@ struct ConcentrationContainerView: View {
 //                print("\(indices)")
 //                print("\(newOffset)")
 //            })
-        }
+    }
+    
+    func getOffset(from point: CGPoint, in frame: CGRect) -> CGSize {
+        let height = point.y - frame.height/2
+        let width = point.x - frame.width/2
+        return CGSize(width: width, height: height)
+    }
     
     
 }

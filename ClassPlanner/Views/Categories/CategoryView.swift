@@ -11,50 +11,75 @@ struct CategoryView: View {
     
     @ObservedObject var category: Category
     
-    @EnvironmentObject var viewModel: CourseVM
+    @EnvironmentObject var viewModel: ScheduleVM
     @Environment(\.managedObjectContext) var context
     @Environment(\.colorScheme) var colorScheme
-//    @FetchRequest private var categoryCourses: FetchedResults<Course>
     
-    @State private var isEditing: Bool = false
     @State private var dragOffset: CGSize = .zero
-    @State private var isTargeted: Bool = false
+    @State private var isDropping: Bool = false
     
     private var color: Color { viewModel.getColor(category.color, dark: colorScheme == .dark) }
 
     private var courses: [Course] { category.courses.sorted { $0.name < $1.name } }
     
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: frameCornerRadius)
-                .stroke()
-                .opacity(0.001)
-            VStack(alignment: .leading, spacing: 0) {
-                title
-                Divider()
-                ScrollView(.vertical, showsIndicators: false) {
+        Group {
+            if courses.count > 5 {
+                ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
+                        title.gesture(dragGesture).padding([.trailing], 4)
+                        Divider().padding([.trailing], 4)
                         ForEach (courses) { course in
-                            Text("- ") + Text("\(course.name)")
-                                .foregroundColor(viewModel.getColor(course.color, dark: colorScheme == .dark))
-                                .font(.system(size: 11))
+                            courseView(course: course)
+                                .onDrag { NSItemProvider(object: course.name as NSString) }
                         }
+                        Spacer(minLength: 4)
                     }
                 }
-
-                
-//                Text("\(category.index)")
-//                Text(category.concentration?.name ?? "-")
+            }
+            else {
+                VStack(alignment: .leading, spacing: 0) {
+                    title.gesture(dragGesture)
+                    Divider()
+                    ForEach (courses) { course in
+                        courseView(course: course)
+                            .onDrag { NSItemProvider(object: course.name as NSString) }
+                    }
+                    Spacer()
+                }
             }
         }
-        .scaleEffect(isTargeted ? 1.03 : 1)
-        .onHover { isTargeted = viewModel.hoverOverCategory(category, entered: $0) }
+        .scaleEffect(isDropping ? hoverScaleFactor : 1)
+        .frame(width: courseWidth, height: courseHeight, alignment: .leading)
+        .onHover { isDropping = viewModel.hoverOverCategory(category, entered: $0) }
         .offset(dragOffset)
         .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
         .frame(width: categoryWidth, height: categoryHeight, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-        .gesture(dragGesture)
+        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
         
     }
+    
+    
+    func courseView(course: Course) -> some View {
+        ZStack {
+            Text(course.name)
+                .font(.system(size: 12))
+                .foregroundColor(viewModel.getColor(course.color, dark: colorScheme == .dark))
+        }
+    }
+    
+    func drop(providers: [NSItemProvider]) -> Bool {
+        print("Found")
+        print(providers)
+        let found = providers.loadFirstObject(ofType: String.self) { string in
+            let newCourse = Course.withName(string as String, context: context)
+            withAnimation {
+                category.addCourse(newCourse)
+            }
+        }
+        return found
+    }
+    
     
     var title: some View {
         let emptyName = category.name == ""
@@ -62,20 +87,17 @@ struct CategoryView: View {
         return
             HStack {
                 Text(emptyName ? "Name" : category.name)
-                    .opacity(emptyName ? 0.4 : 1)
+                    .opacity(emptyName ? emptyHoverOpacity : 1)
                     .foregroundColor(color)
                 Spacer()
                 Text("\(category.numberOfRequired)")
-                    .opacity(noRequired ? 0.4 : 1)
+                    .opacity(noRequired ? emptyHoverOpacity : 1)
+                    
             }
+            .lineLimit(2)
             .font(.system(size: 13))
             .contentShape(Rectangle())
             .onTapGesture { viewModel.setEditCategory(category) }
-//            .popover(isPresented: $isEditing) {
-//                    CategoryEditorView(isPresented: $isEditing).padding(5)
-//                        .environmentObject(viewModel)
-//                        .environmentObject(category)
-//            }
     }
     
     var dragGesture: some Gesture {

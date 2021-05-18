@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum PanelOption: Equatable {
+enum PanelOption: Equatable, Hashable {
 
     static func == (lhs: PanelOption, rhs: PanelOption) -> Bool {
         switch (lhs, rhs) {
@@ -33,7 +33,7 @@ enum PanelOption: Equatable {
     case otherPeople
 }
 
-enum EditOption: Equatable {
+enum EditOption: Equatable, Hashable {
     
     case course(course: Course)
     case category(category: Category)

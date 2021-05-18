@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ConcentrationView: View {
     
-    @EnvironmentObject var viewModel: CourseVM
+    @EnvironmentObject var viewModel: ScheduleVM
     @Environment(\.managedObjectContext) var context
     @ObservedObject var concentration: Concentration
     @FetchRequest private var categories: FetchedResults<Category>
@@ -48,7 +48,9 @@ struct ConcentrationView: View {
                         viewModel.deleteConcentration(concentration)
                         }
                     }
-                }.gesture(dragGesture)
+                }
+                .padding(7)
+                .gesture(dragGesture)
                 Divider()
                 HStack {
                     ForEach (categories) { category in
@@ -56,9 +58,9 @@ struct ConcentrationView: View {
                     }
                     EmptyCategoryView(concentration: concentration)
                 }
+                .padding([.horizontal], 7)
                 .environmentObject(viewModel)
-            }.padding(7)
-
+            }
         }
         .scaleEffect(isTargeted ? 1.01 : 1)
         .onHover { isTargeted = viewModel.hoverOverConcentration(concentration, entered: $0) }

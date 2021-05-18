@@ -17,9 +17,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Create the SwiftUI view and set the context as the value for the managedObjectContext environment keyPath.
         // Add `@Environment(\.managedObjectContext)` in the views that will need the context.
         
-        let courseVM = CourseVM(context: persistentContainer.viewContext)
+        let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        print(url)
+        let scheduleStore = ScheduleStore(directory: url, context: persistentContainer.viewContext)
+        let courseStore = CourseStore(context: persistentContainer.viewContext)
+        let panelVM = PanelVM()
         
-        let contentView = ContentView(vm: courseVM)
+        let contentView = ContentView(scheduleStore: scheduleStore, courseStore: courseStore, panelVM: panelVM)
             .environment(\.managedObjectContext, persistentContainer.viewContext)
         
 //        let contentView = ScheduleView(viewModel: ClassPlannerVM(request: Course.fetchRequest(.all), in: persistentContainer.viewContext)).environment(\.managedObjectContext, persistentContainer.viewContext)
@@ -33,11 +37,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.setFrameAutosaveName("Main Window")
         window.contentView = NSHostingView(rootView: contentView)
         window.makeKeyAndOrderFront(nil)
-        
-        courseVM.window = window
-        
-
-        
+//        
+//        courseVM.mouseLocation = { self.window.convertPoint(fromScreen: NSEvent.mouseLocation) }
+    
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {

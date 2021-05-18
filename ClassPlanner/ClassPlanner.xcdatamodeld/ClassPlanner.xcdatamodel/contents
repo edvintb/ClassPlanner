@@ -16,7 +16,7 @@
         <relationship name="categories" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Category" inverseName="concentration" inverseEntity="Category"/>
         <relationship name="courses" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Course" inverseName="concentrations" inverseEntity="Course"/>
     </entity>
-    <entity name="Course" representedClassName="Course" syncable="YES" codeGenerationType="class">
+    <entity name="Course" representedClassName=".Course" syncable="YES" codeGenerationType="category">
         <attribute name="color_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="enrollment_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="fall" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>

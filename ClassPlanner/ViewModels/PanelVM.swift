@@ -8,6 +8,14 @@
 import Foundation
 import CoreData
 
+class PanelVM: ObservableObject {
+    
+    @Published var currentPanelSelection: PanelOption = .courses
+    
+    
+    
+}
+
 
     
 //    func updateConcentrationIndices(context: NSManagedObjectContext) {

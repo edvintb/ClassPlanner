@@ -10,7 +10,7 @@ import SwiftUI
 struct EmptyConcentrationView: View {
     
     @Environment(\.managedObjectContext) var context
-    @EnvironmentObject var viewModel: CourseVM
+    @EnvironmentObject var viewModel: ScheduleVM
     @State private var isTargeted: Bool = false
     
     var body: some View {

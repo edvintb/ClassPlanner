@@ -11,7 +11,7 @@ struct EmptyCategoryView: View {
     
     let concentration: Concentration
     @Environment(\.managedObjectContext) var context
-    @EnvironmentObject var viewModel: CourseVM
+    @EnvironmentObject var viewModel: ScheduleVM
     @State private var isTargeted: Bool = false
     
     var body: some View {
