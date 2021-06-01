@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreData
+import Combine
 
 //struct CourseInfo {
 //
@@ -40,12 +41,41 @@ import CoreData
 struct CourseEditorView: View {
     
     @ObservedObject var course: Course
-    @EnvironmentObject var viewModel: ScheduleVM
-    @Environment(\.colorScheme) var colorScheme
-
-    private var color: Color { viewModel.getColor(course.color, dark: colorScheme == .dark) }
+    private var cancellables = Set<AnyCancellable>()
     
+    // Needed to stop editing
+    // also has the Suggestion Model created - good place for it?
+    @ObservedObject var panel: PanelVM
+    
+    // Needed to rename course in all schedules
+    // Needed to remove course from current schedule
+    @ObservedObject var scheduleStore: ScheduleStore
+    
+    // StateObject in Stephan's solution. Not recreated when redrawn is the difference
+    // Okay to create here bc this view does not get redrawn
+    @ObservedObject var searchModel: SearchModel
+    
+    private var showAlert: Binding<Bool> {
+        get { $panel.existingCourseEntered }
+        set { panel.existingCourseEntered = false }
+    }
+    
+    init(course: Course, scheduleStore: ScheduleStore, panel: PanelVM) {
+        self.panel = panel
+        self.course = course
+        self.scheduleStore = scheduleStore
+        // Remove force unwrap -- but what do we do without the searchModel
+        self.searchModel = SearchModel(course: course, context: course.managedObjectContext!)
+//        print("Editor init called")
+        
+        // Updating the name of the course as we type it in
+        searchModel.$currentText
+            .removeDuplicates()
+            .assign(to: \.course.name, on: self)
+            .store(in: &cancellables)
+    }
 
+    private var color: Color { course.getColor() }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -60,7 +90,7 @@ struct CourseEditorView: View {
             // Add concentrations it is part of
             // Ability to add to categories?? Search and click concentrations to expand
             Form {
-                TextField("Name", text: $course.name, onCommit: { save() }).cornerRadius(textFieldCornerRadius)
+                nameField
                 semesterSelector
                 workloadEntry
                 qscoreEntry
@@ -70,11 +100,24 @@ struct CourseEditorView: View {
                 Spacer()
                 bottomButtons
             }
-            
             .padding()
             
         }
+    }
+    
+    @State private var currentName: String = ""
+    
+    var nameField: some View {
+        
+        SuggestionInput(text: $searchModel.currentText,
+                        suggestionGroups: searchModel.suggestionGroups,
+                        suggestionModel: panel.suggestionModel)
 
+//        TextField("Name", text: $course.name, onEditingChanged: { editedName(began: $0) }) { save() }
+//            .cornerRadius(textFieldCornerRadius)
+//
+//        TextField("Name", text: $course.name, onCommit: { save(); course.setName(to: course.name, in: scheduleStore) })
+//            .cornerRadius(textFieldCornerRadius)
     }
     
     var semesterSelector: some View {
@@ -145,9 +188,9 @@ struct CourseEditorView: View {
     }
         
     var colorGrid: some View {
-        Grid(Array(1..<viewModel.colors.count), id: \.self) { index in
+        Grid(Array(1..<Color.colorSelection.count), id: \.self) { index in
             RoundedRectangle(cornerRadius: frameCornerRadius)
-                .foregroundColor(viewModel.colors[index])
+                .foregroundColor(Color.colorSelection[index])
                 .onTapGesture { course.color = index; save(); print(course.color) }
                 .padding(3)
                 .focusable()
@@ -161,29 +204,30 @@ struct CourseEditorView: View {
             Spacer()
             Button("Delete") {
                 withAnimation {
-                    viewModel.stopEdit()
-                    viewModel.deleteCourse(course)
+                    // Perhaps remove -- then I won't need the panelVM
+                    panel.stopEdit()
+                    course.delete()
                     save()
                 }
             }
             Spacer()
-            if course.semester > 0 {
-                Button("Remove from Schedule") {
-                    course.moveToSemester(0, and: 0)
-                    viewModel.stopEdit()
-                    save()
-                }
-            }
-            else {
-                Button("Add to Schedule") {
-                    withAnimation {
-                        course.moveToSemester(1, and: 0)
+            if let schedule = scheduleStore.currentSchedule {
+                if schedule.courseURLs.contains(course.objectID.uriRepresentation()) {
+                    Button("Remove from Schedule") {
+                        schedule.deleteCourse(course)
                         save()
+                    }
+                }
+                else {
+                    Button("Add to Schedule") {
+                        withAnimation {
+                            schedule.addCourse(course, semester: 0, index: 0)
+                            save()
+                        }
                     }
                 }
             }
         }
-
     }
     
     func save() {

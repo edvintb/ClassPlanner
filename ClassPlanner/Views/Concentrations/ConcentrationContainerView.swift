@@ -9,75 +9,69 @@ import SwiftUI
 
 struct ConcentrationContainerView: View {
     
-    @ObservedObject var viewModel: ScheduleVM
-    @Environment(\.managedObjectContext) var context
+    @ObservedObject var concentrationVM: ConcentrationVM
+    
+    // Needed if I want to color concentrations
     @Environment(\.colorScheme) var colorScheme
     @FetchRequest private var concentrations: FetchedResults<Concentration>
-//    @State private var isAdding: Bool = false
 
-    private var pos: (() -> CGPoint)?
-    
-    init(viewModel: ScheduleVM) {
-        self.viewModel = viewModel
+    init(concentrationVM: ConcentrationVM) {
+        self.concentrationVM = concentrationVM
         let request = Concentration.fetchRequest(.all)
         _concentrations = FetchRequest(fetchRequest: request)
-        self.pos = viewModel.mouseLocation
     }
     
     var body: some View {
         GeometryReader { geo in
-            ZStack {
-                VStack(alignment: .leading, spacing: nil) {
-//                    HStack {
-//                        Text("Concentrations")
-//                        Spacer()
-//                    }
- 
-                    ScrollView([.vertical, .horizontal]) {
-                        VStack(alignment: .leading) {
-                        Spacer(minLength: 5)
-                        ForEach (concentrations) {
-                            ConcentrationView($0)
-                                .zIndex( viewModel.dragConcentration == $0 ? 1 : 0)
-                                .padding([.horizontal], 10)
-                        }
-                        EmptyConcentrationView()
-                            .padding([.horizontal], 10)
-                        }
-                    }
+            ScrollView([.vertical, .horizontal]) {
+                VStack(alignment: .leading) {
+                Spacer(minLength: 5)
+                ForEach (concentrations) { concentration in
+                    ConcentrationView(concentration, vm: concentrationVM)
+                        .padding([.horizontal], 10)
                 }
-                if viewModel.insideConcentration, let course = viewModel.dragCourse, let pos = pos {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
-                            .foregroundColor(viewModel.getColor(course.color, dark: colorScheme == .dark))
-                        Text(course.name)
-                    }
-                    .frame(width: courseWidth/2, height: courseHeight/2, alignment: .center)
-                    .position(geo.convert(pos(), from: .global))
-//                    .offset(x: NSEvent.mouseLocation.x, y: -NSEvent.mouseLocation.y)
-//                    .offset(getOffset(from: geo.convert(pos(), from: .global), in: geo.frame(in: .global)))
-                    .opacity(0.4)
+                EmptyConcentrationView()
+                    .padding([.horizontal], 10)
                 }
+                .frame(minWidth: geo.frame(in: .local).width , maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, minHeight: geo.frame(in: .local).height, maxHeight: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .topLeading)
+
             }
         }
-        .environmentObject(viewModel)
-        .onHover { viewModel.insideConcentration = $0}
+    }
+}
+
+//    @State private var isAdding: Bool = false
+
+//    private var pos: (() -> CGPoint)?
+    
+//                if viewModel.insideConcentration, let course = viewModel.dragCourse, let pos = pos {
+//                    ZStack {
+//                        RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
+//                            .foregroundColor(viewModel.getColor(course.color, dark: colorScheme == .dark))
+//                        Text(course.name)
+//                    }
+//                    .frame(width: courseWidth/2, height: courseHeight/2, alignment: .center)
+//                    .position(geo.convert(pos(), from: .global))
+////                    .offset(x: NSEvent.mouseLocation.x, y: -NSEvent.mouseLocation.y)
+////                    .offset(getOffset(from: geo.convert(pos(), from: .global), in: geo.frame(in: .global)))
+//                    .opacity(0.4)
+//                }
+
 //            .onMove(perform: { indices, newOffset in
 //                indices.map { index in concentrations[index] }
 //                    .forEach{ concentration in concentration.index = newOffset }
 //                print("\(indices)")
 //                print("\(newOffset)")
 //            })
-    }
     
-    func getOffset(from point: CGPoint, in frame: CGRect) -> CGSize {
-        let height = point.y - frame.height/2
-        let width = point.x - frame.width/2
-        return CGSize(width: width, height: height)
-    }
-    
-    
-}
+//    func getOffset(from point: CGPoint, in frame: CGRect) -> CGSize {
+//        let height = point.y - frame.height/2
+//        let width = point.x - frame.width/2
+//        return CGSize(width: width, height: height)
+//    }
+//
+//
+
     
     
     

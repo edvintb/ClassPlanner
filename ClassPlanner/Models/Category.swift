@@ -12,17 +12,6 @@ extension Category {
     
     // MARK: - Static functions
     
-    static func createEmpty(concentration: Concentration, index: Int, in context: NSManagedObjectContext) {
-//        let category = Category.withName(concentration: concentration, name: "", context: context)
-        let category = Category(context: context)
-        category.name = ""
-        category.concentration = concentration
-        category.index = index
-        try? context.save()
-//        print(category)
-    }
-    
-//
     
     // MARK: - Instance functions
     
@@ -70,6 +59,8 @@ extension Category {
             try? context.save()
         }
     }
+    
+    
     
     // MARK: - Property Access
     

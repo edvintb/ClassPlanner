@@ -20,11 +20,10 @@ struct PanelCourseView: View {
     
     @ObservedObject var course: Course
     @ObservedObject var viewModel: CourseStore
-    @Environment(\.colorScheme) var colorScheme
     
     @State private var isFrontUp: Bool = true
     
-    private var color: Color { viewModel.getColor(course.color, dark: colorScheme == .dark) }
+    private var color: Color { course.getColor() }
 
     var body: some View {
         ZStack(alignment: .center) {
@@ -37,6 +36,7 @@ struct PanelCourseView: View {
         .gesture(tapGesture)
         .padding([.horizontal], 5)
         .frame(height: courseHeight, alignment: .center)
+        // Allow dropping into here and placing the course there....
 
     }
     
@@ -57,7 +57,7 @@ struct PanelCourseView: View {
                 Text("+").font(.system(size: 1.2*titleSize, weight: .semibold))
             }
                 .contentShape(Rectangle())
-//                .onTapGesture { viewModel.setEditCourse(course) }
+            .onTapGesture { viewModel.setEditCourse(course: course) }
                 .padding([.horizontal], 7)
             Divider()
                 .padding([.horizontal], 5)
@@ -84,9 +84,9 @@ struct PanelCourseView: View {
     
     func leftProperties() -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(" \(workloadSymbol) \(NSNumber(value: course.workload), formatter: viewModel.numberFormatter)")
-            Text("  \(qscoreSymbol)  ").foregroundColor(.red) + Text("\(NSNumber(value: course.qscore), formatter: viewModel.numberFormatter)")
-            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: viewModel.numberFormatter)")
+            Text(" \(workloadSymbol) \(NSNumber(value: course.workload), formatter: NumberFormatter.courseFormat)")
+            Text("  \(qscoreSymbol)  ").foregroundColor(.red) + Text("\(NSNumber(value: course.qscore), formatter: NumberFormatter.courseFormat)")
+            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
             
         }
         .font(.system(size: iconSize, weight: .regular, design: .default))
@@ -95,9 +95,9 @@ struct PanelCourseView: View {
     
     func rightProperties() -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(" Pos: \(NSNumber(value: course.position), formatter: viewModel.numberFormatter)")
+            Text(" Pos: \(NSNumber(value: course.position), formatter: NumberFormatter.courseFormat)")
             Text("\(course.fall ? "\(fallSymbol) " : " - ")/\(course.spring ? " \(springSymbol)" : " -")")
-            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: viewModel.numberFormatter)")
+            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
             
         }
         .font(.system(size: iconSize, weight: .regular, design: .default))

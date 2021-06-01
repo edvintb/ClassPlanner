@@ -77,7 +77,7 @@ extension Course {
     
     static func fetchRequest(_ predicate: NSPredicate) -> NSFetchRequest<Course> {
         let request = NSFetchRequest<Course>(entityName: "Course")
-        request.sortDescriptors = [NSSortDescriptor(key: "position_", ascending: true)]
+        request.sortDescriptors = [NSSortDescriptor(key: "name_", ascending: true)]
         request.predicate = predicate
         return request
     }
@@ -88,6 +88,7 @@ extension Course {
         request.predicate = NSPredicate(format: "name_ == %@", name)
         request.sortDescriptors = [NSSortDescriptor(key: "position_", ascending: true)]
         let courses = (try? context.fetch(request)) ?? []
+        if courses.count > 1 { print("More than one course with the name found") }
         if let course = courses.first {
             try? context.save()
             return course
@@ -97,6 +98,24 @@ extension Course {
             try? context.save()
             return course
         }
+    }
+    
+    static func fromURIs(uri: [URL], context: NSManagedObjectContext) -> [Course] {
+        let IDs = uri.map { context.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: $0) }
+        let predicate = NSPredicate(format: "SELF IN %@", IDs)
+        let request = Course.fetchRequest(predicate)
+        let courses = (try? context.fetch(request)) ?? []
+        print(courses.count)
+        return courses
+    }
+    
+    static func fromURI(uri: URL, context: NSManagedObjectContext) -> Course? {
+        let id = context.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: uri)
+        if id == nil { return nil }
+        let object = try? context.existingObject(with: id!)
+        if object == nil { return nil }
+        let course = object as? Course
+        return course
     }
     
     
@@ -114,47 +133,54 @@ extension Course {
 //    }
     
     // MARK: - Moving functions
-    
-    func moveInSemester(to position: Int) {
-        if self.position == position { return }
-        if let context = managedObjectContext {
-            let topPosition = max(self.position, position)
-            let bottomPosition = min(self.position, position)
-            let predicate = NSPredicate(format:
-                "semester_ == %@ AND position_ <= %@ AND position_ >= %@ AND SELF != %@",
-                argumentArray: [self.semester, topPosition, bottomPosition, self])
-            let request = Course.fetchRequest(predicate)
-            let otherCourses = (try? context.fetch(request)) ?? []
-            let down = self.position < position
-            otherCourses.forEach(down ? { $0.position -= 1 } : { $0.position += 1 })
-            self.position = position
-            try? context.save()
-        }
-    }
-    
-    func moveToSemester(_ semester: Int, and position: Int) {
-        if let context = managedObjectContext {
-            let requestForNew = Course.fetchRequest(NSPredicate(format: "semester_ == %@ and position_ >= %@", argumentArray: [semester, position]))
-            let newCourses = (try? context.fetch(requestForNew)) ?? []
-            newCourses.forEach { course in course.position += 1 }
-            
-            let requestForOld = Course.fetchRequest(NSPredicate(format: "semester_ == %@ and position_ > %@", argumentArray: [self.semester, self.position]))
-            let oldCourses = (try? context.fetch(requestForOld)) ?? []
-            oldCourses.forEach { course in course.position -= 1 }
-            
-            self.semester = semester
-            self.position = position
-            try? context.save()
-        }
-    }
+//
+//    func moveInSemester(to position: Int) {
+//        if self.position == position { return }
+//        if let context = managedObjectContext {
+//            let topPosition = max(self.position, position)
+//            let bottomPosition = min(self.position, position)
+//            let predicate = NSPredicate(format:
+//                "semester_ == %@ AND position_ <= %@ AND position_ >= %@ AND SELF != %@",
+//                argumentArray: [self.semester, topPosition, bottomPosition, self])
+//            let request = Course.fetchRequest(predicate)
+//            let otherCourses = (try? context.fetch(request)) ?? []
+//            let down = self.position < position
+//            otherCourses.forEach(down ? { $0.position -= 1 } : { $0.position += 1 })
+//            self.position = position
+//            try? context.save()
+//        }
+//    }
+//
+//    func moveToSemester(_ semester: Int, and position: Int) {
+//        if let context = managedObjectContext {
+//            let requestForNew = Course.fetchRequest(NSPredicate(format: "semester_ == %@ and position_ >= %@", argumentArray: [semester, position]))
+//            let newCourses = (try? context.fetch(requestForNew)) ?? []
+//            newCourses.forEach { course in course.position += 1 }
+//
+//            let requestForOld = Course.fetchRequest(NSPredicate(format: "semester_ == %@ and position_ > %@", argumentArray: [self.semester, self.position]))
+//            let oldCourses = (try? context.fetch(requestForOld)) ?? []
+//            oldCourses.forEach { course in course.position -= 1 }
+//
+//            self.semester = semester
+//            self.position = position
+//            try? context.save()
+//        }
+//    }
+//
+//    func delete() {
+//        if let context = self.managedObjectContext {
+//            let request = Course.fetchRequest(NSPredicate(format: "semester_ = %@", argumentArray: [self.semester]))
+//            let courses = (try? context.fetch(request)) ?? []
+//            for index in 0..<courses.count {
+//                courses[index].position = index
+//            }
+//            context.delete(self)
+//            try? context.save()
+//        }
+//    }
     
     func delete() {
         if let context = self.managedObjectContext {
-            let request = Course.fetchRequest(NSPredicate(format: "semester_ = %@", argumentArray: [self.semester]))
-            let courses = (try? context.fetch(request)) ?? []
-            for index in 0..<courses.count {
-                courses[index].position = index
-            }
             context.delete(self)
             try? context.save()
         }
@@ -179,12 +205,12 @@ extension Course {
 //        }
 //    }
     
-
-    
-
+    var isEmpty: Bool {
+        self.notes == "" && self.workload == 0 && self.enrollment == 0 && self.qscore == 0 && self.color == 0
+    }
     
     // MARK: - Property access
-    
+
     // Removing nil values
     var name: String {
         get { self.name_ ?? ""}
@@ -221,6 +247,7 @@ extension Course {
         get { Int(self.color_) }
         set { self.color_ = Int16(newValue) }
     }
+    
 }
 
 

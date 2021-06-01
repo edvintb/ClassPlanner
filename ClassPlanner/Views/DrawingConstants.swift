@@ -26,8 +26,9 @@ let categoryHeight: CGFloat = concentrationHeight
 let categoryWidth: CGFloat = courseWidth
 
 let editorWidth: CGFloat = 300
-let editorHeight: CGFloat = 450
-
+let scheduleMinHeight: CGFloat = 400
+let concentrationsMinHeight: CGFloat = 150
+let mainMinWidth: CGFloat = 200
 
 let maxIntegers: Int = 3
 let maxDecimals: Int = 2
@@ -42,3 +43,4 @@ let springSymbol: String = "🌱"
 let gradeSymbol: String = "􀫓"
 let textFieldCornerRadius: CGFloat = 3.5
 
+let panelScheduleHeight: CGFloat = 50

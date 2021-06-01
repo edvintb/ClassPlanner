@@ -28,7 +28,7 @@ class ProductViewModel: ObservableObject {
             .compactMap{ $0 } // removes the nil values so the search string does not get passed down to the publisher chain
             .sink { (_) in
                 //
-            } receiveValue: { [unowned self] (searchField) in
+//            } receiveValue: { [unowned self] (searchField) in
 //                searchItems(searchText: searchField)
             }.store(in: &subscription)
     }

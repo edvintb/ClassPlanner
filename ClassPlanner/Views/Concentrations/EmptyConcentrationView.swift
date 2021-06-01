@@ -10,7 +10,6 @@ import SwiftUI
 struct EmptyConcentrationView: View {
     
     @Environment(\.managedObjectContext) var context
-    @EnvironmentObject var viewModel: ScheduleVM
     @State private var isTargeted: Bool = false
     
     var body: some View {
@@ -18,8 +17,9 @@ struct EmptyConcentrationView: View {
             .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, minHeight: concentrationHeight, maxHeight: concentrationHeight, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
             .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
             .opacity(isTargeted ? emptyHoverOpacity : 0)
+            // Change to be able to drop concentrations here?
             .onHover { isTargeted = $0 }
-            .onTapGesture { viewModel.addEmptyConcentration(in: context) }
+            .onTapGesture { Concentration.createEmpty(in: context) }
     }
 }
 

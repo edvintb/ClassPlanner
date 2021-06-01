@@ -6,15 +6,15 @@
         <attribute name="name_" optional="YES" attributeType="String"/>
         <attribute name="notes_" optional="YES" attributeType="String"/>
         <attribute name="numberOfRequired_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <relationship name="concentration" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Concentration" inverseName="categories" inverseEntity="Concentration"/>
+        <relationship name="concentration" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Concentration" inverseName="categories_" inverseEntity="Concentration"/>
         <relationship name="courses_" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Course" inverseName="categories" inverseEntity="Course"/>
     </entity>
     <entity name="Concentration" representedClassName="Concentration" syncable="YES" codeGenerationType="class">
         <attribute name="index_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="name_" optional="YES" attributeType="String"/>
         <attribute name="notes_" optional="YES" attributeType="String"/>
-        <relationship name="categories" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Category" inverseName="concentration" inverseEntity="Category"/>
-        <relationship name="courses" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Course" inverseName="concentrations" inverseEntity="Course"/>
+        <relationship name="categories_" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Category" inverseName="concentration" inverseEntity="Category"/>
+        <relationship name="courses_" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Course" inverseName="concentrations" inverseEntity="Course"/>
     </entity>
     <entity name="Course" representedClassName=".Course" syncable="YES" codeGenerationType="category">
         <attribute name="color_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -28,7 +28,7 @@
         <attribute name="spring" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="workload_" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <relationship name="categories" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Category" inverseName="courses_" inverseEntity="Category"/>
-        <relationship name="concentrations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Concentration" inverseName="courses" inverseEntity="Concentration"/>
+        <relationship name="concentrations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Concentration" inverseName="courses_" inverseEntity="Concentration"/>
         <relationship name="professor" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Professor" inverseName="courses" inverseEntity="Professor"/>
     </entity>
     <entity name="Professor" representedClassName="Professor" syncable="YES" codeGenerationType="class">

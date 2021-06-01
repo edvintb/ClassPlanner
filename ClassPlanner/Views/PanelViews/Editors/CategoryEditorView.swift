@@ -12,13 +12,13 @@ struct CategoryEditorView: View {
     
     @ObservedObject var category: Category
     @ObservedObject var courseStore: CourseStore
-//    @EnvironmentObject var viewModel: ScheduleVM
-    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var panel: PanelVM
+//    @Environment(\.colorScheme) var colorScheme
 
 
 //    @Binding var isPresented: Bool
     
-    private var color: Color { courseStore.getColor(category.color, dark: colorScheme == .dark) }
+    private var color: Color { category.getColor() }
     private var courses: [Course] { category.courses.sorted { $0.name < $1.name } }
     
     var body: some View {
@@ -37,10 +37,10 @@ struct CategoryEditorView: View {
                 Spacer(minLength: 12)
                 coursesView
                 // Make them all colorpickers for Big Sur
-                Grid(Array(1..<courseStore.colors.count), id: \.self) { index in
+                Grid(Array(1..<Color.colorSelection.count), id: \.self) { index in
                     RoundedRectangle(cornerRadius: frameCornerRadius)
                         .onTapGesture { category.color = index; save() }
-                        .foregroundColor(courseStore.colors[index])
+                        .foregroundColor(Color.colorSelection[index])
                         .padding(3)
                 }
                 bottomButtons
@@ -92,7 +92,7 @@ struct CategoryEditorView: View {
     }
     
     @State var startIndex: Int = 0
-    var showingCourses: [Course] { Array(courseStore.foundCourses[startIndex..<min(startIndex + 5, courseStore.foundCourses.count)]) }
+    var showingCourses: [Course] { Array(courseStore.dbCourses[startIndex..<min(startIndex + 5, courseStore.dbCourses.count)]) }
     
     var searchField: some View {
         VStack(spacing: 10) {
@@ -102,6 +102,7 @@ struct CategoryEditorView: View {
                 Text("No Results").opacity(0.2).frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
             }
             else {
+                // Must be fixed
                 Spacer(minLength: 1)
                 Text("Courses")
                 Text("Click to add").frame(minWidth: 50, maxWidth: .infinity, alignment: .trailing)
@@ -128,16 +129,19 @@ struct CategoryEditorView: View {
     
     var bottomButtons: some View {
         HStack {
-//            Button("Delete") {
-//                withAnimation {
-//                    self.isPresented = false
-//                    viewModel.deleteCategory(category)
-//                }
-//            }
-//            Spacer()
-//            Button("Save") {
-//                withAnimation { self.isPresented = false; save() }
-//            }
+            Button("Delete") {
+                withAnimation {
+                    // Only thing panel is needed for -- do we have to close to delete?
+                    panel.setEditSelection(to: .none)
+                    category.delete()
+                }
+            }
+            Spacer()
+            Button("Close") {
+                withAnimation {
+                    panel.setEditSelection(to: .none)
+                }
+            }
         }
 //        Text("+").font(.title)
 //            .rotationEffect(Angle(degrees: 45))
@@ -147,14 +151,14 @@ struct CategoryEditorView: View {
 //                viewModel.deleteCourse(course)
 //            }
     }
-    
-    var numberFormatter: NumberFormatter {
-        let numberFormatter = NumberFormatter()
-        numberFormatter.maximumSignificantDigits = 3
-        numberFormatter.roundingMode = .ceiling
-        numberFormatter.zeroSymbol = ""
-        return numberFormatter
-    }
+//
+//    var numberFormatter: NumberFormatter {
+//        let numberFormatter = NumberFormatter()
+//        numberFormatter.maximumSignificantDigits = 3
+//        numberFormatter.roundingMode = .ceiling
+//        numberFormatter.zeroSymbol = ""
+//        return numberFormatter
+//    }
     
     func save() {
         if let context = category.managedObjectContext {

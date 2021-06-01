@@ -8,85 +8,39 @@
 import SwiftUI
 import CoreData
 
-struct ScheduleView: View {
-    
-    @ObservedObject private var viewModel: ScheduleVM
-    @Environment(\.colorScheme) var colorScheme: ColorScheme
-    
-    private var pos: () -> CGPoint
-
-    init(viewModel: ScheduleVM) {
-        self.viewModel = viewModel
-        self.pos = viewModel.mouseLocation ?? { CGPoint(x: 0, y: 0) }
-    }
-    
-    var body: some View {
-            ZStack {
-                VStack {
-                    ScrollView([.vertical, .horizontal]) {
-                        HStack {
-                            ForEach (viewModel.semesters, id: \.self) { semester in
-                                SemesterView(for: semester, viewModel)
-                            }
-                        }
-                    }
-                }
-                GeometryReader{ geo in
-                if viewModel.draggedPanelToSchedule {
-                    if let course = viewModel.dragCourse {
-                        CourseView(course: course)
-                        .frame(width: courseWidth, height: courseHeight, alignment: .center)
-                            .position(geo.convert(pos(), from: .global))
-        //                    .offset(x: NSEvent.mouseLocation.x, y: -NSEvent.mouseLocation.y)
-//                            .offset(getOffset(from: geo.convert(pos(), from: .global), in: geo.frame(in: .global)))
-//                        .onHover { _ in print(geo.frame(in: .global)); print(pos); print(geo.convert(pos(), from: .global))}
-                        .environmentObject(viewModel)
-                        .zIndex(1)
-                    }
-                }
-            }
-//            .background(Color.red)
-        }
-    }
-    
-    func getOffset(from point: CGPoint, in frame: CGRect) -> CGSize {
-        let height = point.y
-        let width = point.x - frame.width/2
-        return CGSize(width: width, height: height)
-    }
-}
-
-
 struct SemesterView: View {
     
     let semester: Int
     
     @Environment(\.managedObjectContext) var context
-    @ObservedObject var viewModel: ScheduleVM
-    @FetchRequest private var courses: FetchedResults<Course>
+    @ObservedObject var schedule: ScheduleVM
+//    @FetchRequest private var courses: FetchedResults<Course>
+//    let request = Course.fetchRequest(NSPredicate(format: "semester_ = %@", argumentArray: [semester]))
+//    _courses = FetchRequest(fetchRequest: request)
     
-    init(for semester: Int, _ viewModel: ScheduleVM) {
+    init(for semester: Int, schedule: ScheduleVM) {
 //        print("Initializing semester \(semester)")
         self.semester = semester
-        self.viewModel = viewModel
-        let request = Course.fetchRequest(NSPredicate(format: "semester_ = %@", argumentArray: [semester]))
-        _courses = FetchRequest(fetchRequest: request)
+        self.schedule = schedule
     }
+    
+    private var courses: [Course] { schedule.courses(for: semester) }
     
     var body: some View {
         VStack(spacing: courseSpacing) {
             Spacer(minLength: 3)
-            ForEach (courses) { course in
+            ForEach (courses, id: \.self) { course in
                 CourseView(course: course)
             }
             EmptyCourseView(semester: semester)
+            Spacer()
         }
-        .environmentObject(viewModel)
+        .environmentObject(schedule)
     }
     
     func delete(course: Course) -> some View {
         print(course.qscore)
-        viewModel.deleteCourse(course)
+        course.delete()
         return Text("I was a course")
     }
     

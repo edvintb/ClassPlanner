@@ -11,23 +11,25 @@ struct CategoryView: View {
     
     @ObservedObject var category: Category
     
-    @EnvironmentObject var viewModel: ScheduleVM
-    @Environment(\.managedObjectContext) var context
-    @Environment(\.colorScheme) var colorScheme
+    // Needed for dragging and editing
+    @ObservedObject var concentrationVM: ConcentrationVM
+//    @Environment(\.colorScheme) var colorScheme
     
     @State private var dragOffset: CGSize = .zero
     @State private var isDropping: Bool = false
     
-    private var color: Color { viewModel.getColor(category.color, dark: colorScheme == .dark) }
+    private var color: Color { category.getColor() }
 
-    private var courses: [Course] { category.courses.sorted { $0.name < $1.name } }
+    private var courses: [Course] { category.courses.sorted { $0.semester == $1.semester ? $0.name < $1.name : $0.semester < $1.semester } }
     
     var body: some View {
         Group {
             if courses.count > 5 {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        title.gesture(dragGesture).padding([.trailing], 4)
+                        title
+                            .gesture(dragGesture)
+                            .padding([.trailing], 4)
                         Divider().padding([.trailing], 4)
                         ForEach (courses) { course in
                             courseView(course: course)
@@ -51,20 +53,37 @@ struct CategoryView: View {
         }
         .scaleEffect(isDropping ? hoverScaleFactor : 1)
         .frame(width: courseWidth, height: courseHeight, alignment: .leading)
-        .onHover { isDropping = viewModel.hoverOverCategory(category, entered: $0) }
+        .onHover { isDropping = concentrationVM.hoverOverCategory(category, entered: $0) }
         .offset(dragOffset)
         .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
         .frame(width: categoryWidth, height: categoryHeight, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
         
     }
+
     
+    
+    var title: some View {
+        HStack {
+            Text(category.name == "" ? "Name" : category.name)
+                .opacity(category.name == "" ? emptyHoverOpacity : 1)
+                .foregroundColor(color)
+            Spacer()
+            Text("\(category.numberOfRequired)")
+                .opacity(category.numberOfRequired == 0 ? emptyHoverOpacity : 1)
+                
+        }
+        .lineLimit(2)
+        .font(.system(size: 13))
+        .contentShape(Rectangle())
+        .onTapGesture { concentrationVM.setEditCategory(category) }
+    }
     
     func courseView(course: Course) -> some View {
         ZStack {
             Text(course.name)
                 .font(.system(size: 12))
-                .foregroundColor(viewModel.getColor(course.color, dark: colorScheme == .dark))
+                .foregroundColor(course.getColor())
         }
     }
     
@@ -72,43 +91,27 @@ struct CategoryView: View {
         print("Found")
         print(providers)
         let found = providers.loadFirstObject(ofType: String.self) { string in
-            let newCourse = Course.withName(string as String, context: context)
-            withAnimation {
-                category.addCourse(newCourse)
+            if let context = category.managedObjectContext {
+                let newCourse = Course.withName(string as String, context: context)
+                    withAnimation {
+                        category.addCourse(newCourse)
+                    }
             }
         }
         return found
     }
     
     
-    var title: some View {
-        let emptyName = category.name == ""
-        let noRequired = category.numberOfRequired == 0
-        return
-            HStack {
-                Text(emptyName ? "Name" : category.name)
-                    .opacity(emptyName ? emptyHoverOpacity : 1)
-                    .foregroundColor(color)
-                Spacer()
-                Text("\(category.numberOfRequired)")
-                    .opacity(noRequired ? emptyHoverOpacity : 1)
-                    
-            }
-            .lineLimit(2)
-            .font(.system(size: 13))
-            .contentShape(Rectangle())
-            .onTapGesture { viewModel.setEditCategory(category) }
-    }
+
     
     var dragGesture: some Gesture {
         DragGesture(coordinateSpace: .global)
             .onChanged {
                 dragOffset = CGSize(width: $0.translation.width, height: -$0.translation.height)
-                if viewModel.dragCategory == nil { viewModel.setDragCategory(to: category) }
+                if concentrationVM.dragCategory == nil { concentrationVM.setDragCategory(to: category) }
             }
             .onEnded { _ in
-//                print("Ended")
-                viewModel.categoryDragEnded()
+                concentrationVM.categoryDragEnded()
                 dragOffset = .zero
             }
     }

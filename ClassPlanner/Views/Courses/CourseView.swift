@@ -18,32 +18,21 @@ import SwiftUI
 
 struct CourseView: View {
     
-    @ObservedObject var course: Course
-    @EnvironmentObject var viewModel: ScheduleVM
-    @Environment(\.colorScheme) var colorScheme
+//    @State private var isTargeted: Bool = false
+//    @State private var visible: Bool = true
+//    @State private var dragOffset: CGSize = .zero
+//    var isDragging: Bool { dragOffset != .zero }
     
-    @State private var dragOffset: CGSize = .zero
-    @State private var isTargeted: Bool = false
+    @ObservedObject var course: Course
+    
+    // Needed to open the editor
+    @EnvironmentObject var schedule: ScheduleVM
+//    @Environment(\.colorScheme) var colorScheme
+    
     @State private var isDropping: Bool = false
     @State private var isFrontUp: Bool = true
-    @State private var isEditing: Bool = false
-    @State private var visible: Bool = true
     
-    var isDragging: Bool { dragOffset != .zero }
-    
-//    @State private var editCourse: Course?
-//
-//    @State private var popModel: PopoverModel?
-////    {
-////        didSet { print("didSet to: \(isEditing)") }
-////    }
-//
-//    struct PopoverModel: Identifiable {
-//        var id: String { self.name }
-//        var name: String
-//    }
-    
-    private var color: Color { viewModel.getColor(course.color, dark: colorScheme == .dark) }
+    private var color: Color { course.getColor() }
     private var empty: Bool { course.name == "" }
     
     init(course: Course) {
@@ -51,54 +40,57 @@ struct CourseView: View {
         _isFrontUp = State(wrappedValue: course.name != "")
     }
     
-    
-    // Fix scrolling offset
     var body: some View {
         ZStack(alignment: .center) {
-            RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
-                .foregroundColor(color)
-                .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
-                .shadow(color: color, radius: isDropping ? hoverShadowRadius : 0)
-                .shadow(color: color, radius: isDropping ? hoverShadowRadius : 0)
-            
-            
-            if empty            { Text("\(course.position)").font(.system(size: 2.5*titleSize)) } 
+            box
+            if empty            { emptyView }
             else if isFrontUp   { front.padding(5) }
             else                { back }
         }
-//        .opacity(isDragging && viewModel.insideConcentration ? 0.001 : empty ? 0.2 : 1)
-//        .opacity(visible ? 1 : 0)
-        .opacity(empty ? 0.2 : 1)
+        .onDrag { NSItemProvider(object: course.objectID.uriRepresentation().absoluteString as NSString) }
+        .opacity(empty ? emptyHoverOpacity : 1)
         .scaleEffect(isDropping ? hoverScaleFactor : 1)
-//        .onHover { isTargeted = viewModel.hoverOverCourse(course: course, $0) }
-//        .zIndex(isDragging ? 1 : 0)
-//        .offset(dragOffset)
         .gesture(tapGesture)
-//        .gesture(dragGesture)
         .frame(width: courseWidth, height: courseHeight, alignment: .center)
         .padding([.horizontal], 5)
         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
-        .onDrag { NSItemProvider(object: course.name as NSString) }
+//        .opacity(isDragging && viewModel.insideConcentration ? 0.001 : empty ? 0.2 : 1)
+//        .opacity(visible ? 1 : 0)
+//        .gesture(dragGesture)
+//        .onHover { isTargeted = viewModel.hoverOverCourse(course: course, $0) }
+//        .zIndex(isDragging ? 1 : 0)
+//        .offset(dragOffset)
     }
     
     
     func drop(providers: [NSItemProvider]) -> Bool {
-        print("Found")
-        print(providers)
-        let found = providers.loadFirstObject(ofType: String.self) { string in
-            if let context = course.managedObjectContext {
-                let newCourse = Course.withName(string as String, context: context)
-                withAnimation {
-                    if newCourse.semester == course.semester {
-                        newCourse.moveInSemester(to: course.position)
-                    }
-                    else {
-                        newCourse.moveToSemester(course.semester, and: course.position)
+//        print("Found")
+//        print(providers)
+        let found = providers.loadFirstObject(ofType: String.self) { id in
+            if let context = course.managedObjectContext, let uri = URL(string: id) {
+                if let newCourse = Course.fromURI(uri: uri, context: context) {
+                    if newCourse == course { print("Courses Equal"); return }
+                    if let pos = schedule.getPosition(course: course) {
+                        withAnimation {
+                            schedule.moveCourse(newCourse, to: pos.semester, index: pos.index)
+                        }
                     }
                 }
             }
         }
         return found
+    }
+    
+    var box: some View {
+        RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
+            .foregroundColor(color)
+            .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
+            .shadow(color: color, radius: isDropping ? hoverShadowRadius : 0)
+            .shadow(color: color, radius: isDropping ? hoverShadowRadius : 0)
+    }
+    
+    var emptyView: some View {
+        Text("\(course.position)").font(.system(size: 2.5*titleSize))
     }
     
     var front: some View {
@@ -117,7 +109,7 @@ struct CourseView: View {
                 Text("+").font(.system(size: 1.2*titleSize, weight: .semibold))
             }
                 .contentShape(Rectangle())
-                .onTapGesture { viewModel.setEditCourse(course) }
+                .onTapGesture { schedule.setEditCourse(course) }
                 .padding([.horizontal], 7)
             Divider()
                 .padding([.horizontal], 5)
@@ -133,43 +125,14 @@ struct CourseView: View {
         .truncationMode(.tail)
     }
 
-    var dragGesture: some Gesture {
-        DragGesture(coordinateSpace: .global)
-            .onChanged {
-//              repositionCorrection = CGFloat(viewModel.startPosition! - course.position)
-                dragOffset = CGSize(width: $0.translation.width, height: -$0.translation.height)
-                viewModel.drag()
-                if viewModel.dragCourse == nil { viewModel.setDragCourse(to: course) }
-            }
-            .onEnded { _ in
-                visible = false
-                withAnimation {
-                    viewModel.courseDragEnded()
-                    dragOffset = .zero
-                }
-                withAnimation(Animation.default.delay(0.05)) {
-                    visible = true
-                }
-            }
-    }
+
     
-    
-    var tapGesture: some Gesture {
-        TapGesture().onEnded {
-            if empty { viewModel.setEditCourse(course) }
-            else {
-                withAnimation(Animation.easeInOut(duration: 0.2)) {
-                    isFrontUp.toggle()
-                }
-            }
-        }
-    }
-    
+
     func leftProperties() -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(" \(workloadSymbol) \(NSNumber(value: course.workload), formatter: viewModel.numberFormatter)")
-            Text("  \(qscoreSymbol)  ").foregroundColor(.red) + Text("\(NSNumber(value: course.qscore), formatter: viewModel.numberFormatter)")
-            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: viewModel.numberFormatter)")
+            Text(" \(workloadSymbol) \(NSNumber(value: course.workload), formatter: NumberFormatter.courseFormat)")
+            Text("  \(qscoreSymbol)  ").foregroundColor(.red) + Text("\(NSNumber(value: course.qscore), formatter: NumberFormatter.courseFormat)")
+            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
             
         }
         .font(.system(size: iconSize, weight: .regular, design: .default))
@@ -178,14 +141,49 @@ struct CourseView: View {
     
     func rightProperties() -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(" Pos: \(NSNumber(value: course.position), formatter: viewModel.numberFormatter)")
+            Text(" Pos: \(NSNumber(value: course.position), formatter: NumberFormatter.courseFormat)")
             Text("\(course.fall ? "\(fallSymbol) " : " - ")/\(course.spring ? " \(springSymbol)" : " -")")
-            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: viewModel.numberFormatter)")
+            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
             
         }
         .font(.system(size: iconSize, weight: .regular, design: .default))
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+    
+    
+    var tapGesture: some Gesture {
+        TapGesture().onEnded {
+            if empty { schedule.setEditCourse(course) }
+            else {
+                withAnimation(Animation.easeInOut(duration: 0.2)) {
+                    isFrontUp.toggle()
+                }
+            }
+        }
+    }
+}
+
+    
+    //    var dragGesture: some Gesture {
+    //        DragGesture(coordinateSpace: .global)
+    //            .onChanged {
+    ////              repositionCorrection = CGFloat(viewModel.startPosition! - course.position)
+    //                dragOffset = CGSize(width: $0.translation.width, height: -$0.translation.height)
+    //                viewModel.drag()
+    //                if viewModel.dragCourse == nil { viewModel.setDragCourse(to: course) }
+    //            }
+    //            .onEnded { _ in
+    //                visible = false
+    //                withAnimation {
+    //                    viewModel.courseDragEnded()
+    //                    dragOffset = .zero
+    //                }
+    //                withAnimation(Animation.default.delay(0.05)) {
+    //                    visible = true
+    //                }
+    //            }
+    //    }
+    
 //    
 //    var title: some View {
 //        let emptyName = course.name == ""
@@ -340,9 +338,6 @@ struct CourseView: View {
 //            print(isEditing)
 //        }
 //    }
-
-}
-
 
 
 //        .offset(x: 0, y: (courseHeight + courseSpacing) * (repositionCorrection ?? 0))

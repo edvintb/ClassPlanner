@@ -38,5 +38,6 @@ enum EditOption: Equatable, Hashable {
     case course(course: Course)
     case category(category: Category)
     case concentration(concentration: Concentration)
+    case schedule(schedule: ScheduleVM)
     case none
 }

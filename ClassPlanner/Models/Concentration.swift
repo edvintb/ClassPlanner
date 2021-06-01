@@ -12,11 +12,12 @@ extension Concentration {
     
     // MARK: - Static functions
     
-    static func createEmpty(at index: Int, in context: NSManagedObjectContext) {
-//        let concentration = Concentration.withName("", context: context)
+    static func createEmpty(in context: NSManagedObjectContext) {
+        let request = Concentration.fetchRequest(.all)
+        let existingConcentrations = (try? context.count(for: request)) ?? 0
         let concentration = Concentration(context: context)
         concentration.name = ""
-        concentration.index = index
+        concentration.index = existingConcentrations
         try? context.save()
     }
     
@@ -56,6 +57,16 @@ extension Concentration {
         }
     }
     
+    func addCategory() {
+        if let context = managedObjectContext {
+            let category = Category(context: context)
+            category.concentration = self
+            category.name = ""
+            category.index = self.categories.count
+            try? context.save()
+        }
+    }
+    
     // MARK: - Property Access
 
     var index: Int {
@@ -73,6 +84,17 @@ extension Concentration {
         set { self.notes_ = newValue }
     }
     
+    
+    var categories: Set<Category> {
+        get { (self.categories_ as? Set<Category>) ?? [] }
+        set { self.categories_ = newValue as NSSet}
+    }
+    
+    var courses: Set<Course> {
+        get { (self.courses_ as? Set<Course>) ?? [] }
+        set { self.courses_ = newValue as NSSet}
+    }
+
     
 }
 

@@ -10,8 +10,14 @@ import CoreData
 
 struct PanelCoursesView: View {
     
+    // Needed to remove courses from current schedule
+    @ObservedObject var scheduleStore: ScheduleStore
+    
+    // Needed for the search logic
     @ObservedObject var courseStore: CourseStore
-    @Environment(\.colorScheme) var colorScheme
+//    @Environment(\.colorScheme) var colorScheme
+    
+    // Needed for the request
     @Environment(\.managedObjectContext) var context
     
     @State private var query: String = ""
@@ -19,31 +25,31 @@ struct PanelCoursesView: View {
     
     @State var isDropping: Bool = false
     
-    init(courseStore: CourseStore) {
+    init(courseStore: CourseStore, scheduleStore: ScheduleStore) {
+        self.scheduleStore = scheduleStore
         self.courseStore = courseStore
         let request = NSFetchRequest<Course>(entityName: "Course")
         request.sortDescriptors = [NSSortDescriptor(key: "name_", ascending: true)]
         request.predicate = NSPredicate(format: "name_ != %@", argumentArray: [""])
+//        request.predicate = .all
         _courses = FetchRequest(fetchRequest: request)
     }
     
     var matchingCourses: [Course] {
         courses.filter { query.isEmpty || $0.name.localizedCaseInsensitiveContains(query) }
     }
-    
-    
-    // Enable dropping to remove courses from here
+
     var body: some View {
         GeometryReader { geo in
             ScrollView {
                 Spacer(minLength: 3)
-                SearchTextField(query: $query).padding([.horizontal], 10).padding([.vertical], 5)
+                SearchTextField(query: $courseStore.courseQuery).padding([.horizontal], 10).padding([.vertical], 5)
                 if matchingCourses.isEmpty { noResultsView }
                 else {
                     Columns(matchingCourses, numberOfColumns: 2, maxNumberRows: 7, moreView: moreView) { course in
                         PanelCourseView(course: course, viewModel: courseStore)
-                        .onDrag { NSItemProvider(object: course.name as NSString) }
-                        .scaleEffect(isDropping ? hoverScaleFactor : 1)
+                            .onDrag { NSItemProvider(object: course.name as NSString) }
+                            .scaleEffect(isDropping ? hoverScaleFactor : 1)
                     }
                     .padding([.horizontal], 7)
                 }
@@ -55,10 +61,15 @@ struct PanelCoursesView: View {
     func drop(providers: [NSItemProvider]) -> Bool {
         print("Found")
         print(providers)
-        let found = providers.loadFirstObject(ofType: String.self) { string in
-            let newCourse = Course.withName(string as String, context: context)
-            withAnimation(Animation.linear(duration: 0.1)){
-                newCourse.moveToSemester(0, and: 0)
+        let found = providers.loadFirstObject(ofType: String.self) { id in
+            if let uri = URL(string: id) {
+                if let droppedCourse = Course.fromURI(uri: uri, context: context) {
+                    if let schedule = scheduleStore.currentSchedule {
+                        withAnimation {
+                            schedule.deleteCourse(droppedCourse)
+                        }
+                    }
+                }
             }
         }
         return found
@@ -68,8 +79,8 @@ struct PanelCoursesView: View {
         HStack {
             VStack {
                 Text("No Results").opacity(0.2).font(.system(size: 20))
-                CourseView(course: Course.withName("", context: context))
-                    .padding([.horizontal], 5)
+//                CourseView(course: Course.withName("", context: context))
+//                    .padding([.horizontal], 5)
             }
             Spacer()
         }

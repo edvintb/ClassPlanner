@@ -9,9 +9,13 @@ import SwiftUI
 
 struct ConcentrationView: View {
     
-    @EnvironmentObject var viewModel: ScheduleVM
-    @Environment(\.managedObjectContext) var context
     @ObservedObject var concentration: Concentration
+    
+    // Needed for dragging
+    // Good to keep drag-method separate bc strings
+    @ObservedObject var concentrationVM: ConcentrationVM
+    @Environment(\.managedObjectContext) var context
+    
     @FetchRequest private var categories: FetchedResults<Category>
     
     @State private var dragOffset: CGSize = .zero
@@ -25,8 +29,9 @@ struct ConcentrationView: View {
         dragOffset != .zero
     }
     
-    init(_ concentration: Concentration) {
+    init(_ concentration: Concentration, vm: ConcentrationVM) {
         self.concentration = concentration
+        self.concentrationVM = vm
         let request = Category.fetchRequest(NSPredicate(format: "concentration == %@", argumentArray: [concentration]))
         _categories = FetchRequest(fetchRequest: request)
     }
@@ -44,27 +49,30 @@ struct ConcentrationView: View {
     //                Text("Categories: \(categories.count)")
     //                Text("Index: \(concentration.index)")
                     Spacer()
-                    Text("Delete").onTapGesture { withAnimation(Animation.easeInOut(duration: 0.5)) {
-                        viewModel.deleteConcentration(concentration)
+                    Text("Delete").onTapGesture {
+                        withAnimation(Animation.easeInOut(duration: 0.5)) {
+                            concentration.delete()
                         }
                     }
                 }
-                .padding(7)
-                .gesture(dragGesture)
+                    .padding(7)
+                    .contentShape(Rectangle())
+                    .gesture(dragGesture)
                 Divider()
                 HStack {
                     ForEach (categories) { category in
-                        CategoryView(category: category)
+                        CategoryView(category: category, concentrationVM: concentrationVM)
                     }
                     EmptyCategoryView(concentration: concentration)
                 }
                 .padding([.horizontal], 7)
-                .environmentObject(viewModel)
+                .environmentObject(concentrationVM)
             }
         }
         .scaleEffect(isTargeted ? 1.01 : 1)
-        .onHover { isTargeted = viewModel.hoverOverConcentration(concentration, entered: $0) }
+        .onHover { isTargeted = concentrationVM.hoverOverConcentration(concentration, entered: $0) }
         .offset(dragOffset)
+        .zIndex( concentrationVM.dragConcentration == concentration ? 1 : 0)
         
 
     }
@@ -73,10 +81,10 @@ struct ConcentrationView: View {
         DragGesture(coordinateSpace: .global)
             .onChanged {
                 dragOffset = CGSize(width: $0.translation.width, height: -$0.translation.height)
-                if viewModel.dragConcentration == nil { viewModel.setDragConcentration(to: concentration) }
+                if concentrationVM.dragConcentration == nil { concentrationVM.setDragConcentration(to: concentration) }
             }
             .onEnded { _ in
-                viewModel.concentrationDragEnded()
+                concentrationVM.concentrationDragEnded()
                 dragOffset = .zero
             }
     }

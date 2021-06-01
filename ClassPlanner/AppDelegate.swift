@@ -19,12 +19,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         print(url)
-        let scheduleStore = ScheduleStore(directory: url, context: persistentContainer.viewContext)
-        let courseStore = CourseStore(context: persistentContainer.viewContext)
-        let panelVM = PanelVM()
         
-        let contentView = ContentView(scheduleStore: scheduleStore, courseStore: courseStore, panelVM: panelVM)
+        let panel = PanelVM(context: persistentContainer.viewContext)
+        let scheduleStore = ScheduleStore(directory: url, context: persistentContainer.viewContext, panel: panel)
+        let concentration = ConcentrationVM(panel: panel)
+        
+        let courseStore = CourseStore(context: persistentContainer.viewContext, panel: panel)
+        
+        let contentView = ContentView(scheduleStore: scheduleStore, courseStore: courseStore, concentration: concentration)
             .environment(\.managedObjectContext, persistentContainer.viewContext)
+            .environmentObject(panel)
+        
+//        let contentView = ContentView(context: persistentContainer.viewContext)
+//            .environment(\.managedObjectContext, persistentContainer.viewContext)
         
 //        let contentView = ScheduleView(viewModel: ClassPlannerVM(request: Course.fetchRequest(.all), in: persistentContainer.viewContext)).environment(\.managedObjectContext, persistentContainer.viewContext)
 

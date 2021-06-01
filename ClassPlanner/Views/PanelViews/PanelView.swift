@@ -11,7 +11,7 @@ struct PanelView: View {
     
     @ObservedObject var scheduleStore: ScheduleStore
     @ObservedObject var courseStore: CourseStore
-    @ObservedObject var panelVM: PanelVM
+    @ObservedObject var panel: PanelVM
     
     @Environment(\.managedObjectContext) var context
     
@@ -21,40 +21,42 @@ struct PanelView: View {
             HStack {
                 Group {
                     Spacer()
+                    Text("Editor")
+                        .foregroundColor(panel.currentPanelSelection == .editor(selection: .none) ? .blue : nil)
+                        .onTapGesture { panel.setPanelSelection(to: .editor(selection: panel.currentEditSelection)) }
+                    Spacer()
                     Text("Courses")
-                        .foregroundColor(panelVM.currentPanelSelection == .courses ? .blue : nil)
-                        .onTapGesture { panelVM.currentPanelSelection = .courses }
+                        .foregroundColor(panel.currentPanelSelection == .courses ? .blue : nil)
+                        .onTapGesture { panel.setPanelSelection(to: .courses) }
                     Spacer()
                     Text("Concen")
-                        .foregroundColor(panelVM.currentPanelSelection == .concentrations ? .blue : nil)
-                        .onTapGesture { panelVM.currentPanelSelection = .concentrations }
+                        .foregroundColor(panel.currentPanelSelection == .concentrations ? .blue : nil)
+                        .onTapGesture { panel.setPanelSelection(to: .concentrations) }
                     Spacer()
                 }
                 Group {
-                    Text("Editor")
-                        .foregroundColor(panelVM.currentPanelSelection == .editor(selection: .none) ? .blue : nil)
-                        .onTapGesture { panelVM.currentPanelSelection = .editor(selection: .none) }
-                    Spacer()
                     Text("Schedules")
-                        .foregroundColor(panelVM.currentPanelSelection == .schedules ? .blue : nil)
-                        .onTapGesture { panelVM.currentPanelSelection = .schedules }
+                        .foregroundColor(panel.currentPanelSelection == .schedules ? .blue : nil)
+                        .onTapGesture { panel.setPanelSelection(to: .schedules) }
                     Spacer()
                     Text("Other People")
-                        .foregroundColor(panelVM.currentPanelSelection == .otherPeople ? .blue : nil)
-                        .onTapGesture { panelVM.currentPanelSelection = .otherPeople }
+                        .foregroundColor(panel.currentPanelSelection == .otherPeople ? .blue : nil)
+                        .onTapGesture { panel.setPanelSelection(to: .otherPeople) }
                     Spacer()
                 }
             }
             Spacer().frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: 5, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
             Divider()
             
-//            TabView(selection: $viewModel.currentPanelSelection,
-//                    content:  {
-//                        Text("Tab Content 1").tabItem { /*@START_MENU_TOKEN@*/Text("Tab Label 1")/*@END_MENU_TOKEN@*/ }.tag(1)
-//                        Text("Tab Content 2").tabItem { /*@START_MENU_TOKEN@*/Text("Tab Label 2")/*@END_MENU_TOKEN@*/ }.tag(2)
-//                    })
-            getPanelContent(panelVM.currentPanelSelection)
+
+            getPanelContent(panel.currentPanelSelection)
         }
+        
+        //            TabView(selection: $viewModel.currentPanelSelection,
+        //                    content:  {
+        //                        Text("Tab Content 1").tabItem { /*@START_MENU_TOKEN@*/Text("Tab Label 1")/*@END_MENU_TOKEN@*/ }.tag(1)
+        //                        Text("Tab Content 2").tabItem { /*@START_MENU_TOKEN@*/Text("Tab Label 2")/*@END_MENU_TOKEN@*/ }.tag(2)
+        //                    })
     }
     
     
@@ -62,13 +64,13 @@ struct PanelView: View {
     func getPanelContent(_ selection: PanelOption) -> some View {
         switch selection {
         case .courses:
-            PanelCoursesView(courseStore: courseStore)
+            PanelCoursesView(courseStore: courseStore, scheduleStore: scheduleStore)
         case .concentrations:
             Text("Concentrations")
         case .editor(let editSelection):
-            getEditor(editSelection)
+            getEditor(editSelection).environmentObject(panel)
         case .schedules:
-            PanelSchedules(store: scheduleStore)
+            PanelSchedules(panel: panel, store: scheduleStore)
         case .otherPeople:
             Text("Other People")
         }
@@ -78,16 +80,26 @@ struct PanelView: View {
     func getEditor(_ selection: EditOption) -> some View {
         switch selection {
         case .course(let course):
-            CourseEditorView(course: course)
+            CourseEditorView(course: course, scheduleStore: scheduleStore, panel: panel)
+
         case .category(let category):
-            CategoryEditorView(category: category, courseStore: CourseStore(context: context))
+            CategoryEditorView(category: category, courseStore: CourseStore(context: context, panel: panel))
         case .concentration(let concentration):
             Text("Concentration: \(concentration.name)")
+        case .schedule(let schedule):
+            ScheduleEditorView(schedule: schedule, scheduleStore: scheduleStore)
+                        .alert(isPresented: $scheduleStore.doubleNameAlert) {
+                            Alert(title: Text("Naming Conflict"),
+                                  message: Text("A schedule with that name already exists. Please pick another name."),
+                                  dismissButton: .default(Text("OK"))
+                        )}
         case .none:
             VStack {
+                Spacer()
                 Text("No Selection")
                     .font(.system(size: 15))
                     .opacity(0.3)
+                Spacer()
             }
             
         }
