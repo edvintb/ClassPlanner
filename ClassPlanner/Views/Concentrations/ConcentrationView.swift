@@ -16,7 +16,13 @@ struct ConcentrationView: View {
     @ObservedObject var concentrationVM: ConcentrationVM
     @Environment(\.managedObjectContext) var context
     
+    // Could also access categories from concentration, but actually
+    // more efficient this way. Sorting on DB-side
     @FetchRequest private var categories: FetchedResults<Category>
+    
+    private var categories2: [Category] {
+        concentration.categories.sorted(by: {$0.index < $1.index })
+    }
     
     @State private var dragOffset: CGSize = .zero
     @State private var isEditingName: Bool = false
@@ -31,42 +37,23 @@ struct ConcentrationView: View {
     
     init(_ concentration: Concentration, vm: ConcentrationVM) {
         self.concentration = concentration
+        ca
         self.concentrationVM = vm
         let request = Category.fetchRequest(NSPredicate(format: "concentration == %@", argumentArray: [concentration]))
         _categories = FetchRequest(fetchRequest: request)
     }
     
     var body: some View {
-        // Why can't I use the textfield in place????
-//        TextField("Name", text: $concentration.name, onCommit: { try? context.save() })
         ZStack {
             RoundedRectangle(cornerRadius: frameCornerRadius)
                 .stroke()
-                .opacity(0.2)
+                .opacity(emptyHoverOpacity)
             VStack(alignment: .leading, spacing: 1) {
-                HStack {
-                    titleText
-    //                Text("Categories: \(categories.count)")
-    //                Text("Index: \(concentration.index)")
-                    Spacer()
-                    Text("Delete").onTapGesture {
-                        withAnimation(Animation.easeInOut(duration: 0.5)) {
-                            concentration.delete()
-                        }
-                    }
-                }
-                    .padding(7)
-                    .contentShape(Rectangle())
-                    .gesture(dragGesture)
+                title
                 Divider()
-                HStack {
-                    ForEach (categories) { category in
-                        CategoryView(category: category, concentrationVM: concentrationVM)
-                    }
-                    EmptyCategoryView(concentration: concentration)
+                GeometryReader { geo in
+                    categories(in: geo.size)
                 }
-                .padding([.horizontal], 7)
-                .environmentObject(concentrationVM)
             }
         }
         .scaleEffect(isTargeted ? 1.01 : 1)
@@ -76,6 +63,43 @@ struct ConcentrationView: View {
         
 
     }
+    
+    var title: some View {
+        HStack {
+            titleText
+            Spacer()
+            Text("Delete")
+                .gesture(deleteGesture)
+        }
+        .padding(7)
+        .contentShape(Rectangle())
+        .gesture(dragGesture)
+    }
+    
+    func categories(in size: CGSize) -> some View {
+        HStack {
+            ForEach (categories2) { category in
+                CategoryView(category: category, concentrationVM: concentrationVM)
+            }
+            EmptyCategoryView(concentration: concentration)
+        }
+        .padding([.horizontal], 7)
+        .environmentObject(concentrationVM)
+    }
+    
+    var titleText: some View {
+        Text(empty ? "Name" : concentration.name)
+            .font(.system(size: 20))
+            .opacity(empty ? 0.4 : 1)
+            .onTapGesture { isEditingName.toggle() }
+//            .popover(isPresented: $isEditingName, content: { nameEditor.padding(5) })
+    }
+    
+    func delete(category: Category) -> some View {
+        context.delete(category)
+        return Text("I was a category")
+    }
+    
     
     var dragGesture: some Gesture {
         DragGesture(coordinateSpace: .global)
@@ -89,31 +113,25 @@ struct ConcentrationView: View {
             }
     }
     
-    var nameEditor: some View {
-        VStack {
-            TextField("Name", text: $concentration.name, onCommit: {
-                        isEditingName = false
-                        try? context.save()
-            })
-            
-        }
-    }
-    
-    var titleText: some View {
-        Text(empty ? "Name" : concentration.name)
-            .font(.system(size: 20))
-            .opacity(empty ? 0.4 : 1)
-            .onTapGesture { isEditingName.toggle() }
-            .popover(isPresented: $isEditingName, content: { nameEditor.padding(5) })
-    }
-    
-    func delete(category: Category) -> some View {
-        context.delete(category)
-        return Text("I was a category")
+    var deleteGesture: some Gesture {
+        TapGesture()
+            .onEnded { concentration.delete() }
     }
     
     
 }
+
+
+//var nameEditor: some View {
+//        VStack {
+//            TextField("Name", text: $concentration.name, onCommit: {
+//                        isEditingName = false
+//                        try? context.save()
+//            })
+//
+//        }
+//    }
+
 
 //struct ConcentrationView_Previews: PreviewProvider {
 //
