@@ -64,6 +64,27 @@ extension Category {
     
     // MARK: - Property Access
     
+    func coursesSortedBySchedule(schedule: ScheduleVM) -> [Course] {
+        let urls = schedule.courseURLs
+        let sorted = self.courses.sorted(by: {
+            let firstURL = $0.objectID.uriRepresentation()
+            let secondURL = $1.objectID.uriRepresentation()
+            let firstContained = urls.contains(firstURL)
+            let secondContained = urls.contains(secondURL)
+            if firstContained == secondContained {
+                // If both in or out order by name
+                return $0.name < $1.name
+            }
+            return firstContained
+        })
+        return sorted
+    }
+    
+    func coursesSorted() -> [Course] {
+        self.courses.sorted(by: { $0.name < $1.name })
+    }
+    
+    
     var index: Int {
         get { Int(self.index_) }
         set { self.index_ = Int16(newValue) }

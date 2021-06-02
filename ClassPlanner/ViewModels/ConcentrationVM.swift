@@ -9,8 +9,11 @@ import Foundation
 
 class ConcentrationVM: ObservableObject {
     
-    init(panel: PanelVM) {
+    @Published var scheduleStore: ScheduleStore
+    
+    init(panel: PanelVM, scheduleStore: ScheduleStore) {
         self.panel = panel
+        self.scheduleStore = scheduleStore
     }
     
     // MARK: - Editing
@@ -50,7 +53,6 @@ class ConcentrationVM: ObservableObject {
         if let concentration = dragConcentration, let index = dragIndex{ concentration.move(to: index) }
         dragConcentration = nil
     }
-    
     
     
     

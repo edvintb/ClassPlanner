@@ -15,7 +15,6 @@ struct EmptyCategoryView: View {
     var body: some View {
         RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
             .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
-            .frame(width: categoryWidth, height: categoryHeight, alignment: .center)
             .opacity(isTargeted ? emptyHoverOpacity : 0)
             .onHover { isTargeted = $0 }
             .onTapGesture { concentration.addCategory() }

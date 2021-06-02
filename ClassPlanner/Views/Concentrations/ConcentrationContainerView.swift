@@ -23,20 +23,23 @@ struct ConcentrationContainerView: View {
     
     var body: some View {
         GeometryReader { geo in
-            ScrollView([.vertical, .horizontal]) {
-                VStack(alignment: .leading) {
-                Spacer(minLength: 5)
-                ForEach (concentrations) { concentration in
-                    ConcentrationView(concentration, vm: concentrationVM)
-                        .padding([.horizontal], 10)
-                }
-                EmptyConcentrationView()
-                    .padding([.horizontal], 10)
-                }
-                .frame(minWidth: geo.frame(in: .local).width , maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, minHeight: geo.frame(in: .local).height, maxHeight: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .topLeading)
+            ScrollView([.vertical]) {
+                concentrationViews
+                    .frame(minHeight: geo.size.height, alignment: .topLeading)
 
             }
         }
+    }
+    
+    var concentrationViews: some View {
+        VStack(alignment: .leading) {
+            Spacer(minLength: 4)
+            ForEach (concentrations) { concentration in
+                ConcentrationView(concentration: concentration, concentrationVM: concentrationVM)
+            }
+            EmptyConcentrationView()
+        }
+        .padding(.horizontal, 5)
     }
 }
 

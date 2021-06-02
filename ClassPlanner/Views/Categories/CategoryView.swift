@@ -20,45 +20,31 @@ struct CategoryView: View {
     
     private var color: Color { category.getColor() }
 
-    private var courses: [Course] { category.courses.sorted { $0.semester == $1.semester ? $0.name < $1.name : $0.semester < $1.semester } }
+    // Sort courses depending on current schedule
+    private var courses: [Course] {
+        if let schedule = concentrationVM.scheduleStore.currentSchedule {
+            return category.coursesSortedBySchedule(schedule: schedule)
+        }
+        else {
+            return category.coursesSorted()
+        }
+    }
     
     var body: some View {
-        Group {
-            if courses.count > 5 {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        title
-                            .gesture(dragGesture)
-                            .padding([.trailing], 4)
-                        Divider().padding([.trailing], 4)
-                        ForEach (courses) { course in
-                            courseView(course: course)
-                                .onDrag { NSItemProvider(object: course.name as NSString) }
-                        }
-                        Spacer(minLength: 4)
-                    }
-                }
+        VStack(alignment: .leading, spacing: 0) {
+            title
+            Divider().padding(.trailing, 4)
+            ForEach (courses) { course in
+                courseView(course: course)
+                    .onDrag { NSItemProvider(object: course.name as NSString) }
             }
-            else {
-                VStack(alignment: .leading, spacing: 0) {
-                    title.gesture(dragGesture)
-                    Divider()
-                    ForEach (courses) { course in
-                        courseView(course: course)
-                            .onDrag { NSItemProvider(object: course.name as NSString) }
-                    }
-                    Spacer()
-                }
-            }
+            Spacer(minLength: 4)
         }
         .scaleEffect(isDropping ? hoverScaleFactor : 1)
-        .frame(width: courseWidth, height: courseHeight, alignment: .leading)
         .onHover { isDropping = concentrationVM.hoverOverCategory(category, entered: $0) }
         .offset(dragOffset)
         .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
-        .frame(width: categoryWidth, height: categoryHeight, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
-        
     }
 
     
@@ -73,29 +59,34 @@ struct CategoryView: View {
                 .opacity(category.numberOfRequired == 0 ? emptyHoverOpacity : 1)
                 
         }
+        .padding([.trailing], 4)
         .lineLimit(2)
-        .font(.system(size: 13))
+        .font(.system(size: categoryCourseFontSize + 1))
         .contentShape(Rectangle())
         .onTapGesture { concentrationVM.setEditCategory(category) }
+        .gesture(dragGesture)
     }
     
     func courseView(course: Course) -> some View {
-        ZStack {
+        HStack {
             Text(course.name)
-                .font(.system(size: 12))
+                .font(categoryCourseFont)
                 .foregroundColor(course.getColor())
         }
     }
     
     func drop(providers: [NSItemProvider]) -> Bool {
-        print("Found")
-        print(providers)
-        let found = providers.loadFirstObject(ofType: String.self) { string in
-            if let context = category.managedObjectContext {
-                let newCourse = Course.withName(string as String, context: context)
-                    withAnimation {
-                        category.addCourse(newCourse)
+//        print("Found")
+//        print(providers)
+        let found = providers.loadFirstObject(ofType: String.self) { location in
+            if let uri = URL(string: location) {
+                if let context = category.managedObjectContext {
+                    if let newCourse = Course.fromURI(uri: uri, context: context) {
+                        withAnimation {
+                            category.addCourse(newCourse)
+                        }
                     }
+                }
             }
         }
         return found

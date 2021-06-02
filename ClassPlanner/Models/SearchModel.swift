@@ -58,7 +58,7 @@ final class SearchModel: ObservableObject {
 //        }
         
         self.$currentText
-            .debounce(for: 0.2, scheduler: RunLoop.main)
+            .debounce(for: 0.1, scheduler: RunLoop.main)
             .removeDuplicates()
             .map { text -> [SuggestionGroup<Course>] in
                 guard !text.isEmpty else {

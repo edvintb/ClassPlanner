@@ -34,14 +34,14 @@ extension Color {
 extension Course {
     
     func getColor() -> Color {
-        Color.colorSelection[self.color]
+        Color.colorSelection[self.color % Color.colorSelection.count]
     }
 }
 
 extension Category {
     
     func getColor() -> Color {
-        Color.colorSelection[self.color]
+        Color.colorSelection[self.color % Color.colorSelection.count]
     }
 }
 
@@ -74,7 +74,6 @@ extension Int {
         else { self = 0 }
     }
 }
-
 
 
 extension String {

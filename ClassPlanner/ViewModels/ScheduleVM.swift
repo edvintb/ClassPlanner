@@ -25,7 +25,7 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     }
     
     var color: Color {
-        Color.colorSelection[model.color]
+        Color.colorSelection[model.color % Color.colorSelection.count]
     }
     
     var notes: String {
@@ -69,6 +69,7 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     
     func replaceCourse(old: Course, with new: Course) {
         model.replaceCourse(old: old, with: new)
+        save()
     }
     
     func addCourse(_ course: Course, semester: Int, index: Int) {
@@ -85,6 +86,7 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         try? context.save()
         print("is temporary: \(course.objectID.isTemporaryID)")
         model.addCourse(course, semester: semester, index: index)
+        save()
 //        print(getPosition(course: course))
 //        print(courses(for: semester))
 //        objectWillChange.send() // Do I need this?

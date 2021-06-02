@@ -22,11 +22,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let panel = PanelVM(context: persistentContainer.viewContext)
         let scheduleStore = ScheduleStore(directory: url, context: persistentContainer.viewContext, panel: panel)
-        let concentration = ConcentrationVM(panel: panel)
+        let concentrationVM = ConcentrationVM(panel: panel, scheduleStore: scheduleStore)
         
         let courseStore = CourseStore(context: persistentContainer.viewContext, panel: panel)
         
-        let contentView = ContentView(scheduleStore: scheduleStore, courseStore: courseStore, concentration: concentration)
+        let contentView = ContentView(scheduleStore: scheduleStore, courseStore: courseStore, concentrationVM: concentrationVM)
             .environment(\.managedObjectContext, persistentContainer.viewContext)
             .environmentObject(panel)
         

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 // MARK: - Drawing Constants
 let frameCornerRadius: CGFloat = 10
@@ -21,13 +22,17 @@ let hoverShadowRadius: CGFloat = 3
 let courseSpacing: CGFloat = 10
 let emptyHoverOpacity: Double = 0.2
 
-let concentrationHeight: CGFloat = courseHeight
+let concentrationHeight: CGFloat = 1.5*courseHeight
+let concentrationsMinHeight: CGFloat = 150
+
 let categoryHeight: CGFloat = concentrationHeight
 let categoryWidth: CGFloat = courseWidth
+let categoryCourseFontSize: CGFloat = 12
+let categoryCourseFont: Font = .system(size: categoryCourseFontSize)
 
 let editorWidth: CGFloat = 300
 let scheduleMinHeight: CGFloat = 400
-let concentrationsMinHeight: CGFloat = 150
+
 let mainMinWidth: CGFloat = 200
 
 let maxIntegers: Int = 3
@@ -44,3 +49,4 @@ let gradeSymbol: String = "􀫓"
 let textFieldCornerRadius: CGFloat = 3.5
 
 let panelScheduleHeight: CGFloat = 50
+

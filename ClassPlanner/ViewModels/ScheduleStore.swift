@@ -22,6 +22,8 @@ class ScheduleStore: ObservableObject {
     // Perhaps remove this whole thing and just go with the single source of truth
     // in the schedule itself? It still gets stored in the filename itself
     @Published private (set) var scheduleNames = [ScheduleVM:String]()
+    
+    // Does this need to be optional?
     @Published private (set) var currentSchedule: ScheduleVM?
     
     @Published var doubleNameAlert: Bool = false
@@ -37,6 +39,9 @@ class ScheduleStore: ObservableObject {
     
     func setCurrentSchedule(to schedule: ScheduleVM) {
         self.currentSchedule = schedule
+        // Needed to update categories
+        // We need a shared VM
+        objectWillChange.send()
     }
     
     private var currentEditCourse: Course?
@@ -103,7 +108,7 @@ class ScheduleStore: ObservableObject {
     // MARK: - Intents
     
     func removeFromSchedule(course: Course) {
-        print("Deleting Store")
+        print("Deleting from Editor")
         if let schedule = currentSchedule {
             schedule.deleteCourse(course)
         }
@@ -113,7 +118,6 @@ class ScheduleStore: ObservableObject {
         if old == new { return }
         if let schedule = currentSchedule {
             schedule.replaceCourse(old: old, with: new)
-            schedule.save()
         }
     }
     
@@ -128,7 +132,8 @@ class ScheduleStore: ObservableObject {
     
     func setName(_ name: String, for schedule: ScheduleVM) {
         let url = directory.appendingPathComponent(name)
-        if !scheduleNames.values.contains(name) {
+        if scheduleNames.values.contains(name) { doubleNameAlert.toggle() }
+        else {
             // Deleting at the old url
             removeSchedule(schedule)
             // Each time we set the url we are saving
@@ -136,7 +141,6 @@ class ScheduleStore: ObservableObject {
             // Update in my store
             scheduleNames[schedule] = name
         }
-        else { doubleNameAlert.toggle() }
         schedule.name = scheduleNames[schedule] ?? "Untitled"
     }
     

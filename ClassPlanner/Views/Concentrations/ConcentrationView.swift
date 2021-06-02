@@ -16,11 +16,7 @@ struct ConcentrationView: View {
     @ObservedObject var concentrationVM: ConcentrationVM
     @Environment(\.managedObjectContext) var context
     
-    // Could also access categories from concentration, but actually
-    // more efficient this way. Sorting on DB-side
-    @FetchRequest private var categories: FetchedResults<Category>
-    
-    private var categories2: [Category] {
+    private var categories: [Category] {
         concentration.categories.sorted(by: {$0.index < $1.index })
     }
     
@@ -33,14 +29,6 @@ struct ConcentrationView: View {
     }
     private var isDragging: Bool {
         dragOffset != .zero
-    }
-    
-    init(_ concentration: Concentration, vm: ConcentrationVM) {
-        self.concentration = concentration
-        ca
-        self.concentrationVM = vm
-        let request = Category.fetchRequest(NSPredicate(format: "concentration == %@", argumentArray: [concentration]))
-        _categories = FetchRequest(fetchRequest: request)
     }
     
     var body: some View {
@@ -56,6 +44,7 @@ struct ConcentrationView: View {
                 }
             }
         }
+        .frame(minHeight: concentrationHeight)
         .scaleEffect(isTargeted ? 1.01 : 1)
         .onHover { isTargeted = concentrationVM.hoverOverConcentration(concentration, entered: $0) }
         .offset(dragOffset)
@@ -76,15 +65,29 @@ struct ConcentrationView: View {
         .gesture(dragGesture)
     }
     
+    
     func categories(in size: CGSize) -> some View {
         HStack {
-            ForEach (categories2) { category in
-                CategoryView(category: category, concentrationVM: concentrationVM)
+            ForEach (categories) { category in
+                optionalScrollView(wanted: CGFloat(category.courses.count + 1) * categoryCourseFontSize*1.5, given: size.height) {
+                    CategoryView(category: category, concentrationVM: concentrationVM)
+                }
             }
             EmptyCategoryView(concentration: concentration)
         }
         .padding([.horizontal], 7)
+        .frame(height: size.height, alignment: .topLeading)
         .environmentObject(concentrationVM)
+    }
+    
+    @ViewBuilder
+    func optionalScrollView<V>(wanted: CGFloat, given: CGFloat, content: () -> V) -> some View where V: View {
+        if wanted > given {
+            ScrollView(content: content)
+        }
+        else {
+            Group(content: content)
+        }
     }
     
     var titleText: some View {
@@ -94,12 +97,7 @@ struct ConcentrationView: View {
             .onTapGesture { isEditingName.toggle() }
 //            .popover(isPresented: $isEditingName, content: { nameEditor.padding(5) })
     }
-    
-    func delete(category: Category) -> some View {
-        context.delete(category)
-        return Text("I was a category")
-    }
-    
+
     
     var dragGesture: some Gesture {
         DragGesture(coordinateSpace: .global)
@@ -119,8 +117,29 @@ struct ConcentrationView: View {
     }
     
     
+    func delete(category: Category) -> some View {
+        context.delete(category)
+        return Text("I was a category")
+    }
+    
+    
 }
 
+
+// Could also access categories from concentration, but actually
+// more efficient this way. Sorting on DB-side
+//    @FetchRequest private var categories: FetchedResults<Category>
+
+//
+//init(_ concentration: Concentration, vm: ConcentrationVM) {
+////        self.concentration = concentration
+//        self.concentrationVM = vm
+////
+//    }
+
+//
+//let request = Category.fetchRequest(NSPredicate(format: "concentration == %@", argumentArray: [concentration]))
+//        _categories = FetchRequest(fetchRequest: request)
 
 //var nameEditor: some View {
 //        VStack {
