@@ -7,8 +7,8 @@
 
 import Foundation
 
-enum PanelOption: Equatable, Hashable {
-
+enum PanelOption: Equatable, Hashable, CaseIterable {
+    
     static func == (lhs: PanelOption, rhs: PanelOption) -> Bool {
         switch (lhs, rhs) {
         case (.courses, .courses):
@@ -26,11 +26,20 @@ enum PanelOption: Equatable, Hashable {
         }
     }
     
+    case editor
     case courses
     case concentrations
-    case editor(selection: EditOption)
     case schedules
     case otherPeople
+    
+    // Used to iterate in creating the PanelView
+    static var symbols: [PanelOption:String] {
+        [editor: "Editor",
+         courses : "Courses",
+         concentrations : "Concentrations",
+         schedules : "Schedules",
+         otherPeople : "Other People"]
+    }
 }
 
 enum EditOption: Equatable, Hashable {

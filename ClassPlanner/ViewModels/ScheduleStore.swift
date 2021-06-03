@@ -14,22 +14,20 @@ import SwiftUI
 class ScheduleStore: ObservableObject {
     
     private (set) var directory: URL
-    let panel: PanelVM
-    let name: String
-    let context: NSManagedObjectContext
     
+    @Environment(\.managedObjectContext) var context
+    
+    // Needed to update the current schedule
+    let shared: SharedVM
+    
+    let nameOfStore: String = "Documents"
     
     // Perhaps remove this whole thing and just go with the single source of truth
     // in the schedule itself? It still gets stored in the filename itself
     @Published private (set) var scheduleNames = [ScheduleVM:String]()
     
-    // Does this need to be optional?
-    @Published private (set) var currentSchedule: ScheduleVM?
-    
+    // Toggled when an existing name is entered
     @Published var doubleNameAlert: Bool = false
-    
-//    @Published var searchText: String = ""
-//    @Published var suggestionGroups: [SuggestionGroup<String>] = []
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -37,86 +35,43 @@ class ScheduleStore: ObservableObject {
         scheduleNames.keys.sorted { scheduleNames[$0]! < scheduleNames[$1]! }
     }
     
+    
+    // Who calls this function?? Remove?
     func setCurrentSchedule(to schedule: ScheduleVM) {
-        self.currentSchedule = schedule
+        shared.setCurrentSchedule(to: schedule)
         // Needed to update categories
         // We need a shared VM
         objectWillChange.send()
     }
     
-    private var currentEditCourse: Course?
-    
-    init(directory: URL, context: NSManagedObjectContext, panel: PanelVM) {
-        self.panel = panel
-        self.context = context
-        self.name = directory.lastPathComponent
+    init(directory: URL, shared: SharedVM) {
         self.directory = directory
+        print(directory)
+        self.shared = shared
         do {
             let schedules = try FileManager.default.contentsOfDirectory(atPath: directory.path)
             for schedule in schedules {
-                let scheduleVM = ScheduleVM(context: context, url: directory.appendingPathComponent(schedule), panel: panel)
+                let scheduleVM = ScheduleVM(url: directory.appendingPathComponent(schedule), shared: shared)
                 scheduleNames[scheduleVM] = schedule
             }
         }
         catch {
             print("Error reading documents from directory: \(directory), \(error.localizedDescription)")
         }
-        
-        panel.$currentEditSelection
-            .map { (option) -> Course? in
-                switch option {
-                case .course(let course):
-                    print(course.objectID)
-                    return course
-                default:
-                    return nil
-                }
-            }
-            .assign(to: \.currentEditCourse, on: self)
-            .store(in: &cancellables)
-        
-        panel.suggestionModel.$suggestionConfirmed
-            .sink { [unowned self] confirmed in
-                if confirmed,
-                    let newCourse = panel.suggestionModel.selectedSuggestion?.value,
-                    let oldCourse = currentEditCourse {
-                    // print(oldCourse)
-                    // Maybe we won't have access to the old course
-                    // Replacing old course
-                    self.replaceCourse(old: oldCourse, new: newCourse)
-                    panel.setEditSelection(to: .course(course: newCourse))
-                }
-                else {
-                    print("Not confirmed suggestion")
-                }
-            }
-            .store(in: &cancellables)
-        
-        panel.suggestionModel.suggestionsCancelled
-            .sink { [unowned self] _ in
-                let predicate = NSPredicate(format: "name_ =[c] %@", argumentArray: [panel.suggestionModel.textBinding?.wrappedValue ?? ""])
-                let request = Course.fetchRequest(predicate)
-                let courses = (try? context.fetch(request)) ?? []
-                if let new = courses.first, let old = currentEditCourse {
-                    self.replaceCourse(old: old, new: new)
-                    panel.setEditSelection(to: .course(course: new))
-                }
-            }
-            .store(in: &cancellables)
     }
     
     // MARK: - Intents
     
     func removeFromSchedule(course: Course) {
         print("Deleting from Editor")
-        if let schedule = currentSchedule {
+        if let schedule = shared.currentSchedule {
             schedule.deleteCourse(course)
         }
     }
     
     func replaceCourse(old: Course, new: Course) {
         if old == new { return }
-        if let schedule = currentSchedule {
+        if let schedule = shared.currentSchedule {
             schedule.replaceCourse(old: old, with: new)
         }
     }
@@ -141,7 +96,7 @@ class ScheduleStore: ObservableObject {
             // Update in my store
             scheduleNames[schedule] = name
         }
-        schedule.name = scheduleNames[schedule] ?? "Untitled"
+        schedule.scheduleName = scheduleNames[schedule] ?? "Untitled"
     }
     
     // MARK: - Handling Schedules
@@ -150,7 +105,7 @@ class ScheduleStore: ObservableObject {
         let uniqueName = name.uniqued(withRespectTo: scheduleNames.values)
         let schedule: ScheduleVM
         let url = directory.appendingPathComponent(uniqueName)
-        schedule = ScheduleVM(context: context, url: url, panel: panel)
+        schedule = ScheduleVM(url: url, shared: shared)
         scheduleNames[schedule] = uniqueName
     }
 

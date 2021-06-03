@@ -13,11 +13,9 @@ import Combine
 
 class CourseStore: ObservableObject {
     
-    // This thing needs a way to alter a given schedule
-    // The current schedule is in the ScheduleStore
-    // We actually only need to drag them out of here and drop them into the schedule
+    @Environment(\.managedObjectContext) var context
     
-    private var panel: PanelVM
+    private let shared: SharedVM
     
     private var subscriptions: Set<AnyCancellable> = []
     
@@ -26,11 +24,11 @@ class CourseStore: ObservableObject {
     @Published var courseQuery: String = ""
     
     func setEditCourse(course: Course) {
-        panel.setEditSelection(to: .course(course: course))
+        shared.setEditSelection(to: .course(course: course))
     }
     
-    init(context: NSManagedObjectContext, panel: PanelVM) {
-        self.panel = panel
+    init(shared: SharedVM) {
+        self.shared = shared
         $courseQuery
             .removeDuplicates()
             .map({ (string) -> String? in
@@ -44,6 +42,7 @@ class CourseStore: ObservableObject {
                 dbSearch(query: query, context: context)
             }
             .store(in: &subscriptions)
+        
         $courseQuery
             .debounce(for: .milliseconds(800), scheduler: RunLoop.main) // debounces the string publisher, such that it delays the process of sending request to remote server.
             .removeDuplicates()

@@ -15,20 +15,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Create the SwiftUI view and set the context as the value for the managedObjectContext environment keyPath.
-        // Add `@Environment(\.managedObjectContext)` in the views that will need the context.
+        // Add `@Environment(\.managedObjectContext)` in the views that will need the context
         
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         print(url)
         
-        let panel = PanelVM(context: persistentContainer.viewContext)
-        let scheduleStore = ScheduleStore(directory: url, context: persistentContainer.viewContext, panel: panel)
-        let concentrationVM = ConcentrationVM(panel: panel, scheduleStore: scheduleStore)
+        let shared = SharedVM()
         
-        let courseStore = CourseStore(context: persistentContainer.viewContext, panel: panel)
+        let panel = PanelVM(shared: shared)
+        let scheduleStore = ScheduleStore(directory: url, shared: shared)
+        let concentrationVM = ConcentrationVM(shared: shared)
+        let courseStore = CourseStore(shared: shared)
         
-        let contentView = ContentView(scheduleStore: scheduleStore, courseStore: courseStore, concentrationVM: concentrationVM)
+        let contentView = ContentView(panel: panel, scheduleStore: scheduleStore, courseStore: courseStore, concentrationVM: concentrationVM)
             .environment(\.managedObjectContext, persistentContainer.viewContext)
-            .environmentObject(panel)
+            .environmentObject(shared)
         
 //        let contentView = ContentView(context: persistentContainer.viewContext)
 //            .environment(\.managedObjectContext, persistentContainer.viewContext)

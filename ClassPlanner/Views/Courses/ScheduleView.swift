@@ -33,7 +33,7 @@ struct ScheduleView: View {
     }
     
     func scheduleName(schedule: ScheduleVM) -> some View {
-        Text(schedule.name)
+        Text(schedule.scheduleName)
             .foregroundColor(schedule.color)
             .font(.system(size: 20))
             .contentShape(Rectangle())

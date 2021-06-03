@@ -40,6 +40,7 @@ import Combine
 // Then we can bind to it with our TextFields and have what we write show up at once
 struct CourseEditorView: View {
     
+    @EnvironmentObject var shared: SharedVM
     @ObservedObject var course: Course
     private var cancellables = Set<AnyCancellable>()
     
@@ -55,19 +56,14 @@ struct CourseEditorView: View {
     // Okay to create here bc this view does not get redrawn
     @ObservedObject var searchModel: SearchModel
     
-    private var showAlert: Binding<Bool> {
-        get { $panel.existingCourseEntered }
-        set { panel.existingCourseEntered = false }
-    }
-    
     init(course: Course, scheduleStore: ScheduleStore, panel: PanelVM) {
         self.panel = panel
         self.course = course
         self.scheduleStore = scheduleStore
         // Remove force unwrap -- but what do we do without the searchModel
+        // We could do an optional model and default to naming field
         self.searchModel = SearchModel(course: course, context: course.managedObjectContext!)
-//        print("Editor init called")
-        
+
         // Updating the name of the course as we type it in
         searchModel.$currentText
             .removeDuplicates()
@@ -89,6 +85,7 @@ struct CourseEditorView: View {
             // Multiline textfields for the others
             // Add concentrations it is part of
             // Ability to add to categories?? Search and click concentrations to expand
+            // Split up to get tabbing to work? No form to get tabbing to work?
             Form {
                 nameField
                 semesterSelector
@@ -104,8 +101,6 @@ struct CourseEditorView: View {
             
         }
     }
-    
-    @State private var currentName: String = ""
     
     var nameField: some View {
         
@@ -211,7 +206,7 @@ struct CourseEditorView: View {
                 }
             }
             Spacer()
-            if let schedule = scheduleStore.currentSchedule {
+            if let schedule = shared.currentSchedule {
                 if schedule.courseURLs.contains(course.objectID.uriRepresentation()) {
                     Button("Remove from Schedule") {
                         schedule.deleteCourse(course)

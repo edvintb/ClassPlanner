@@ -12,11 +12,12 @@ import Combine
 
 class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         
-    @Published var name: String
+    private let shared: SharedVM
     
+    @Published var scheduleName: String
     @Published private var model: ScheduleModel
     
-    private let context: NSManagedObjectContext
+    @Environment(\.managedObjectContext) var context
     
     // MARK: - Access to Model
     
@@ -69,7 +70,7 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     
     func replaceCourse(old: Course, with new: Course) {
         model.replaceCourse(old: old, with: new)
-        save()
+        save() // For some reason it won't persist otherwise
     }
     
     func addCourse(_ course: Course, semester: Int, index: Int) {
@@ -86,7 +87,8 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         try? context.save()
         print("is temporary: \(course.objectID.isTemporaryID)")
         model.addCourse(course, semester: semester, index: index)
-        save()
+        save() // Necessary here too for persistance??
+        
 //        print(getPosition(course: course))
 //        print(courses(for: semester))
 //        objectWillChange.send() // Do I need this?
@@ -108,17 +110,16 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
 
     var url: URL? { didSet { save() }}
     
-    init(context: NSManagedObjectContext, url: URL, panel: PanelVM) {
-        self.name = url.lastPathComponent
-        self.context = context
-        self.panel = panel
+    init(url: URL, shared: SharedVM) {
         self.id = UUID()
+        self.scheduleName = url.lastPathComponent
+        self.shared = shared
         self.url = url
+        // Decoder key needed for Course decoding
         let decoder = JSONDecoder()
-        decoder.userInfo[CodingUserInfoKey.managedObjectContext] = context
         self.model = ScheduleModel(decoder: decoder, json: try? Data(contentsOf: url)) ?? ScheduleModel()
         
-        $model.sink { scheduleModel in
+        $model.sink { _ in
             self.save()
         }
         .store(in: &cancellables)
@@ -131,17 +132,18 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         }
     }
     
+    //        decoder.userInfo[CodingUserInfoKey.managedObjectContext] = context
+    
     // MARK: - Editing
     
     // Should this be related to the Course View somehow?
     // Only used there to open editor
-    private var panel: PanelVM
     
     func setEditCourse(_ course: Course) {
-        panel.setEditSelection(to: .course(course: course))
+        shared.setEditSelection(to: .course(course: course))
     }
     
-    var id: UUID
+    let id: UUID
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)

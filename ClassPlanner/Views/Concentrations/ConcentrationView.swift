@@ -33,9 +33,7 @@ struct ConcentrationView: View {
     
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: frameCornerRadius)
-                .stroke()
-                .opacity(emptyHoverOpacity)
+            container
             VStack(alignment: .leading, spacing: 1) {
                 title
                 Divider()
@@ -51,6 +49,12 @@ struct ConcentrationView: View {
         .zIndex( concentrationVM.dragConcentration == concentration ? 1 : 0)
         
 
+    }
+    
+    var container: some View {
+        RoundedRectangle(cornerRadius: frameCornerRadius)
+            .stroke()
+            .opacity(emptyHoverOpacity)
     }
     
     var title: some View {

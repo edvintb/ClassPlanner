@@ -9,6 +9,8 @@ import SwiftUI
 
 struct PanelView: View {
     
+    @EnvironmentObject var shared: SharedVM
+    
     @ObservedObject var scheduleStore: ScheduleStore
     @ObservedObject var courseStore: CourseStore
     @ObservedObject var panel: PanelVM
@@ -19,37 +21,20 @@ struct PanelView: View {
         VStack(spacing: 0) {
             Spacer().frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: 7, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
             HStack {
-                Group {
-                    Spacer()
-                    Text("Editor")
-                        .foregroundColor(panel.currentPanelSelection == .editor(selection: .none) ? .blue : nil)
-                        .onTapGesture { panel.setPanelSelection(to: .editor(selection: panel.currentEditSelection)) }
-                    Spacer()
-                    Text("Courses")
-                        .foregroundColor(panel.currentPanelSelection == .courses ? .blue : nil)
-                        .onTapGesture { panel.setPanelSelection(to: .courses) }
-                    Spacer()
-                    Text("Concen")
-                        .foregroundColor(panel.currentPanelSelection == .concentrations ? .blue : nil)
-                        .onTapGesture { panel.setPanelSelection(to: .concentrations) }
-                    Spacer()
-                }
-                Group {
-                    Text("Schedules")
-                        .foregroundColor(panel.currentPanelSelection == .schedules ? .blue : nil)
-                        .onTapGesture { panel.setPanelSelection(to: .schedules) }
-                    Spacer()
-                    Text("Other People")
-                        .foregroundColor(panel.currentPanelSelection == .otherPeople ? .blue : nil)
-                        .onTapGesture { panel.setPanelSelection(to: .otherPeople) }
+                Spacer()
+                ForEach(PanelOption.allCases, id: \.self) { option in
+                    Text(PanelOption.symbols[option] ?? "X")
+                        .foregroundColor(shared.currentPanelSelection == option ? .blue : nil)
+                        .onTapGesture { shared.setPanelSelection(to: option) }
                     Spacer()
                 }
             }
+
             Spacer().frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: 5, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
             Divider()
             
 
-            getPanelContent(panel.currentPanelSelection)
+            getPanelContent(shared.currentPanelSelection)
         }
         
         //            TabView(selection: $viewModel.currentPanelSelection,
@@ -63,12 +48,16 @@ struct PanelView: View {
     @ViewBuilder
     func getPanelContent(_ selection: PanelOption) -> some View {
         switch selection {
+        case .editor:
+            getEditor(shared.currentEditSelection)
         case .courses:
-            PanelCoursesView(courseStore: courseStore, scheduleStore: scheduleStore)
+            PanelCoursesView(courseStore: courseStore)
         case .concentrations:
-            Text("Concentrations")
-        case .editor(let editSelection):
-            getEditor(editSelection).environmentObject(panel)
+            VStack {
+                Spacer()
+                Text("Concentrations")
+                Spacer()
+            }
         case .schedules:
             PanelSchedules(panel: panel, store: scheduleStore)
         case .otherPeople:
@@ -81,9 +70,9 @@ struct PanelView: View {
         switch selection {
         case .course(let course):
             CourseEditorView(course: course, scheduleStore: scheduleStore, panel: panel)
-
         case .category(let category):
-            CategoryEditorView(category: category, courseStore: CourseStore(context: context, panel: panel))
+            // Giving it a new courseStore or keeping the same one??
+            CategoryEditorView(category: category, courseStore: courseStore)
         case .concentration(let concentration):
             Text("Concentration: \(concentration.name)")
         case .schedule(let schedule):
@@ -108,6 +97,36 @@ struct PanelView: View {
     }
 }
 
+
+
+
+//            HStack {
+//                Group {
+//                    Spacer()
+//                    Text("Editor")
+//                        .foregroundColor(shared.currentPanelSelection == .editor(selection: .none) ? .blue : nil)
+//                        .onTapGesture { shared.setPanelSelection(to: .editor(selection: shared.currentEditSelection)) }
+//                    Spacer()
+//                    Text("Courses")
+//                        .foregroundColor(shared.currentPanelSelection == .courses ? .blue : nil)
+//                        .onTapGesture { shared.setPanelSelection(to: .courses) }
+//                    Spacer()
+//                    Text("Concen")
+//                        .foregroundColor(panel.currentPanelSelection == .concentrations ? .blue : nil)
+//                        .onTapGesture { panel.setPanelSelection(to: .concentrations) }
+//                    Spacer()
+//                }
+//                Group {
+//                    Text("Schedules")
+//                        .foregroundColor(panel.currentPanelSelection == .schedules ? .blue : nil)
+//                        .onTapGesture { panel.setPanelSelection(to: .schedules) }
+//                    Spacer()
+//                    Text("Other People")
+//                        .foregroundColor(panel.currentPanelSelection == .otherPeople ? .blue : nil)
+//                        .onTapGesture { panel.setPanelSelection(to: .otherPeople) }
+//                    Spacer()
+//                }
+//            }
 //struct PanelView_Previews: PreviewProvider {
 //    static var previews: some View {
 //        PanelView()

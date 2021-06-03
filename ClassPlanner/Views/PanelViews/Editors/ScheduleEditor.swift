@@ -22,12 +22,12 @@ struct ScheduleEditorView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Spacer(minLength: 7)
-            EditorTitleView(title: schedule.name).foregroundColor(schedule.color)
+            EditorTitleView(title: schedule.scheduleName).foregroundColor(schedule.color)
             Divider().padding(5)
             EditorNotes(notes: schedule.notes)
             Form {
-                TextField("Name", text: $schedule.name, onCommit: {
-                    scheduleStore.setName(schedule.name, for: schedule)
+                TextField("Name", text: $schedule.scheduleName, onCommit: {
+                    scheduleStore.setName(schedule.scheduleName, for: schedule)
                 }).cornerRadius(textFieldCornerRadius)
                 .focusable(true) { print($0)}
                 TextField("Notes...", text: $schedule.notes)
@@ -53,8 +53,8 @@ struct ScheduleEditorView: View {
     }
     
     var nameField: some View {
-        TextField("Name", text: $schedule.name, onCommit: {
-            scheduleStore.setName(schedule.name, for: schedule)
+        TextField("Name", text: $schedule.scheduleName, onCommit: {
+            scheduleStore.setName(schedule.scheduleName, for: schedule)
         }).cornerRadius(textFieldCornerRadius)
     }
     

@@ -10,8 +10,10 @@ import CoreData
 
 struct PanelCoursesView: View {
     
-    // Needed to remove courses from current schedule
-    @ObservedObject var scheduleStore: ScheduleStore
+    // Needed to remove when courses dropped
+    // Move up to higher level??
+    // Abstract drop??
+    @EnvironmentObject var shared: SharedVM
     
     // Needed for the search logic
     @ObservedObject var courseStore: CourseStore
@@ -25,8 +27,7 @@ struct PanelCoursesView: View {
     
     @State var isDropping: Bool = false
     
-    init(courseStore: CourseStore, scheduleStore: ScheduleStore) {
-        self.scheduleStore = scheduleStore
+    init(courseStore: CourseStore) {
         self.courseStore = courseStore
         let request = NSFetchRequest<Course>(entityName: "Course")
         request.sortDescriptors = [NSSortDescriptor(key: "name_", ascending: true)]
@@ -64,7 +65,7 @@ struct PanelCoursesView: View {
         let found = providers.loadFirstObject(ofType: String.self) { id in
             if let uri = URL(string: id) {
                 if let droppedCourse = Course.fromURI(uri: uri, context: context) {
-                    if let schedule = scheduleStore.currentSchedule {
+                    if let schedule = shared.currentSchedule {
                         withAnimation {
                             schedule.deleteCourse(droppedCourse)
                         }

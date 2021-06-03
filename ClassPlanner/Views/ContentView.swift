@@ -9,8 +9,9 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @EnvironmentObject var panel: PanelVM
+    @EnvironmentObject var shared: SharedVM
     
+    @ObservedObject var panel: PanelVM
     @ObservedObject var scheduleStore: ScheduleStore
     @ObservedObject var courseStore: CourseStore
     @ObservedObject var concentrationVM: ConcentrationVM
@@ -32,7 +33,7 @@ struct ContentView: View {
     }
     
     private var schedule: ScheduleVM {
-        if let schedule = scheduleStore.currentSchedule {
+        if let schedule = shared.currentSchedule {
             return schedule
         }
         else if let schedule = scheduleStore.schedules.first {

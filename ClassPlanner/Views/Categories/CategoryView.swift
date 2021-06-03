@@ -9,6 +9,9 @@ import SwiftUI
 
 struct CategoryView: View {
     
+    // Needed to sort courses according to current schedule
+    @EnvironmentObject var shared: SharedVM
+    
     @ObservedObject var category: Category
     
     // Needed for dragging and editing
@@ -22,7 +25,7 @@ struct CategoryView: View {
 
     // Sort courses depending on current schedule
     private var courses: [Course] {
-        if let schedule = concentrationVM.scheduleStore.currentSchedule {
+        if let schedule = shared.currentSchedule {
             return category.coursesSortedBySchedule(schedule: schedule)
         }
         else {
