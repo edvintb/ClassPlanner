@@ -32,21 +32,28 @@ struct EmptyCourseView: View {
     
     func drop(providers: [NSItemProvider]) -> Bool {
         let found = providers.loadFirstObject(ofType: String.self) { id in
-            if let uri = URL(string: id) {
-                if let newCourse = Course.fromURI(uri: uri, context: context) {
-                    if let pos = schedule.getPosition(course: newCourse) {
-                        let count = schedule.courses(for: semester).count
-                        print(count)
-                        let adjustment = pos.semester == semester ? -1 : 0
-                        print(adjustment)
-                        let newPos = CoursePosition(semester: semester, index: count + adjustment)
-                        withAnimation {
-                            schedule.moveCourse(newCourse, to: newPos)
-                        }
-                    }
+            if let droppedCourse = getDroppedCourse(id: id) {
+                let newPos = getNewPos(for: droppedCourse)
+                withAnimation {
+                    schedule.moveCourse(droppedCourse, to: newPos)
                 }
             }
         }
         return found
+    }
+    
+    private func getDroppedCourse(id: String) -> Course? {
+        if let uri = URL(string: id) {
+            return Course.fromURI(uri: uri, context: context)
+        }
+        return nil
+    }
+    
+    private func getNewPos(for droppedCourse: Course) -> CoursePosition {
+        // Counting all the courses different from the dropped one
+        let count = schedule.courses(for: semester).reduce(into: 0) { acc, course in
+            if course != droppedCourse { acc += 1 }
+        }
+        return CoursePosition(semester: semester, index: count)
     }
 }

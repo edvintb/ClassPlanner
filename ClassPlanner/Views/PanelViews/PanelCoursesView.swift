@@ -61,20 +61,23 @@ struct PanelCoursesView: View {
     }
     
     func drop(providers: [NSItemProvider]) -> Bool {
-        print("Found")
-        print(providers)
         let found = providers.loadFirstObject(ofType: String.self) { id in
-            if let uri = URL(string: id) {
-                if let droppedCourse = Course.fromURI(uri: uri, context: context) {
-                    if let schedule = shared.currentSchedule {
-                        withAnimation {
-                            schedule.deleteCourse(droppedCourse)
-                        }
+            if let droppedCourse = getDroppedCourse(id: id) {
+                if let schedule = shared.currentSchedule {
+                    withAnimation {
+                        schedule.deleteCourse(droppedCourse)
                     }
                 }
             }
         }
         return found
+    }
+    
+    private func getDroppedCourse(id: String) -> Course? {
+        if let uri = URL(string: id) {
+            return Course.fromURI(uri: uri, context: context)
+        }
+        return nil
     }
     
     var noResultsView: some View {

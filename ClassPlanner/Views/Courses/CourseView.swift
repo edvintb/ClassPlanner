@@ -22,6 +22,7 @@ struct CourseView: View {
 //    @State private var visible: Bool = true
 //    @State private var dragOffset: CGSize = .zero
 //    var isDragging: Bool { dragOffset != .zero }
+    @EnvironmentObject var shared: SharedVM
     
     @ObservedObject var course: Course
     
@@ -64,29 +65,28 @@ struct CourseView: View {
     
     
     func drop(providers: [NSItemProvider]) -> Bool {
-//        print("Found")
-//        print(providers)
         let found = providers.loadFirstObject(ofType: String.self) { id in
-            if let context = course.managedObjectContext, let uri = URL(string: id) {
-                if let newCourse = Course.fromURI(uri: uri, context: context) {
-                    if newCourse == course { return }
-                    if let pos = schedule.getPosition(course: course) {
-                        if schedule.courseURLs.contains(uri) {
-                            withAnimation {
-                                schedule.moveCourse(newCourse, to: pos)
-                            }
-                        }
-                        else {
-                            withAnimation {
-                                schedule.addCourse(newCourse, at: pos)
-                            }
-                        }
+            if let newCourse = getDroppedCourse(id: id) {
+                if let pos = schedule.getPosition(course: course) {
+                    withAnimation {
+                        schedule.moveCourse(newCourse, to: pos)
                     }
-
                 }
             }
         }
         return found
+    }
+    
+    private func getDroppedCourse(id: String) -> Course? {
+        if let context = course.managedObjectContext {
+            if let uri = URL(string: id) {
+                if let newCourse = Course.fromURI(uri: uri, context: context) {
+                    if newCourse == course { return nil }
+                    return newCourse
+                }
+            }
+        }
+        return nil
     }
     
     var box: some View {
@@ -117,7 +117,7 @@ struct CourseView: View {
                 Text("+").font(.system(size: 1.2*titleSize, weight: .semibold))
             }
                 .contentShape(Rectangle())
-                .onTapGesture { schedule.setEditCourse(course) }
+            .onTapGesture { shared.setEditSelection(to: .course(course: course)) }
                 .padding([.horizontal], 7)
             Divider()
                 .padding([.horizontal], 5)
@@ -161,7 +161,7 @@ struct CourseView: View {
     
     var tapGesture: some Gesture {
         TapGesture().onEnded {
-            if empty { schedule.setEditCourse(course) }
+            if empty { shared.setEditSelection(to: .course(course: course)) }
             else {
                 withAnimation(Animation.easeInOut(duration: 0.2)) {
                     isFrontUp.toggle()

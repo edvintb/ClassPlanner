@@ -39,7 +39,6 @@ struct PanelCourseView: View {
         // Allow dropping into here and placing the course there....
 
     }
-    
     var front: some View {
         Text("\(course.name)")
             .font(.system(size: 1.3*titleSize))

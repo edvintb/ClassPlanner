@@ -37,8 +37,6 @@ class ScheduleStore: ObservableObject {
         shared.setCurrentSchedule(to: schedule)
     }
     
-    private var currentEditCourse: Course?
-    
     init(directory: URL, context: NSManagedObjectContext, shared: SharedVM) {
         self.shared = shared
         self.context = context
@@ -47,7 +45,8 @@ class ScheduleStore: ObservableObject {
         do {
             let schedules = try FileManager.default.contentsOfDirectory(atPath: directory.path)
             for schedule in schedules {
-                let scheduleVM = ScheduleVM(context: context, url: directory.appendingPathComponent(schedule), shared: shared)
+                let url = directory.appendingPathComponent(schedule)
+                let scheduleVM = ScheduleVM(url: url, context: context)
                 scheduleNames[scheduleVM] = schedule
             }
         }
@@ -102,7 +101,7 @@ class ScheduleStore: ObservableObject {
         let uniqueName = name.uniqued(withRespectTo: scheduleNames.values)
         let schedule: ScheduleVM
         let url = directory.appendingPathComponent(uniqueName)
-        schedule = ScheduleVM(context: context, url: url, shared: shared)
+        schedule = ScheduleVM(url: url, context: context)
         scheduleNames[schedule] = uniqueName
     }
 

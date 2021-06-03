@@ -215,6 +215,10 @@ extension Course {
         self.objectID.uriRepresentation().absoluteString
     }
     
+    var urlID: URL {
+        self.objectID.uriRepresentation()
+    }
+    
     // Removing nil values
     var name: String {
         get { self.name_ ?? ""}
