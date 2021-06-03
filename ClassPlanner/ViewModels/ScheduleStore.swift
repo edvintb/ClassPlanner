@@ -48,6 +48,15 @@ class ScheduleStore: ObservableObject {
                 let url = directory.appendingPathComponent(schedule)
                 let scheduleVM = ScheduleVM(url: url, context: context)
                 scheduleNames[scheduleVM] = schedule
+                
+                // Try updating the stored name when we change in schedule
+                scheduleVM.$name
+                    .debounce(for: 0.5, scheduler: DispatchQueue.main)
+                    .removeDuplicates()
+                    .sink { [unowned self] name in
+                        self.setName(name, for: scheduleVM)
+                    }
+                    .store(in: &cancellables)
             }
         }
         catch {
