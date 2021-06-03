@@ -16,9 +16,10 @@ final class SearchModel: ObservableObject {
 //    var englishTranslations: [String:String]
 //    var germanWords: [String]
 //    var germanTranslations: [String:String]
+//
+//    @Environment(\.managedObjectContext) var context
     
     private let context: NSManagedObjectContext
-    
     private let currentCourseID: NSManagedObjectID
     
     var courses: [Course] {
@@ -34,9 +35,9 @@ final class SearchModel: ObservableObject {
     private var cancellables: Set<AnyCancellable> = []
     
     init(course: Course, context: NSManagedObjectContext) {
+        self.context = context
         self.currentText = course.name
         self.currentCourseID = course.objectID
-        self.context = context
 //        print("Search model init")
     
         // Perhaps load the harvard-json into a file and decode it like this

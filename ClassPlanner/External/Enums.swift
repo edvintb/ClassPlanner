@@ -7,30 +7,21 @@
 
 import Foundation
 
-enum PanelOption: Equatable, Hashable {
-
-    static func == (lhs: PanelOption, rhs: PanelOption) -> Bool {
-        switch (lhs, rhs) {
-        case (.courses, .courses):
-            return true
-        case (.concentrations, .concentrations):
-            return true
-        case (.editor, .editor):
-            return true
-        case(.schedules, schedules):
-            return true
-        case (.otherPeople, .otherPeople):
-            return true
-        default:
-            return false
-        }
-    }
+enum PanelOption: Equatable, Hashable, CaseIterable {
     
+    case editor
     case courses
     case concentrations
-    case editor(selection: EditOption)
     case schedules
     case otherPeople
+    
+    static var symbols: [PanelOption:String] {
+        [.editor : "Editor",
+         .courses : "Courses",
+         .concentrations : "Concentrations",
+         .schedules : "Schedules",
+         .otherPeople : "Other People"]
+    }
 }
 
 enum EditOption: Equatable, Hashable {

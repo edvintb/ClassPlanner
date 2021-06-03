@@ -47,17 +47,18 @@ class PanelVM: ObservableObject {
         
     }
     
-    
     func setPanelSelection(to newSelection: PanelOption) {
         self.currentPanelSelection = newSelection
     }
     
     func setEditSelection(to newSelection: EditOption) {
         self.currentEditSelection = newSelection
-        currentPanelSelection = .editor(selection: currentEditSelection)
+        currentPanelSelection = .editor
     }
     
-    func stopEdit() { currentEditSelection = .none }
+    func stopEdit() {
+        currentEditSelection = .none
+    }
 }
 
 

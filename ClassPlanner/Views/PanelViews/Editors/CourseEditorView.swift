@@ -40,8 +40,6 @@ import Combine
 // Then we can bind to it with our TextFields and have what we write show up at once
 struct CourseEditorView: View {
     
-    @Environment(\.managedObjectContext) var context
-    
     @ObservedObject var course: Course
     private var cancellables = Set<AnyCancellable>()
     
@@ -62,12 +60,13 @@ struct CourseEditorView: View {
         set { panel.existingCourseEntered = false }
     }
     
-    init(course: Course, scheduleStore: ScheduleStore, panel: PanelVM) {
+    init(course: Course, scheduleStore: ScheduleStore, panel: PanelVM, context: NSManagedObjectContext) {
         self.panel = panel
         self.course = course
         self.scheduleStore = scheduleStore
         // Breaks when we delete a course
-        self.searchModel = SearchModel(course: course, context: course.managedObjectContext!)
+        self.searchModel = SearchModel(course: course, context: context)
+
 //        print("Editor init called")
         
         // Updating the name of the course as we type it in
@@ -110,16 +109,9 @@ struct CourseEditorView: View {
     @State private var currentName: String = ""
     
     var nameField: some View {
-        
         SuggestionInput(text: $searchModel.currentText,
                         suggestionGroups: searchModel.suggestionGroups,
                         suggestionModel: panel.suggestionModel)
-
-//        TextField("Name", text: $course.name, onEditingChanged: { editedName(began: $0) }) { save() }
-//            .cornerRadius(textFieldCornerRadius)
-//
-//        TextField("Name", text: $course.name, onCommit: { save(); course.setName(to: course.name, in: scheduleStore) })
-//            .cornerRadius(textFieldCornerRadius)
     }
     
     var semesterSelector: some View {
@@ -193,7 +185,7 @@ struct CourseEditorView: View {
         Grid(Array(1..<Color.colorSelection.count), id: \.self) { index in
             RoundedRectangle(cornerRadius: frameCornerRadius)
                 .foregroundColor(Color.colorSelection[index])
-                .onTapGesture { course.color = index; save(); print(course.color) }
+                .onTapGesture { course.color = index; save() }
                 .padding(3)
                 .focusable()
         }
@@ -203,32 +195,51 @@ struct CourseEditorView: View {
     
     var bottomButtons: some View {
         HStack {
+            deleteButton
             Spacer()
-            Button("Delete") {
-                withAnimation {
-                    // Perhaps remove -- then I won't need the panelVM
+            if let schedule = scheduleStore.currentSchedule {
+                addRemoveButton(schedule: schedule)
+            }
+        }
+    }
+    
+    var deleteButton: some View {
+        Button("Delete") {
+            withAnimation {
+                // Perhaps remove -- then I won't need the panelVM
+                if let schedule = scheduleStore.currentSchedule {
+                    schedule.deleteCourse(course)
                     panel.stopEdit()
                     course.delete()
                     save()
                 }
+                
             }
-            Spacer()
-            if let schedule = scheduleStore.currentSchedule {
-                if schedule.courseURLs.contains(course.objectID.uriRepresentation()) {
-                    Button("Remove from Schedule") {
+        }
+    }
+    
+    func addRemoveButton(schedule: ScheduleVM) -> some View {
+        if schedule.courseURLs.contains(course.objectID.uriRepresentation()) {
+            return
+                Button("Remove from current") {
+                    withAnimation {
                         schedule.deleteCourse(course)
+                        if course.isEmpty {
+                            panel.stopEdit()
+                            course.delete()
+                        }
                         save()
                     }
                 }
-                else {
-                    Button("Add to Schedule") {
-                        withAnimation {
-                            schedule.addCourse(course, semester: 0, index: 0)
-                            save()
-                        }
+        }
+        else {
+            return
+                Button("Add to current") {
+                    withAnimation {
+                        schedule.addCourse(course, semester: 0, index: 0)
+                        save()
                     }
                 }
-            }
         }
     }
     

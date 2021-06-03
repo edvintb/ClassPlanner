@@ -69,7 +69,7 @@ struct CourseView: View {
         let found = providers.loadFirstObject(ofType: String.self) { id in
             if let context = course.managedObjectContext, let uri = URL(string: id) {
                 if let newCourse = Course.fromURI(uri: uri, context: context) {
-                    if newCourse == course { print("Courses Equal"); return }
+                    if newCourse == course { return }
                     if let pos = schedule.getPosition(course: course) {
                         withAnimation {
                             schedule.moveCourse(newCourse, to: pos.semester, index: pos.index)

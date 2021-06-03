@@ -36,7 +36,9 @@ struct EmptyCourseView: View {
                 if let newCourse = Course.fromURI(uri: uri, context: context) {
                     if let pos = schedule.getPosition(course: newCourse) {
                         let count = schedule.courses(for: semester).count
+                        print(count)
                         let adjustment = pos.semester == semester ? -1 : 0
+                        print(adjustment)
                         withAnimation {
                             schedule.moveCourse(newCourse, to: semester, index: count + adjustment)
                         }

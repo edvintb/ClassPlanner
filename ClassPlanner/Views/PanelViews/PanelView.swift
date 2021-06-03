@@ -19,31 +19,39 @@ struct PanelView: View {
         VStack(spacing: 0) {
             Spacer().frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: 7, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
             HStack {
-                Group {
-                    Spacer()
-                    Text("Editor")
-                        .foregroundColor(panel.currentPanelSelection == .editor(selection: .none) ? .blue : nil)
-                        .onTapGesture { panel.setPanelSelection(to: .editor(selection: panel.currentEditSelection)) }
-                    Spacer()
-                    Text("Courses")
-                        .foregroundColor(panel.currentPanelSelection == .courses ? .blue : nil)
-                        .onTapGesture { panel.setPanelSelection(to: .courses) }
-                    Spacer()
-                    Text("Concen")
-                        .foregroundColor(panel.currentPanelSelection == .concentrations ? .blue : nil)
-                        .onTapGesture { panel.setPanelSelection(to: .concentrations) }
+                Spacer()
+                ForEach (PanelOption.allCases, id: \.self) { option in
+                    Text(PanelOption.symbols[option] ?? "X")
+                        .foregroundColor(panel.currentPanelSelection == option ? .blue : nil)
+                        .onTapGesture { panel.setPanelSelection(to: option) }
                     Spacer()
                 }
-                Group {
-                    Text("Schedules")
-                        .foregroundColor(panel.currentPanelSelection == .schedules ? .blue : nil)
-                        .onTapGesture { panel.setPanelSelection(to: .schedules) }
-                    Spacer()
-                    Text("Other People")
-                        .foregroundColor(panel.currentPanelSelection == .otherPeople ? .blue : nil)
-                        .onTapGesture { panel.setPanelSelection(to: .otherPeople) }
-                    Spacer()
-                }
+                
+//                Group {
+//                    Spacer()
+//                    Text("Editor")
+//                        .foregroundColor(panel.currentPanelSelection == .editor(selection: .none) ? .blue : nil)
+//                        .onTapGesture { panel.setPanelSelection(to: .editor(selection: panel.currentEditSelection)) }
+//                    Spacer()
+//                    Text("Courses")
+//                        .foregroundColor(panel.currentPanelSelection == .courses ? .blue : nil)
+//                        .onTapGesture { panel.setPanelSelection(to: .courses) }
+//                    Spacer()
+//                    Text("Concen")
+//                        .foregroundColor(panel.currentPanelSelection == .concentrations ? .blue : nil)
+//                        .onTapGesture { panel.setPanelSelection(to: .concentrations) }
+//                    Spacer()
+//                }
+//                Group {
+//                    Text("Schedules")
+//                        .foregroundColor(panel.currentPanelSelection == .schedules ? .blue : nil)
+//                        .onTapGesture { panel.setPanelSelection(to: .schedules) }
+//                    Spacer()
+//                    Text("Other People")
+//                        .foregroundColor(panel.currentPanelSelection == .otherPeople ? .blue : nil)
+//                        .onTapGesture { panel.setPanelSelection(to: .otherPeople) }
+//                    Spacer()
+//                }
             }
             Spacer().frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: 5, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
             Divider()
@@ -67,8 +75,8 @@ struct PanelView: View {
             PanelCoursesView(courseStore: courseStore, scheduleStore: scheduleStore)
         case .concentrations:
             Text("Concentrations")
-        case .editor(let editSelection):
-            getEditor(editSelection).environmentObject(panel)
+        case .editor:
+            getEditor(panel.currentEditSelection).environmentObject(panel)
         case .schedules:
             PanelSchedules(panel: panel, store: scheduleStore)
         case .otherPeople:
@@ -80,7 +88,7 @@ struct PanelView: View {
     func getEditor(_ selection: EditOption) -> some View {
         switch selection {
         case .course(let course):
-            CourseEditorView(course: course, scheduleStore: scheduleStore, panel: panel)
+            CourseEditorView(course: course, scheduleStore: scheduleStore, panel: panel, context: context)
 
         case .category(let category):
             CategoryEditorView(category: category, courseStore: CourseStore(context: context, panel: panel))
