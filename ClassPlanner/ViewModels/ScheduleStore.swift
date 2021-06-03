@@ -13,6 +13,9 @@ import SwiftUI
 
 class ScheduleStore: ObservableObject {
     
+    
+    private let shared: SharedVM
+    
     private (set) var directory: URL
     let panel: PanelVM
     let name: String
@@ -46,7 +49,8 @@ class ScheduleStore: ObservableObject {
     
     private var currentEditCourse: Course?
     
-    init(directory: URL, context: NSManagedObjectContext, panel: PanelVM) {
+    init(directory: URL, context: NSManagedObjectContext, panel: PanelVM, shared: SharedVM) {
+        self.shared = shared
         self.panel = panel
         self.context = context
         self.name = directory.lastPathComponent
@@ -54,7 +58,7 @@ class ScheduleStore: ObservableObject {
         do {
             let schedules = try FileManager.default.contentsOfDirectory(atPath: directory.path)
             for schedule in schedules {
-                let scheduleVM = ScheduleVM(context: context, url: directory.appendingPathComponent(schedule), panel: panel)
+                let scheduleVM = ScheduleVM(context: context, url: directory.appendingPathComponent(schedule), shared: shared)
                 scheduleNames[scheduleVM] = schedule
             }
         }
@@ -131,6 +135,8 @@ class ScheduleStore: ObservableObject {
     }
     
     func setName(_ name: String, for schedule: ScheduleVM) {
+        // Setting to an existing name causes popup to appear unless this line
+        if scheduleNames[schedule] == name { return }
         let url = directory.appendingPathComponent(name)
         if scheduleNames.values.contains(name) { doubleNameAlert.toggle() }
         else {
@@ -150,7 +156,7 @@ class ScheduleStore: ObservableObject {
         let uniqueName = name.uniqued(withRespectTo: scheduleNames.values)
         let schedule: ScheduleVM
         let url = directory.appendingPathComponent(uniqueName)
-        schedule = ScheduleVM(context: context, url: url, panel: panel)
+        schedule = ScheduleVM(context: context, url: url, shared: shared)
         scheduleNames[schedule] = uniqueName
     }
 

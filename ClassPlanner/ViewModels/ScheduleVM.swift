@@ -12,11 +12,14 @@ import Combine
 
 class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         
-    @Published var name: String
+    private let shared: SharedVM
     
+    @Published var name: String
     @Published private var model: ScheduleModel
     
     private let context: NSManagedObjectContext
+    
+    
     
     // MARK: - Access to Model
     
@@ -108,10 +111,10 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
 
     var url: URL? { didSet { save() }}
     
-    init(context: NSManagedObjectContext, url: URL, panel: PanelVM) {
+    init(context: NSManagedObjectContext, url: URL, shared: SharedVM) {
         self.name = url.lastPathComponent
         self.context = context
-        self.panel = panel
+        self.shared = shared
         self.id = UUID()
         self.url = url
         let decoder = JSONDecoder()
@@ -135,10 +138,9 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     
     // Should this be related to the Course View somehow?
     // Only used there to open editor
-    private var panel: PanelVM
     
     func setEditCourse(_ course: Course) {
-        panel.setEditSelection(to: .course(course: course))
+        shared.setEditSelection(to: .course(course: course))
     }
     
     var id: UUID

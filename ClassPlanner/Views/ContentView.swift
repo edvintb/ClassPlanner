@@ -9,11 +9,12 @@ import SwiftUI
 
 struct ContentView: View {
     
-    @EnvironmentObject var panel: PanelVM
+    @EnvironmentObject var shared: SharedVM
     
     @ObservedObject var scheduleStore: ScheduleStore
     @ObservedObject var courseStore: CourseStore
     @ObservedObject var concentrationVM: ConcentrationVM
+    @ObservedObject var panel: PanelVM
     
     let suggestionModel = SuggestionsModel<Course>()
 

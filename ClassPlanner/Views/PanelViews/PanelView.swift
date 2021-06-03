@@ -101,7 +101,7 @@ struct PanelView: View {
                                   message: Text("A schedule with the name already exists.\nPlease pick another name."),
                                   dismissButton: .default(Text("OK"))
                         )}
-                .onDisappear { scheduleStore.setName(schedule.name, for: schedule) }
+//                .onDisappear { scheduleStore.setName(schedule.name, for: schedule) }
         case .none:
             VStack {
                 Spacer()

@@ -20,15 +20,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         print(url)
         
+        let shared = SharedVM()
+        
         let panel = PanelVM(context: persistentContainer.viewContext)
-        let scheduleStore = ScheduleStore(directory: url, context: persistentContainer.viewContext, panel: panel)
+        let scheduleStore = ScheduleStore(directory: url, context: persistentContainer.viewContext, panel: panel, shared: shared)
         let concentrationVM = ConcentrationVM(panel: panel, scheduleStore: scheduleStore)
         
         let courseStore = CourseStore(context: persistentContainer.viewContext, panel: panel)
         
-        let contentView = ContentView(scheduleStore: scheduleStore, courseStore: courseStore, concentrationVM: concentrationVM)
+        let contentView = ContentView(scheduleStore: scheduleStore, courseStore: courseStore, concentrationVM: concentrationVM, panel: panel)
             .environment(\.managedObjectContext, persistentContainer.viewContext)
-            .environmentObject(panel)
+            .environmentObject(shared)
         
 //        let contentView = ContentView(context: persistentContainer.viewContext)
 //            .environment(\.managedObjectContext, persistentContainer.viewContext)
