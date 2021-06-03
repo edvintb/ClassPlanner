@@ -14,13 +14,13 @@ struct ContentView: View {
     @ObservedObject var scheduleStore: ScheduleStore
     @ObservedObject var courseStore: CourseStore
     @ObservedObject var concentrationVM: ConcentrationVM
-    @ObservedObject var panel: PanelVM
+    @ObservedObject var courseSuggestionVM: CourseSuggestionVM
     
     let suggestionModel = SuggestionsModel<Course>()
 
     var body: some View {
         NavigationView {
-            PanelView(scheduleStore: scheduleStore, courseStore: courseStore, panel: panel)
+            PanelView(scheduleStore: scheduleStore, courseStore: courseStore, courseSuggestionVM: courseSuggestionVM)
                     .frame(minWidth: editorWidth*1.1, alignment: .top)
                 VSplitView {
                     ScheduleView(store: scheduleStore, schedule: schedule)

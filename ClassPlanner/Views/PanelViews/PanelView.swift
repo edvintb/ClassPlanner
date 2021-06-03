@@ -13,7 +13,7 @@ struct PanelView: View {
     
     @ObservedObject var scheduleStore: ScheduleStore
     @ObservedObject var courseStore: CourseStore
-    @ObservedObject var panel: PanelVM
+    @ObservedObject var courseSuggestionVM: CourseSuggestionVM
     
     @Environment(\.managedObjectContext) var context
     
@@ -90,10 +90,10 @@ struct PanelView: View {
     func getEditor(_ selection: EditOption) -> some View {
         switch selection {
         case .course(let course):
-            CourseEditorView(course: course, scheduleStore: scheduleStore, panel: panel, context: context)
+            CourseEditorView(course: course, scheduleStore: scheduleStore, courseSuggestionVM: courseSuggestionVM, context: context)
 
         case .category(let category):
-            CategoryEditorView(category: category, courseStore: CourseStore(context: context, panel: panel, shared: shared))
+            CategoryEditorView(category: category, courseStore: CourseStore(context: context, shared: shared))
         case .concentration(let concentration):
             Text("Concentration: \(concentration.name)")
         case .schedule(let schedule):

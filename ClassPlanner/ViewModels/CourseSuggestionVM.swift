@@ -10,7 +10,7 @@ import CoreData
 import Foundation
 import Combine
 
-class PanelVM: ObservableObject {
+class CourseSuggestionVM: ObservableObject {
     
     let suggestionModel = SuggestionsModel<Course>()
     

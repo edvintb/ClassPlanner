@@ -46,7 +46,7 @@ struct CourseEditorView: View {
     
     // Needed to stop editing
     // also has the Suggestion Model created - good place for it?
-    @ObservedObject var panel: PanelVM
+    @ObservedObject var courseSuggestionVM: CourseSuggestionVM
     
     // Needed to rename course in all schedules
     // Needed to remove course from current schedule
@@ -61,8 +61,8 @@ struct CourseEditorView: View {
 //        set { panel.existingCourseEntered = false }
 //    }
     
-    init(course: Course, scheduleStore: ScheduleStore, panel: PanelVM, context: NSManagedObjectContext) {
-        self.panel = panel
+    init(course: Course, scheduleStore: ScheduleStore, courseSuggestionVM: CourseSuggestionVM, context: NSManagedObjectContext) {
+        self.courseSuggestionVM = courseSuggestionVM
         self.course = course
         self.scheduleStore = scheduleStore
         // Breaks when we delete a course
@@ -112,7 +112,7 @@ struct CourseEditorView: View {
     var nameField: some View {
         SuggestionInput(text: $searchModel.currentText,
                         suggestionGroups: searchModel.suggestionGroups,
-                        suggestionModel: panel.suggestionModel)
+                        suggestionModel: courseSuggestionVM.suggestionModel)
     }
     
     var semesterSelector: some View {

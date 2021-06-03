@@ -17,7 +17,6 @@ class ScheduleStore: ObservableObject {
     private let shared: SharedVM
     
     private (set) var directory: URL
-    let panel: PanelVM
     let name: String
     let context: NSManagedObjectContext
     
@@ -40,9 +39,8 @@ class ScheduleStore: ObservableObject {
     
     private var currentEditCourse: Course?
     
-    init(directory: URL, context: NSManagedObjectContext, panel: PanelVM, shared: SharedVM) {
+    init(directory: URL, context: NSManagedObjectContext, shared: SharedVM) {
         self.shared = shared
-        self.panel = panel
         self.context = context
         self.name = directory.lastPathComponent
         self.directory = directory
