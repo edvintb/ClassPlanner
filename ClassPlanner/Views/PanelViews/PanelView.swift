@@ -98,9 +98,10 @@ struct PanelView: View {
             ScheduleEditorView(schedule: schedule, scheduleStore: scheduleStore)
                         .alert(isPresented: $scheduleStore.doubleNameAlert) {
                             Alert(title: Text("Naming Conflict"),
-                                  message: Text("A schedule with that name already exists.\nPlease pick another name."),
+                                  message: Text("A schedule with the name already exists.\nPlease pick another name."),
                                   dismissButton: .default(Text("OK"))
                         )}
+                .onDisappear { scheduleStore.setName(schedule.name, for: schedule) }
         case .none:
             VStack {
                 Spacer()

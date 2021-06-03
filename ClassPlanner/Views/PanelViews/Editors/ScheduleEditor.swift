@@ -53,7 +53,7 @@ struct ScheduleEditorView: View {
     }
     
     var nameField: some View {
-        TextField("Name", text: $schedule.name, onCommit: {
+        TextField("Name", text: $schedule.name, onEditingChanged: { _ in
             scheduleStore.setName(schedule.name, for: schedule)
         }).cornerRadius(textFieldCornerRadius)
     }
