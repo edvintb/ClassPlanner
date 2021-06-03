@@ -26,13 +26,7 @@ class ScheduleStore: ObservableObject {
     // in the schedule itself? It still gets stored in the filename itself
     @Published private (set) var scheduleNames = [ScheduleVM:String]()
     
-    // Does this need to be optional?
-//    @Published private (set) var currentSchedule: ScheduleVM?
-    
     @Published var doubleNameAlert: Bool = false
-    
-//    @Published var searchText: String = ""
-//    @Published var suggestionGroups: [SuggestionGroup<String>] = []
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -62,54 +56,11 @@ class ScheduleStore: ObservableObject {
         catch {
             print("Error reading documents from directory: \(directory), \(error.localizedDescription)")
         }
-        
-        shared.$currentEditSelection
-            .map { (option) -> Course? in
-                switch option {
-                case .course(let course):
-                    print(course.objectID)
-                    return course
-                default:
-                    return nil
-                }
-            }
-            .assign(to: \.currentEditCourse, on: self)
-            .store(in: &cancellables)
-        
-        panel.suggestionModel.$suggestionConfirmed
-            .sink { [unowned self] confirmed in
-                if confirmed,
-                    let newCourse = panel.suggestionModel.selectedSuggestion?.value,
-                    let oldCourse = currentEditCourse {
-                    // print(oldCourse)
-                    // Maybe we won't have access to the old course
-                    // Replacing old course
-                    self.replaceCourse(old: oldCourse, new: newCourse)
-                    shared.setEditSelection(to: .course(course: newCourse))
-                }
-                else {
-                    print("Not confirmed suggestion")
-                }
-            }
-            .store(in: &cancellables)
-        
-        panel.suggestionModel.suggestionsCancelled
-            .sink { [unowned self] _ in
-                let predicate = NSPredicate(format: "name_ =[c] %@", argumentArray: [panel.suggestionModel.textBinding?.wrappedValue ?? ""])
-                let request = Course.fetchRequest(predicate)
-                let courses = (try? context.fetch(request)) ?? []
-                if let new = courses.first, let old = currentEditCourse {
-                    self.replaceCourse(old: old, new: new)
-                    shared.setEditSelection(to: .course(course: new))
-                }
-            }
-            .store(in: &cancellables)
     }
     
     // MARK: - Intents
     
     func removeFromSchedule(course: Course) {
-        print("Deleting from Editor")
         if let schedule = shared.currentSchedule {
             schedule.deleteCourse(course)
         }
@@ -167,6 +118,49 @@ class ScheduleStore: ObservableObject {
     
 
 }
+
+
+//        shared.$currentEditSelection
+//            .map { (option) -> Course? in
+//                switch option {
+//                case .course(let course):
+//                    print(course.objectID)
+//                    return course
+//                default:
+//                    return nil
+//                }
+//            }
+//            .assign(to: \.currentEditCourse, on: self)
+//            .store(in: &cancellables)
+//
+//        panel.suggestionModel.$suggestionConfirmed
+//            .sink { [unowned self] confirmed in
+//                if confirmed,
+//                    let newCourse = panel.suggestionModel.selectedSuggestion?.value,
+//                    let oldCourse = currentEditCourse {
+//                    // print(oldCourse)
+//                    // Maybe we won't have access to the old course
+//                    // Replacing old course
+//                    self.replaceCourse(old: oldCourse, new: newCourse)
+//                    shared.setEditSelection(to: .course(course: newCourse))
+//                }
+//                else {
+//                    print("Not confirmed suggestion")
+//                }
+//            }
+//            .store(in: &cancellables)
+//
+//        panel.suggestionModel.suggestionsCancelled
+//            .sink { [unowned self] _ in
+//                let predicate = NSPredicate(format: "name_ =[c] %@", argumentArray: [panel.suggestionModel.textBinding?.wrappedValue ?? ""])
+//                let request = Course.fetchRequest(predicate)
+//                let courses = (try? context.fetch(request)) ?? []
+//                if let new = courses.first, let old = currentEditCourse {
+//                    self.replaceCourse(old: old, new: new)
+//                    shared.setEditSelection(to: .course(course: new))
+//                }
+//            }
+//            .store(in: &cancellables)
 
 
 //        currentSchedule?.$name

@@ -12,37 +12,21 @@ import Combine
 
 class PanelVM: ObservableObject {
     
-    private let shared: SharedVM
-    
-    @Environment(\.managedObjectContext) var context
-    
-    @Published var existingCourseEntered: Bool = false
-    
     let suggestionModel = SuggestionsModel<Course>()
+    
+    private let shared: SharedVM
     private var cancellables = Set<AnyCancellable>()
     
     init(context: NSManagedObjectContext, shared: SharedVM) {
         self.shared = shared
-//         If we cancelled searching, we want to check if this name already exists
-        suggestionModel.suggestionsCancelled
-            .sink { [unowned self] _ in
-                let predicate = NSPredicate(format: "name_ =[c] %@", argumentArray: [suggestionModel.textBinding?.wrappedValue ?? ""])
-                let request = Course.fetchRequest(predicate)
-                let count = (try? context.count(for: request)) ?? 0
-                self.existingCourseEntered = count > 1
-            }
-            .store(in: &cancellables)
         
         suggestionModel.$suggestionConfirmed
             .sink { [unowned self] confirmed in
                 if confirmed,
-                    let newCourse = suggestionModel.selectedSuggestion?.value,
+                   let newCourse = self.suggestionModel.selectedSuggestion?.value,
                     case let .course(oldCourse) = shared.currentEditSelection {
-                    // print(oldCourse)
-                    // Maybe we won't have access to the old course
-                    // Replacing old course
-                    shared.replaceCourse(old: oldCourse, new: newCourse)
-                    shared.setEditSelection(to: .course(course: newCourse))
+                        shared.replaceCourse(old: oldCourse, new: newCourse)
+                        shared.setEditSelection(to: .course(course: newCourse))
                 }
                 else {
                     print("Not confirmed suggestion")
@@ -52,7 +36,7 @@ class PanelVM: ObservableObject {
         
         suggestionModel.suggestionsCancelled
             .sink { [unowned self] _ in
-                let predicate = NSPredicate(format: "name_ =[c] %@", argumentArray: [suggestionModel.textBinding?.wrappedValue ?? ""])
+                let predicate = NSPredicate(format: "name_ =[c] %@", argumentArray: [self.suggestionModel.textBinding?.wrappedValue ?? ""])
                 let request = Course.fetchRequest(predicate)
                 let courses = (try? context.fetch(request)) ?? []
                 if let newCourse = courses.first,
@@ -63,18 +47,30 @@ class PanelVM: ObservableObject {
             }
             .store(in: &cancellables)
         
-//        suggestionModel.$suggestionConfirmed
-//            .sink { [unowned self] (confirmed) in
-//                    if confirmed, let course = self.suggestionModel.selectedSuggestion?.value {
-////                        print("Updating Editoption to \(course.name)")
-////                        print(course)
-//                        self.setEditSelection(to: .course(course: course))
-//                    }
-//                }
-//            .store(in: &cancelables)
+
         
         
     }
+    
+    //        suggestionModel.$suggestionConfirmed
+    //            .sink { [unowned self] (confirmed) in
+    //                    if confirmed, let course = self.suggestionModel.selectedSuggestion?.value {
+    ////                        print("Updating Editoption to \(course.name)")
+    ////                        print(course)
+    //                        self.setEditSelection(to: .course(course: course))
+    //                    }
+    //                }
+    //            .store(in: &cancelables)
+    
+    //         If we cancelled searching, we want to check if this name already exists
+    //        suggestionModel.suggestionsCancelled
+    //            .sink { [unowned self] _ in
+    //                let predicate = NSPredicate(format: "name_ =[c] %@", argumentArray: [suggestionModel.textBinding?.wrappedValue ?? ""])
+    //                let request = Course.fetchRequest(predicate)
+    //                let count = (try? context.count(for: request)) ?? 0
+    //                self.existingCourseEntered = count > 1
+    //            }
+    //            .store(in: &cancellables)
 //    
 //    func setPanelSelection(to newSelection: PanelOption) {
 //        self.currentPanelSelection = newSelection
