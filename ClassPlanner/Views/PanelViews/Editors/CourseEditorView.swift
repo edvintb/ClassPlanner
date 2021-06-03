@@ -40,6 +40,7 @@ import Combine
 // Then we can bind to it with our TextFields and have what we write show up at once
 struct CourseEditorView: View {
     
+    @EnvironmentObject var shared: SharedVM
     @ObservedObject var course: Course
     private var cancellables = Set<AnyCancellable>()
     
@@ -55,10 +56,10 @@ struct CourseEditorView: View {
     // Okay to create here bc this view does not get redrawn
     @ObservedObject var searchModel: SearchModel
     
-    private var showAlert: Binding<Bool> {
-        get { $panel.existingCourseEntered }
-        set { panel.existingCourseEntered = false }
-    }
+//    private var showAlert: Binding<Bool> {
+//        get { $panel.existingCourseEntered }
+//        set { panel.existingCourseEntered = false }
+//    }
     
     init(course: Course, scheduleStore: ScheduleStore, panel: PanelVM, context: NSManagedObjectContext) {
         self.panel = panel
@@ -209,7 +210,7 @@ struct CourseEditorView: View {
                 // Perhaps remove -- then I won't need the panelVM
                 if let schedule = scheduleStore.currentSchedule {
                     schedule.deleteCourse(course)
-                    panel.stopEdit()
+                    shared.stopEdit()
                     course.delete()
                     save()
                 }
@@ -225,7 +226,7 @@ struct CourseEditorView: View {
                     withAnimation {
                         schedule.deleteCourse(course)
                         if course.isEmpty {
-                            panel.stopEdit()
+                            shared.stopEdit()
                             course.delete()
                         }
                         save()

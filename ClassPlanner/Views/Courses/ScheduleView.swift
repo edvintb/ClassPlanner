@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ScheduleView: View {
     
-    @EnvironmentObject var panel: PanelVM
+    @EnvironmentObject var shared: SharedVM
     @ObservedObject var store: ScheduleStore
     @ObservedObject var schedule: ScheduleVM
     
@@ -37,7 +37,7 @@ struct ScheduleView: View {
             .foregroundColor(schedule.color)
             .font(.system(size: 20))
             .contentShape(Rectangle())
-            .onTapGesture { panel.setEditSelection(to: .schedule(schedule: schedule)) }
+            .onTapGesture { shared.setEditSelection(to: .schedule(schedule: schedule)) }
             .padding([.horizontal, .top], 8)
     }
 }

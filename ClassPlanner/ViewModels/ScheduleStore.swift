@@ -66,7 +66,7 @@ class ScheduleStore: ObservableObject {
             print("Error reading documents from directory: \(directory), \(error.localizedDescription)")
         }
         
-        panel.$currentEditSelection
+        shared.$currentEditSelection
             .map { (option) -> Course? in
                 switch option {
                 case .course(let course):
@@ -88,7 +88,7 @@ class ScheduleStore: ObservableObject {
                     // Maybe we won't have access to the old course
                     // Replacing old course
                     self.replaceCourse(old: oldCourse, new: newCourse)
-                    panel.setEditSelection(to: .course(course: newCourse))
+                    shared.setEditSelection(to: .course(course: newCourse))
                 }
                 else {
                     print("Not confirmed suggestion")
@@ -103,7 +103,7 @@ class ScheduleStore: ObservableObject {
                 let courses = (try? context.fetch(request)) ?? []
                 if let new = courses.first, let old = currentEditCourse {
                     self.replaceCourse(old: old, new: new)
-                    panel.setEditSelection(to: .course(course: new))
+                    shared.setEditSelection(to: .course(course: new))
                 }
             }
             .store(in: &cancellables)

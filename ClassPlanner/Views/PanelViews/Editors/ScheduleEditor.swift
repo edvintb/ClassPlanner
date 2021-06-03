@@ -10,10 +10,13 @@ import CoreData
 
 struct ScheduleEditorView: View {
     
+    @EnvironmentObject var shared: SharedVM
+    
     @ObservedObject var schedule: ScheduleVM
+    
+    // store needed to confirm name
     @ObservedObject var scheduleStore: ScheduleStore
 //    @ObservedObject var courseStore: CourseStore
-    @EnvironmentObject var panel: PanelVM
 
     @Environment(\.managedObjectContext) var context
 
@@ -117,14 +120,14 @@ struct ScheduleEditorView: View {
             Button("Delete") {
                 withAnimation {
                     // Only thing panel is needed for -- do we have to close to delete?
-                    panel.setEditSelection(to: .none)
+                    shared.setEditSelection(to: .none)
                     scheduleStore.removeSchedule(schedule)
                 }
             }
             Spacer()
             Button("Close") {
                 withAnimation {
-                    panel.setEditSelection(to: .none)
+                    shared.setEditSelection(to: .none)
                 }
             }
         }

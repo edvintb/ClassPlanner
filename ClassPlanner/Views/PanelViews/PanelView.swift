@@ -9,6 +9,8 @@ import SwiftUI
 
 struct PanelView: View {
     
+    @EnvironmentObject var shared: SharedVM
+    
     @ObservedObject var scheduleStore: ScheduleStore
     @ObservedObject var courseStore: CourseStore
     @ObservedObject var panel: PanelVM
@@ -22,8 +24,8 @@ struct PanelView: View {
                 Spacer()
                 ForEach (PanelOption.allCases, id: \.self) { option in
                     Text(PanelOption.symbols[option] ?? "X")
-                        .foregroundColor(panel.currentPanelSelection == option ? .blue : nil)
-                        .onTapGesture { panel.setPanelSelection(to: option) }
+                        .foregroundColor(shared.currentPanelSelection == option ? .blue : nil)
+                        .onTapGesture { shared.setPanelSelection(to: option) }
                     Spacer()
                 }
                 
@@ -57,7 +59,7 @@ struct PanelView: View {
             Divider()
             
 
-            getPanelContent(panel.currentPanelSelection)
+            getPanelContent(shared.currentPanelSelection)
         }
         
         //            TabView(selection: $viewModel.currentPanelSelection,
@@ -76,9 +78,9 @@ struct PanelView: View {
         case .concentrations:
             Text("Concentrations")
         case .editor:
-            getEditor(panel.currentEditSelection).environmentObject(panel)
+            getEditor(shared.currentEditSelection)
         case .schedules:
-            PanelSchedules(panel: panel, store: scheduleStore)
+            PanelSchedules(store: scheduleStore)
         case .otherPeople:
             Text("Other People")
         }
@@ -91,7 +93,7 @@ struct PanelView: View {
             CourseEditorView(course: course, scheduleStore: scheduleStore, panel: panel, context: context)
 
         case .category(let category):
-            CategoryEditorView(category: category, courseStore: CourseStore(context: context, panel: panel))
+            CategoryEditorView(category: category, courseStore: CourseStore(context: context, panel: panel, shared: shared))
         case .concentration(let concentration):
             Text("Concentration: \(concentration.name)")
         case .schedule(let schedule):

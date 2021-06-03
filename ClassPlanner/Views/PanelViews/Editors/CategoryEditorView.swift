@@ -10,9 +10,12 @@ import CoreData
 
 struct CategoryEditorView: View {
     
+    // Used to stop editing
+    @EnvironmentObject var shared: SharedVM
+    
     @ObservedObject var category: Category
     @ObservedObject var courseStore: CourseStore
-    @EnvironmentObject var panel: PanelVM
+
 //    @Environment(\.colorScheme) var colorScheme
 
 
@@ -132,14 +135,14 @@ struct CategoryEditorView: View {
             Button("Delete") {
                 withAnimation {
                     // Only thing panel is needed for -- do we have to close to delete?
-                    panel.setEditSelection(to: .none)
+                    shared.setEditSelection(to: .none)
                     category.delete()
                 }
             }
             Spacer()
             Button("Close") {
                 withAnimation {
-                    panel.setEditSelection(to: .none)
+                    shared.setEditSelection(to: .none)
                 }
             }
         }

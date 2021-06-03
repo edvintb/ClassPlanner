@@ -18,18 +18,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Add `@Environment(\.managedObjectContext)` in the views that will need the context.
         
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let context = persistentContainer.viewContext
         print(url)
         
         let shared = SharedVM()
         
-        let panel = PanelVM(context: persistentContainer.viewContext)
-        let scheduleStore = ScheduleStore(directory: url, context: persistentContainer.viewContext, panel: panel, shared: shared)
-        let concentrationVM = ConcentrationVM(panel: panel, scheduleStore: scheduleStore)
+        let panel = PanelVM(context: context)
+        let scheduleStore = ScheduleStore(directory: url, context: context, panel: panel, shared: shared)
+        let concentrationVM = ConcentrationVM(shared: shared, scheduleStore: scheduleStore)
         
-        let courseStore = CourseStore(context: persistentContainer.viewContext, panel: panel)
+        let courseStore = CourseStore(context: context, panel: panel, shared: shared)
         
         let contentView = ContentView(scheduleStore: scheduleStore, courseStore: courseStore, concentrationVM: concentrationVM, panel: panel)
-            .environment(\.managedObjectContext, persistentContainer.viewContext)
+            .environment(\.managedObjectContext, context)
             .environmentObject(shared)
         
 //        let contentView = ContentView(context: persistentContainer.viewContext)

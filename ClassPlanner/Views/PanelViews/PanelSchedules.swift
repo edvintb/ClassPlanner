@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PanelSchedules: View {
     
-    @ObservedObject var panel: PanelVM
+    @EnvironmentObject var shared: SharedVM
     @ObservedObject var store: ScheduleStore
     @Environment(\.managedObjectContext) var context
     
@@ -26,7 +26,7 @@ struct PanelSchedules: View {
                     scheduleView(for: schedule)
                         .onTapGesture {
                             store.setCurrentSchedule(to: schedule)
-                            panel.setEditSelection(to: .schedule(schedule: schedule))
+                            shared.setEditSelection(to: .schedule(schedule: schedule))
                         }
                 }
             }

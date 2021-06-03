@@ -17,6 +17,9 @@ class CourseStore: ObservableObject {
     // The current schedule is in the ScheduleStore
     // We actually only need to drag them out of here and drop them into the schedule
     
+    private let shared: SharedVM
+    
+    // Setting edit selection
     private var panel: PanelVM
     
     private var subscriptions: Set<AnyCancellable> = []
@@ -26,10 +29,11 @@ class CourseStore: ObservableObject {
     @Published var courseQuery: String = ""
     
     func setEditCourse(course: Course) {
-        panel.setEditSelection(to: .course(course: course))
+        shared.setEditSelection(to: .course(course: course))
     }
     
-    init(context: NSManagedObjectContext, panel: PanelVM) {
+    init(context: NSManagedObjectContext, panel: PanelVM, shared: SharedVM) {
+        self.shared = shared
         self.panel = panel
         $courseQuery
             .removeDuplicates()

@@ -14,9 +14,9 @@ class PanelVM: ObservableObject {
     
     @Environment(\.managedObjectContext) var context
     
-    @Published private (set) var currentPanelSelection: PanelOption = .schedules
-    
-    @Published private (set) var currentEditSelection: EditOption = .none
+//    @Published private (set) var currentPanelSelection: PanelOption = .schedules
+//    
+//    @Published private (set) var currentEditSelection: EditOption = .none
     
     @Published var existingCourseEntered: Bool = false
     
@@ -46,19 +46,19 @@ class PanelVM: ObservableObject {
         
         
     }
-    
-    func setPanelSelection(to newSelection: PanelOption) {
-        self.currentPanelSelection = newSelection
-    }
-    
-    func setEditSelection(to newSelection: EditOption) {
-        self.currentEditSelection = newSelection
-        currentPanelSelection = .editor
-    }
-    
-    func stopEdit() {
-        currentEditSelection = .none
-    }
+//    
+//    func setPanelSelection(to newSelection: PanelOption) {
+//        self.currentPanelSelection = newSelection
+//    }
+//    
+//    func setEditSelection(to newSelection: EditOption) {
+//        self.currentEditSelection = newSelection
+//        currentPanelSelection = .editor
+//    }
+//    
+//    func stopEdit() {
+//        currentEditSelection = .none
+//    }
 }
 
 

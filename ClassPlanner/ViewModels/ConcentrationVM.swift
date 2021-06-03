@@ -9,19 +9,19 @@ import Foundation
 
 class ConcentrationVM: ObservableObject {
     
+    private let shared: SharedVM
+    
     @Published var scheduleStore: ScheduleStore
     
-    init(panel: PanelVM, scheduleStore: ScheduleStore) {
-        self.panel = panel
+    init(shared: SharedVM, scheduleStore: ScheduleStore) {
+        self.shared = shared
         self.scheduleStore = scheduleStore
     }
     
     // MARK: - Editing
     
-    private var panel: PanelVM
-    
     func setEditCategory(_ category: Category) {
-        panel.setEditSelection(to: .category(category: category))
+        shared.setEditSelection(to: .category(category: category))
     }
     
     // MARK: - Dragging
