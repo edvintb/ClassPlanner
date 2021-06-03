@@ -50,7 +50,7 @@ struct PanelCoursesView: View {
                 else {
                     Columns(matchingCourses, numberOfColumns: 2, maxNumberRows: 7, moreView: moreView) { course in
                         PanelCourseView(course: course, viewModel: courseStore)
-                            .onDrag { NSItemProvider(object: course.name as NSString) }
+                            .onDrag { NSItemProvider(object: course.stringID as NSString) }
                             .scaleEffect(isDropping ? hoverScaleFactor : 1)
                     }
                     .padding([.horizontal], 7)

@@ -236,8 +236,9 @@ struct CourseEditorView: View {
         else {
             return
                 Button("Add to current") {
+                    let newPos = CoursePosition(semester: 0, index: 0)
                     withAnimation {
-                        schedule.addCourse(course, semester: 0, index: 0)
+                        schedule.addCourse(course, at: newPos)
                         save()
                     }
                 }

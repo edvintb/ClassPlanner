@@ -211,6 +211,10 @@ extension Course {
     
     // MARK: - Property access
 
+    var stringID: String {
+        self.objectID.uriRepresentation().absoluteString
+    }
+    
     // Removing nil values
     var name: String {
         get { self.name_ ?? ""}

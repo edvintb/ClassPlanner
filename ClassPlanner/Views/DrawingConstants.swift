@@ -29,6 +29,7 @@ let categoryHeight: CGFloat = concentrationHeight
 let categoryWidth: CGFloat = courseWidth
 let categoryCourseFontSize: CGFloat = 12
 let categoryCourseFont: Font = .system(size: categoryCourseFontSize)
+let checkMarkColor: Color = Color(.sRGB, red: 0, green: 200, blue: 200, opacity: 0.4)
 
 let editorWidth: CGFloat = 300
 let scheduleMinHeight: CGFloat = 400
@@ -50,3 +51,4 @@ let textFieldCornerRadius: CGFloat = 3.5
 
 let panelScheduleHeight: CGFloat = 50
 
+let myRed: Color = Color(.sRGB, red: 200, green: 40, blue: 40, opacity: 1)

@@ -123,7 +123,7 @@ struct CategoryEditorView: View {
         Grid (courses, desiredAspectRatio: 2) { course in
             HStack {
                 Text(course.name == "" ? "No name" : course.name)
-//                    .foregroundColor(viewModel.getColor(course.color, dark: colorScheme == .dark))
+                    .foregroundColor(course.getColor())
                     .contentShape(Rectangle())
                     .onTapGesture { category.removeCourse(course) }
             }

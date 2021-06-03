@@ -71,10 +71,18 @@ struct CourseView: View {
                 if let newCourse = Course.fromURI(uri: uri, context: context) {
                     if newCourse == course { return }
                     if let pos = schedule.getPosition(course: course) {
-                        withAnimation {
-                            schedule.moveCourse(newCourse, to: pos.semester, index: pos.index)
+                        if schedule.courseURLs.contains(uri) {
+                            withAnimation {
+                                schedule.moveCourse(newCourse, to: pos)
+                            }
+                        }
+                        else {
+                            withAnimation {
+                                schedule.addCourse(newCourse, at: pos)
+                            }
                         }
                     }
+
                 }
             }
         }

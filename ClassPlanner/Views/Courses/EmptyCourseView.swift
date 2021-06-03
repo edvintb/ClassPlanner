@@ -39,8 +39,9 @@ struct EmptyCourseView: View {
                         print(count)
                         let adjustment = pos.semester == semester ? -1 : 0
                         print(adjustment)
+                        let newPos = CoursePosition(semester: semester, index: count + adjustment)
                         withAnimation {
-                            schedule.moveCourse(newCourse, to: semester, index: count + adjustment)
+                            schedule.moveCourse(newCourse, to: newPos)
                         }
                     }
                 }

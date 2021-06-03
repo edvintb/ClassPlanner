@@ -60,10 +60,8 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     
     // MARK: - Intents
 
-    func moveCourse(_ course: Course, to semester: Int, index: Int) {
-        // Position earlier??
-        let newPosition = CoursePosition(semester: semester, index: index)
-        model.moveCourse(course, to: newPosition)
+    func moveCourse(_ course: Course, to newPos: CoursePosition) {
+        model.moveCourse(course, to: newPos)
     }
 
     func deleteCourse(_ course: Course) {
@@ -75,20 +73,21 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         save()
     }
     
-    func addCourse(_ course: Course, semester: Int, index: Int) {
+    func addCourse(_ course: Course, at newPos: CoursePosition) {
         // Make it into a position??
         try? context.save() // Why is this here??
-        model.addCourse(course, semester: semester, index: index)
+        model.addCourse(course, at: newPos)
         
     }
     
     func addEmptyCourse(to semester: Int, context: NSManagedObjectContext) {
         let index = model.schedule[semester]?.count ?? 0
         let course = Course(context: context)
+        let newPos = CoursePosition(semester: semester, index: index)
         print("is temporary: \(course.objectID.isTemporaryID)")
         try? context.save()
         print("is temporary: \(course.objectID.isTemporaryID)")
-        model.addCourse(course, semester: semester, index: index)
+        model.addCourse(course, at: newPos)
         save()
 //        print(getPosition(course: course))
 //        print(courses(for: semester))

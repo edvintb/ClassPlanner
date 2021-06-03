@@ -9,14 +9,14 @@ import SwiftUI
 
 struct CategoryView: View {
     
+    // Needed to set edit selection
     @EnvironmentObject var shared: SharedVM
     
     @ObservedObject var category: Category
     
     // Needed for dragging and editing
     @ObservedObject var concentrationVM: ConcentrationVM
-//    @Environment(\.colorScheme) var colorScheme
-    
+
     @State private var dragOffset: CGSize = .zero
     @State private var isDropping: Bool = false
     
@@ -32,13 +32,30 @@ struct CategoryView: View {
         }
     }
     
+    private var numberOfContainedCourses: Int {
+        if let schedule = shared.currentSchedule {
+            return
+                category.courses.filter {
+                    schedule.courseURLs.contains($0.objectID.uriRepresentation())
+                }.count
+        }
+        else {
+            return 0
+        }
+    }
+    
+    private var moreContainedThanRequired: Bool {
+        if category.numberOfRequired == 0 { return false }
+        return numberOfContainedCourses >= category.numberOfRequired
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             title
             Divider().padding(.trailing, 4)
             ForEach (courses) { course in
                 courseView(course: course)
-                    .onDrag { NSItemProvider(object: course.name as NSString) }
+                    .onDrag { NSItemProvider(object: course.stringID as NSString) }
             }
             Spacer(minLength: 4)
         }
@@ -52,12 +69,15 @@ struct CategoryView: View {
     
     
     var title: some View {
-        HStack {
+        HStack(spacing: 0) {
             Text(category.name == "" ? "Name" : category.name)
                 .opacity(category.name == "" ? emptyHoverOpacity : 1)
                 .foregroundColor(color)
             Spacer()
-            Text("\(category.numberOfRequired)")
+            Text("\(numberOfContainedCourses)")
+                .opacity(moreContainedThanRequired ? 1 : emptyHoverOpacity)
+                .foregroundColor(moreContainedThanRequired ? .green : .primary)
+            Text("/\(category.numberOfRequired)")
                 .opacity(category.numberOfRequired == 0 ? emptyHoverOpacity : 1)
                 
         }
@@ -74,7 +94,15 @@ struct CategoryView: View {
             Text(course.name)
                 .font(categoryCourseFont)
                 .foregroundColor(course.getColor())
+            Spacer()
+            if let schedule = shared.currentSchedule {
+                if schedule.courseURLs.contains(course.objectID.uriRepresentation()) {
+                    Text("􀁢")
+                        .foregroundColor(checkMarkColor)
+                }
+            }
         }
+        .padding(.trailing, 3)
     }
     
     func drop(providers: [NSItemProvider]) -> Bool {
