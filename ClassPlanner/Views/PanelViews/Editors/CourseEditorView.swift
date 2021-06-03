@@ -40,6 +40,8 @@ import Combine
 // Then we can bind to it with our TextFields and have what we write show up at once
 struct CourseEditorView: View {
     
+    @Environment(\.managedObjectContext) var context
+    
     @ObservedObject var course: Course
     private var cancellables = Set<AnyCancellable>()
     
@@ -64,7 +66,7 @@ struct CourseEditorView: View {
         self.panel = panel
         self.course = course
         self.scheduleStore = scheduleStore
-        // Remove force unwrap -- but what do we do without the searchModel
+        // Breaks when we delete a course
         self.searchModel = SearchModel(course: course, context: course.managedObjectContext!)
 //        print("Editor init called")
         
