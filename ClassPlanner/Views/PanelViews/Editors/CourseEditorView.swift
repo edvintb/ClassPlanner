@@ -198,7 +198,7 @@ struct CourseEditorView: View {
         HStack {
             deleteButton
             Spacer()
-            if let schedule = scheduleStore.currentSchedule {
+            if let schedule = shared.currentSchedule {
                 addRemoveButton(schedule: schedule)
             }
         }
@@ -208,7 +208,7 @@ struct CourseEditorView: View {
         Button("Delete") {
             withAnimation {
                 // Perhaps remove -- then I won't need the panelVM
-                if let schedule = scheduleStore.currentSchedule {
+                if let schedule = shared.currentSchedule {
                     schedule.deleteCourse(course)
                     shared.stopEdit()
                     course.delete()

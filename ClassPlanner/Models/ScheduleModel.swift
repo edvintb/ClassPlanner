@@ -52,6 +52,7 @@ struct ScheduleModel: Codable, Hashable, Equatable {
     
     mutating func addCourse(_ course: Course, semester: Int, index: Int) {
         let id = course.objectID.uriRepresentation()
+        if getPositionInSchedule(id: id) != nil { return }
         schedule[semester, default: []].insert(id, at: index)
     }
     

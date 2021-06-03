@@ -27,7 +27,7 @@ class ScheduleStore: ObservableObject {
     @Published private (set) var scheduleNames = [ScheduleVM:String]()
     
     // Does this need to be optional?
-    @Published private (set) var currentSchedule: ScheduleVM?
+//    @Published private (set) var currentSchedule: ScheduleVM?
     
     @Published var doubleNameAlert: Bool = false
     
@@ -41,10 +41,7 @@ class ScheduleStore: ObservableObject {
     }
     
     func setCurrentSchedule(to schedule: ScheduleVM) {
-        self.currentSchedule = schedule
-        // Needed to update categories
-        // We need a shared VM
-        objectWillChange.send()
+        shared.setCurrentSchedule(to: schedule)
     }
     
     private var currentEditCourse: Course?
@@ -113,14 +110,14 @@ class ScheduleStore: ObservableObject {
     
     func removeFromSchedule(course: Course) {
         print("Deleting from Editor")
-        if let schedule = currentSchedule {
+        if let schedule = shared.currentSchedule {
             schedule.deleteCourse(course)
         }
     }
     
     func replaceCourse(old: Course, new: Course) {
         if old == new { return }
-        if let schedule = currentSchedule {
+        if let schedule = shared.currentSchedule {
             schedule.replaceCourse(old: old, with: new)
         }
     }

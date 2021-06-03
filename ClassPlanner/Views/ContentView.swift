@@ -33,7 +33,7 @@ struct ContentView: View {
     }
     
     private var schedule: ScheduleVM {
-        if let schedule = scheduleStore.currentSchedule {
+        if let schedule = shared.currentSchedule {
             return schedule
         }
         else if let schedule = scheduleStore.schedules.first {

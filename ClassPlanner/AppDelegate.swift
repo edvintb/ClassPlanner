@@ -23,7 +23,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let shared = SharedVM()
         
-        let panel = PanelVM(context: context)
+        let panel = PanelVM(context: context, shared: shared)
         let scheduleStore = ScheduleStore(directory: url, context: context, panel: panel, shared: shared)
         let concentrationVM = ConcentrationVM(shared: shared, scheduleStore: scheduleStore)
         
