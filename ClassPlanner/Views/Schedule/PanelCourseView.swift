@@ -21,89 +21,15 @@ struct PanelCourseView: View {
     @EnvironmentObject var shared: SharedVM
     @ObservedObject var course: Course
     
-    
     @State private var isFrontUp: Bool = true
     
     private var color: Color { course.getColor() }
+    private var empty: Bool { course.name == "" }
 
     var body: some View {
-        ZStack(alignment: .center) {
-            RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
-                .foregroundColor(color)
-                .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
-            if isFrontUp { front }
-            else         { back }
-        }
-        .gesture(tapGesture)
-        .padding([.horizontal], 5)
-        .frame(height: courseHeight, alignment: .center)
-        // Allow dropping into here and placing the course there....
-
+        CourseView(course: course)
     }
-    var front: some View {
-        Text("\(course.name)")
-            .font(.system(size: 1.3*titleSize))
-            .allowsTightening(true)
-            .lineLimit(3)
-            .multilineTextAlignment(.center)
-            .truncationMode(.tail)
-            .frame(width: courseWidth, height: courseHeight, alignment: .center)
-    }
-    
-    var back: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                Text("\(course.name)").font(.system(size: titleSize)).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                Text("+").font(.system(size: 1.2*titleSize, weight: .semibold))
-            }
-                .contentShape(Rectangle())
-            .onTapGesture { shared.setEditSelection(to: .course(course: course)) }
-                .padding([.horizontal], 7)
-            Divider()
-                .padding([.horizontal], 5)
-            VStack(alignment: .leading, spacing: 0) {
-                HStack {
-                    leftProperties()
-                    rightProperties()
-                }
-            }
-            .padding(5)
-        }
-        .lineLimit(1)
-        .truncationMode(.tail)
-    }
-    
-    
-    var tapGesture: some Gesture {
-        TapGesture().onEnded {
-            withAnimation(Animation.easeInOut(duration: 0.2)) {
-                isFrontUp.toggle()
-            }
-        }
-    }
-    
-    func leftProperties() -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(" \(workloadSymbol) \(NSNumber(value: course.workload), formatter: NumberFormatter.courseFormat)")
-            Text("  \(qscoreSymbol)  ").foregroundColor(.red) + Text("\(NSNumber(value: course.qscore), formatter: NumberFormatter.courseFormat)")
-            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
-            
-        }
-        .font(.system(size: iconSize, weight: .regular, design: .default))
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    
-    func rightProperties() -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text("\(gradeSymbol)")
-            Text("\(course.fall ? "\(fallSymbol) " : " - ")/\(course.spring ? " \(springSymbol)" : " -")")
-            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
-            
-        }
-        .font(.system(size: iconSize, weight: .regular, design: .default))
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-//
+        //
 //    var title: some View {
 //        let emptyName = course.name == ""
 //        return Text(emptyName ? "Name" : course.name)

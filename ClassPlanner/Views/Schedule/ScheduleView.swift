@@ -18,18 +18,13 @@ struct ScheduleView: View {
             ScrollView([.vertical, .horizontal]) {
                 VStack(alignment: .leading, spacing: 2) {
                     scheduleName(schedule: schedule)
-                    Divider()
-                        .padding([.leading, .bottom], 3)
-                        .frame(width: (courseWidth + 2*courseSpacing)*CGFloat(schedule.semesters.count))
-                    HStack {
-                        ForEach (schedule.semesters, id: \.self) { semester in
-                            SemesterView(for: semester, schedule: schedule)
-                        }
-                    }
-                    .frame(minWidth: geo.frame(in: .local).width, minHeight: geo.frame(in: .local).height, alignment: .topLeading)
-                    }
+                    Divider().padding([.leading, .bottom], 3)
+//                        .frame(width: (courseWidth + 2*courseSpacing)*CGFloat(schedule.semesters.count))
+                    semesters
                 }
+                .frame(minWidth: geo.frame(in: .local).width, minHeight: geo.frame(in: .local).height, alignment: .topLeading)
             }
+        }
     }
     
     func scheduleName(schedule: ScheduleVM) -> some View {
@@ -39,6 +34,15 @@ struct ScheduleView: View {
             .contentShape(Rectangle())
             .onTapGesture { shared.setEditSelection(to: .schedule(schedule: schedule)) }
             .padding([.horizontal, .top], 8)
+    }
+    
+    var semesters: some View {
+        HStack {
+            Spacer().frame(width: 5)
+            ForEach (schedule.semesters, id: \.self) { semester in
+                SemesterView(semester: semester, schedule: schedule)
+            }
+        }
     }
 }
 

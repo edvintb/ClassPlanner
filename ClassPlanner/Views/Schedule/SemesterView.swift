@@ -14,35 +14,25 @@ struct SemesterView: View {
     
     @Environment(\.managedObjectContext) var context
     @ObservedObject var schedule: ScheduleVM
-//    @FetchRequest private var courses: FetchedResults<Course>
-//    let request = Course.fetchRequest(NSPredicate(format: "semester_ = %@", argumentArray: [semester]))
-//    _courses = FetchRequest(fetchRequest: request)
-    
-    init(for semester: Int, schedule: ScheduleVM) {
-//        print("Initializing semester \(semester)")
-        self.semester = semester
-        self.schedule = schedule
-    }
     
     private var courses: [Course] { schedule.courses(for: semester) }
     
     var body: some View {
         VStack(spacing: courseSpacing) {
-            Spacer(minLength: 3)
-            ForEach (courses, id: \.self) { course in
-                CourseView(course: course)
+            ForEach (courses) { course in
+                ScheduleCourseView(course: course)
             }
             EmptyCourseView(semester: semester)
             Spacer()
         }
-        .environmentObject(schedule)
+        .frame(width: courseWidth, alignment: .top)
     }
     
-    func delete(course: Course) -> some View {
-        print(course.qscore)
-        course.delete()
-        return Text("I was a course")
-    }
+//    func delete(course: Course) -> some View {
+//        print(course.qscore)
+//        course.delete()
+//        return Text("I was a course")
+//    }
     
     //        VStack {
     ////            HStack {
