@@ -95,7 +95,7 @@ struct PanelCourseView: View {
     
     func rightProperties() -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(" Pos: \(NSNumber(value: course.position), formatter: NumberFormatter.courseFormat)")
+            Text("\(gradeSymbol)")
             Text("\(course.fall ? "\(fallSymbol) " : " - ")/\(course.spring ? " \(springSymbol)" : " -")")
             Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
             

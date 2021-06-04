@@ -45,11 +45,11 @@ struct PanelView: View {
         case .editor:
             getEditor(shared.currentEditSelection)
         case .courses:
-            PanelCoursesView(courseStore: courseStore, scheduleStore: scheduleStore)
+            CourseStoreView(courseStore: courseStore)
         case .concentrations:
             PanelConcentrations()
         case .schedules:
-            PanelSchedules(store: scheduleStore)
+            ScheduleStoreView(store: scheduleStore)
         case .otherPeople:
             Text("Other People")
         }

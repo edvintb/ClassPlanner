@@ -15,8 +15,6 @@ struct ContentView: View {
     @ObservedObject var courseStore: CourseStore
     @ObservedObject var concentrationVM: ConcentrationVM
     @ObservedObject var courseSuggestionVM: CourseSuggestionVM
-    
-    let suggestionModel = SuggestionsModel<Course>()
 
     var body: some View {
         NavigationView {
@@ -25,7 +23,7 @@ struct ContentView: View {
                 VSplitView {
                     ScheduleView(store: scheduleStore, schedule: schedule)
                         .frame(minHeight: scheduleMinHeight, idealHeight: 400)
-                    ConcentrationContainerView(concentrationVM: concentrationVM)
+                    ConcentrationContainerView(concentrationVM: concentrationVM, schedule: schedule)
                         .frame(minHeight: concentrationsMinHeight, idealHeight: 150)
                 }
                 .frame(minWidth: mainMinWidth, idealWidth: 600)

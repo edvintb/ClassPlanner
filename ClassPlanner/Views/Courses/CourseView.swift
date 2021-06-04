@@ -44,8 +44,8 @@ struct CourseView: View {
     var body: some View {
         ZStack(alignment: .center) {
             box
-            if empty            { emptyView }
-            else if isFrontUp   { front.padding(5) }
+            if empty            { EmptyView() }
+            else if isFrontUp   { front }
             else                { back }
         }
         .onDrag { NSItemProvider(object: course.objectID.uriRepresentation().absoluteString as NSString) }
@@ -97,10 +97,6 @@ struct CourseView: View {
             .shadow(color: color, radius: isDropping ? hoverShadowRadius : 0)
     }
     
-    var emptyView: some View {
-        Text("\(course.position)").font(.system(size: 2.5*titleSize))
-    }
-    
     var front: some View {
         Text("\(course.name)")
             .font(.system(size: 1.3*titleSize))
@@ -108,6 +104,7 @@ struct CourseView: View {
             .lineLimit(3)
             .multilineTextAlignment(.center)
             .truncationMode(.tail)
+            .padding(5)
     }
     
     var back: some View {
@@ -149,7 +146,7 @@ struct CourseView: View {
     
     func rightProperties() -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(" Pos: \(NSNumber(value: course.position), formatter: NumberFormatter.courseFormat)")
+            Text("\(gradeSymbol)")
             Text("\(course.fall ? "\(fallSymbol) " : " - ")/\(course.spring ? " \(springSymbol)" : " -")")
             Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
             

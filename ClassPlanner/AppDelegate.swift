@@ -19,24 +19,21 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let context = persistentContainer.viewContext
-        print(url)
+//        print(url)
         
         let shared = SharedVM()
         
+        let concentrationVM = ConcentrationVM(shared: shared)
+
         let courseSuggestionVM = CourseSuggestionVM(context: context, shared: shared)
-        let scheduleStore = ScheduleStore(directory: url, context: context, shared: shared)
-        let concentrationVM = ConcentrationVM(shared: shared, scheduleStore: scheduleStore)
-        
+                
         let courseStore = CourseStore(context: context)
+        
+        let scheduleStore = ScheduleStore(directory: url, context: context, shared: shared)
         
         let contentView = ContentView(scheduleStore: scheduleStore, courseStore: courseStore, concentrationVM: concentrationVM, courseSuggestionVM: courseSuggestionVM)
             .environment(\.managedObjectContext, context)
             .environmentObject(shared)
-        
-//        let contentView = ContentView(context: persistentContainer.viewContext)
-//            .environment(\.managedObjectContext, persistentContainer.viewContext)
-        
-//        let contentView = ScheduleView(viewModel: ClassPlannerVM(request: Course.fetchRequest(.all), in: persistentContainer.viewContext)).environment(\.managedObjectContext, persistentContainer.viewContext)
 
         // Create the window and set the content view.
         window = NSWindow(
@@ -47,8 +44,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.setFrameAutosaveName("Main Window")
         window.contentView = NSHostingView(rootView: contentView)
         window.makeKeyAndOrderFront(nil)
-//        
-//        courseVM.mouseLocation = { self.window.convertPoint(fromScreen: NSEvent.mouseLocation) }
     
     }
 

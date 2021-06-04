@@ -11,11 +11,8 @@ class ConcentrationVM: ObservableObject {
     
     private let shared: SharedVM
     
-    @Published var scheduleStore: ScheduleStore
-    
-    init(shared: SharedVM, scheduleStore: ScheduleStore) {
+    init(shared: SharedVM) {
         self.shared = shared
-        self.scheduleStore = scheduleStore
     }
     
     // MARK: - Editing

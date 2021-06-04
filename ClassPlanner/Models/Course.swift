@@ -64,17 +64,6 @@ extension Course {
     
     // MARK: - Static functions
     
-    static func createEmpty(in semester: Int, at position: Int, in context: NSManagedObjectContext){
-        let course = Course(context: context)
-        course.name = ""
-        course.semester = semester
-        course.position = position
-        course.fall = false
-        course.spring = false
-//        print(course)
-        try? context.save()
-    }
-    
     static func fetchRequest(_ predicate: NSPredicate) -> NSFetchRequest<Course> {
         let request = NSFetchRequest<Course>(entityName: "Course")
         request.sortDescriptors = [NSSortDescriptor(key: "name_", ascending: true)]
@@ -179,6 +168,15 @@ extension Course {
 //        }
 //    }
     
+//    static func createEmpty(in semester: Int, at position: Int, in context: NSManagedObjectContext){
+//        let course = Course(context: context)
+//        course.name = ""
+//        course.fall = false
+//        course.spring = false
+////        print(course)
+//        try? context.save()
+//    }
+    
     func delete() {
         if let context = self.managedObjectContext {
             context.delete(self)
@@ -205,11 +203,13 @@ extension Course {
 //        }
 //    }
     
+
+    
+    // MARK: - Property access
+    
     var isEmpty: Bool {
         self.notes == "" && self.workload == 0 && self.enrollment == 0 && self.qscore == 0 && self.color == 0
     }
-    
-    // MARK: - Property access
 
     var stringID: String {
         self.objectID.uriRepresentation().absoluteString
@@ -219,7 +219,6 @@ extension Course {
         self.objectID.uriRepresentation()
     }
     
-    // Removing nil values
     var name: String {
         get { self.name_ ?? ""}
         set { self.name_ = newValue }
@@ -228,17 +227,6 @@ extension Course {
     var notes: String {
         get { self.notes_ ?? ""}
         set { self.notes_ = newValue }
-    }
-    
-    // Type Changing
-    var position: Int {
-        get { Int(self.position_) }
-        set { self.position_ = Int32(newValue) }
-    }
-    
-    var semester: Int {
-        get { Int(self.semester_) }
-        set { self.semester_ = Int16(newValue) }
     }
     
     var workload: Double {
@@ -259,6 +247,17 @@ extension Course {
 }
 
 
+
+// Type Changing
+//    var position: Int {
+//        get { Int(self.position_) }
+//        set { self.position_ = Int32(newValue) }
+//    }
+//
+//    var semester: Int {
+//        get { Int(self.semester_) }
+//        set { self.semester_ = Int16(newValue) }
+//    }
 
 //extension Course: UTType {
 //

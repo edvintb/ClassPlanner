@@ -10,13 +10,13 @@ import SwiftUI
 struct ConcentrationContainerView: View {
     
     @ObservedObject var concentrationVM: ConcentrationVM
+    @ObservedObject var schedule: ScheduleVM
     
-    // Needed if I want to color concentrations
-    @Environment(\.colorScheme) var colorScheme
     @FetchRequest private var concentrations: FetchedResults<Concentration>
 
-    init(concentrationVM: ConcentrationVM) {
+    init(concentrationVM: ConcentrationVM, schedule: ScheduleVM) {
         self.concentrationVM = concentrationVM
+        self.schedule = schedule
         let request = Concentration.fetchRequest(.all)
         _concentrations = FetchRequest(fetchRequest: request)
     }
@@ -25,6 +25,7 @@ struct ConcentrationContainerView: View {
         GeometryReader { geo in
             ScrollView([.vertical]) {
                 concentrationViews
+                    // Set the frame to take up entire scrollView
                     .frame(minHeight: geo.size.height, alignment: .topLeading)
 
             }
@@ -35,7 +36,7 @@ struct ConcentrationContainerView: View {
         VStack(alignment: .leading) {
             Spacer(minLength: 4)
             ForEach (concentrations) { concentration in
-                ConcentrationView(concentration: concentration, concentrationVM: concentrationVM)
+                ConcentrationView(concentration: concentration, concentrationVM: concentrationVM, schedule: schedule)
             }
             EmptyConcentrationView()
         }

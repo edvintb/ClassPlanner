@@ -8,32 +8,30 @@
 import SwiftUI
 import CoreData
 
-struct PanelCoursesView: View {
+struct CourseStoreView: View {
     
+    // Needed to set panel/editor
+    // And to remove courses from current schedule
     @EnvironmentObject var shared: SharedVM
     
-    // Needed to remove courses from current schedule
-    @ObservedObject var scheduleStore: ScheduleStore
-    
-    // Needed for the search logic
     @ObservedObject var courseStore: CourseStore
-//    @Environment(\.colorScheme) var colorScheme
     
-    // Needed for the request
+    // Needed to drop-remove courses
     @Environment(\.managedObjectContext) var context
     
+    // Used to search in courseDB
     @State private var query: String = ""
+    
+    // All courses with a name in courseDB
     @FetchRequest private var courses: FetchedResults<Course>
     
+    // Response when hovering course
     @State var isDropping: Bool = false
     
-    init(courseStore: CourseStore, scheduleStore: ScheduleStore) {
-        self.scheduleStore = scheduleStore
+    init(courseStore: CourseStore) {
         self.courseStore = courseStore
-        let request = NSFetchRequest<Course>(entityName: "Course")
-        request.sortDescriptors = [NSSortDescriptor(key: "name_", ascending: true)]
-        request.predicate = NSPredicate(format: "name_ != %@", argumentArray: [""])
-//        request.predicate = .all
+        let predicate = NSPredicate(format: "name_ != %@", argumentArray: [""])
+        let request = Course.fetchRequest(predicate)
         _courses = FetchRequest(fetchRequest: request)
     }
     

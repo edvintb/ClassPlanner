@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct PanelSchedules: View {
+struct ScheduleStoreView: View {
     
     @EnvironmentObject var shared: SharedVM
     @ObservedObject var store: ScheduleStore

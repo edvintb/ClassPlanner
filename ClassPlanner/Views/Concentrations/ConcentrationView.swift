@@ -14,14 +14,15 @@ struct ConcentrationView: View {
     // Needed for dragging
     // Good to keep drag-method separate bc strings
     @ObservedObject var concentrationVM: ConcentrationVM
-    @Environment(\.managedObjectContext) var context
+    
+    // Needs to tell categories to change with schedule
+    @ObservedObject var schedule: ScheduleVM
     
     private var categories: [Category] {
         concentration.categories.sorted(by: {$0.index < $1.index })
     }
     
     @State private var dragOffset: CGSize = .zero
-    @State private var isEditingName: Bool = false
     @State private var isTargeted: Bool = false
     
     private var empty: Bool {
@@ -33,9 +34,7 @@ struct ConcentrationView: View {
     
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: frameCornerRadius)
-                .stroke()
-                .opacity(emptyHoverOpacity)
+            container
             VStack(alignment: .leading, spacing: 1) {
                 title
                 Divider()
@@ -48,9 +47,15 @@ struct ConcentrationView: View {
         .scaleEffect(isTargeted ? 1.01 : 1)
         .onHover { isTargeted = concentrationVM.hoverOverConcentration(concentration, entered: $0) }
         .offset(dragOffset)
-        .zIndex( concentrationVM.dragConcentration == concentration ? 1 : 0)
+        .zIndex(concentrationVM.dragConcentration == concentration ? 1 : 0)
         
 
+    }
+    
+    var container: some View {
+        RoundedRectangle(cornerRadius: frameCornerRadius)
+            .stroke()
+            .opacity(emptyHoverOpacity)
     }
     
     var title: some View {
@@ -69,8 +74,8 @@ struct ConcentrationView: View {
     func categories(in size: CGSize) -> some View {
         HStack {
             ForEach (categories) { category in
-                optionalScrollView(wanted: CGFloat(category.courses.count + 1) * categoryCourseFontSize*1.5, given: size.height) {
-                    CategoryView(category: category, concentrationVM: concentrationVM)
+                ConditionalScrollView(wanted: CGFloat(category.courses.count + 1) * categoryCourseFontSize*1.5, given: size.height) {
+                    CategoryView(category: category, schedule: schedule, concentrationVM: concentrationVM)
                 }
             }
             EmptyCategoryView(concentration: concentration)
@@ -80,22 +85,11 @@ struct ConcentrationView: View {
         .environmentObject(concentrationVM)
     }
     
-    @ViewBuilder
-    func optionalScrollView<V>(wanted: CGFloat, given: CGFloat, content: () -> V) -> some View where V: View {
-        if wanted > given {
-            ScrollView(content: content)
-        }
-        else {
-            Group(content: content)
-        }
-    }
-    
     var titleText: some View {
         Text(empty ? "Name" : concentration.name)
             .font(.system(size: 20))
             .opacity(empty ? 0.4 : 1)
-            .onTapGesture { isEditingName.toggle() }
-//            .popover(isPresented: $isEditingName, content: { nameEditor.padding(5) })
+            .onTapGesture {  } // Open Concentration Editor
     }
 
     
@@ -117,14 +111,16 @@ struct ConcentrationView: View {
     }
     
     
-    func delete(category: Category) -> some View {
-        context.delete(category)
-        return Text("I was a category")
-    }
+//
     
     
 }
 
+//
+//func delete(category: Category) -> some View {
+//        context.delete(category)
+//        return Text("I was a category")
+//    }
 
 // Could also access categories from concentration, but actually
 // more efficient this way. Sorting on DB-side

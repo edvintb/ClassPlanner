@@ -9,12 +9,15 @@ import SwiftUI
 
 struct CategoryView: View {
     
+    
     // Needed to set edit selection
     @EnvironmentObject var shared: SharedVM
-    
     @ObservedObject var category: Category
+
+    // Needs to look at the schedule to check the courses
+    @ObservedObject var schedule: ScheduleVM
     
-    // Needed for dragging and editing
+    // Needed for dragging
     @ObservedObject var concentrationVM: ConcentrationVM
 
     @State private var dragOffset: CGSize = .zero
