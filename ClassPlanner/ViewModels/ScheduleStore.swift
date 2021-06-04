@@ -17,7 +17,7 @@ class ScheduleStore: ObservableObject {
     private let shared: SharedVM
     
     private (set) var directory: URL
-    let name: String
+    let storeName: String = "Schedules"
     let context: NSManagedObjectContext
     
     
@@ -25,7 +25,7 @@ class ScheduleStore: ObservableObject {
     // in the schedule itself? It still gets stored in the filename itself
     @Published private (set) var scheduleNames = [ScheduleVM:String]()
     
-    @Published var doubleNameAlert: Bool = false
+    @Published var existingNameAlert: IdentifiableString?
     
     private var cancellables: Set<AnyCancellable> = []
     
@@ -40,9 +40,9 @@ class ScheduleStore: ObservableObject {
     init(directory: URL, context: NSManagedObjectContext, shared: SharedVM) {
         self.shared = shared
         self.context = context
-        self.name = directory.lastPathComponent
         self.directory = directory
         do {
+            // Why on earth did the documents folder disappear??
             let schedules = try FileManager.default.contentsOfDirectory(atPath: directory.path)
             for schedule in schedules {
                 let url = directory.appendingPathComponent(schedule)
@@ -50,13 +50,15 @@ class ScheduleStore: ObservableObject {
                 scheduleNames[scheduleVM] = schedule
                 
                 // Try updating the stored name when we change in schedule
-                scheduleVM.$name
-                    .debounce(for: 0.5, scheduler: DispatchQueue.main)
-                    .removeDuplicates()
-                    .sink { [unowned self] name in
-                        self.setName(name, for: scheduleVM)
-                    }
-                    .store(in: &cancellables)
+//                scheduleVM.$name
+//                    .debounce(for: 0.5, scheduler: DispatchQueue.main)
+//                    .removeDuplicates()
+//                    .sink { [unowned self] name in
+//                        if name != "" {
+//                            self.setName(name, for: scheduleVM)
+//                        }
+//                    }
+//                    .store(in: &cancellables)
             }
         }
         catch {
@@ -88,20 +90,29 @@ class ScheduleStore: ObservableObject {
         return scheduleNames[schedule]!
     }
     
-    func setName(_ name: String, for schedule: ScheduleVM) {
-        // Setting to an existing name causes popup to appear unless this line
-        if scheduleNames[schedule] == name { return }
-        let url = directory.appendingPathComponent(name)
-        if scheduleNames.values.contains(name) { doubleNameAlert.toggle() }
-        else {
+    func setName(_ newName: String, for schedule: ScheduleVM) {
+        if approveName(newName, for: schedule) {
             // Deleting at the old url
             removeSchedule(schedule)
             // Each time we set the url we are saving
-            schedule.url = url
-            // Update in my store
-            scheduleNames[schedule] = name
+            schedule.url = directory.appendingPathComponent(newName)
+            // Update name in store
+            scheduleNames[schedule] = newName
         }
-        schedule.name = scheduleNames[schedule] ?? "Untitled"
+    }
+    
+    private func approveName(_ newName: String, for schedule: ScheduleVM) -> Bool {
+        // Setting to the same name has no effect
+        if scheduleNames[schedule] == newName { return false }
+        // Setting to empty name resets the name
+        if newName == "" { schedule.name = name(for: schedule); return false }
+        // Setting to existing name toggles alert and resets
+        if scheduleNames.values.contains(newName) || newName == "" {
+            existingNameAlert = IdentifiableString(value: newName)
+            schedule.name = name(for: schedule)
+            return false
+        }
+        return true
     }
     
     // MARK: - Handling Schedules
@@ -116,6 +127,7 @@ class ScheduleStore: ObservableObject {
 
     func removeSchedule(_ schedule: ScheduleVM) {
         if let name = scheduleNames[schedule] {
+            if name == "" { print("Found empty name. THIS CAUSES DISAPPEAR"); return }
             let url = directory.appendingPathComponent(name)
             try? FileManager.default.removeItem(at: url)
         }

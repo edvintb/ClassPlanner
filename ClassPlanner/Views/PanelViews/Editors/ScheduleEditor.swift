@@ -56,7 +56,7 @@ struct ScheduleEditorView: View {
     }
     
     var nameField: some View {
-        TextField("Name", text: $schedule.name)
+        TextField("Name", text: $schedule.name, onCommit: { schedule.name = scheduleStore.name(for: schedule) })
             .cornerRadius(textFieldCornerRadius)
     }
     

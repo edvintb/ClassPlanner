@@ -66,11 +66,24 @@ struct PanelView: View {
             Text("Concentration: \(concentration.name)")
         case .schedule(let schedule):
             ScheduleEditorView(schedule: schedule, scheduleStore: scheduleStore)
-                        .alert(isPresented: $scheduleStore.doubleNameAlert) {
-                            Alert(title: Text("Naming Conflict"),
-                                  message: Text("A schedule with that name already exists.\nPlease pick another name."),
-                                  dismissButton: .default(Text("OK"))
-                        )}
+                .alert(item: $scheduleStore.existingNameAlert) { nameString in
+                    Alert(title: Text("Naming Conflict"),
+                          message: Text("Existing schedule with name: \(nameString.value) \nPlease pick another name."),
+                          dismissButton: .default(Text("OK")))
+                }
+                .onDisappear { scheduleStore.setName(schedule.name, for: schedule) }
+//
+//                .alert(isPresented: $scheduleStore.doubleNameAlert) {
+//                    Alert(title: Text("Naming Conflict"),
+//                          message: Text("A schedule with that name already exists.\nPlease pick another name."),
+//                          dismissButton: .default(Text("OK"))
+//                )}
+                
+//                        .alert(isPresented: $scheduleStore.emptyNameAlert) {
+//                            Alert(title: Text("Empty Name"),
+//                                  message: Text("A schedule must have a name."),
+//                                  dismissButton: .default(Text("OK"))
+//                        )}
 //                .onDisappear { scheduleStore.setName(schedule.name, for: schedule) }
         case .none:
             VStack {

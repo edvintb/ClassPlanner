@@ -98,7 +98,7 @@ struct CourseEditorView: View {
                 qscoreEntry
                 enrollmentEntry
                 noteEditor
-                colorGrid
+                EditorColorGrid { course.color = $0; save() }
                 Spacer()
                 bottomButtons
             }
@@ -188,7 +188,6 @@ struct CourseEditorView: View {
                 .foregroundColor(Color.colorSelection[index])
                 .onTapGesture { course.color = index; save() }
                 .padding(3)
-                .focusable()
         }
         .frame(height: 2*courseHeight)
     }

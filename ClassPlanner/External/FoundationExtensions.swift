@@ -75,6 +75,10 @@ extension Int {
     }
 }
 
+struct IdentifiableString: Identifiable {
+    var id = UUID()
+    var value: String
+}
 
 extension String {
     // returns ourself without any duplicate Characters

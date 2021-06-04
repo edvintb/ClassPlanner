@@ -57,7 +57,7 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     }
     
     func getPosition(course: Course) -> CoursePosition? {
-        model.getPositionInSchedule(id: course.urlID)
+        model.getPositionInSchedule(for: course)
     }
     
     func courses(for semester: Int) -> [Course] {
@@ -80,13 +80,14 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         model.deleteCourse(course)
     }
     
-    func replaceCourse(old: Course, with new: Course) {
-        model.replaceCourse(old: old, with: new)
+    func replaceCourse(old: Course, with newCourse: Course) {
+        model.replaceCourse(oldCourse: old, with: newCourse)
         save()
     }
     
     func addCourse(_ course: Course, at newPos: CoursePosition) {
         model.moveCourse(course, to: newPos)
+        save()
     }
     
     func setColor(to index: Int) {
