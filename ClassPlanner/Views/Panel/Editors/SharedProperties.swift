@@ -7,17 +7,7 @@
 
 import SwiftUI
 
-//struct EditorTitleModifier: ViewModifier {
-//    
-//    func body(content: Content) -> some View {
-//        content
-//            .font(.system(size: 20))
-//            .lineLimit(2)
-//            .fixedSize(horizontal: false, vertical: true)
-//            .padding([.horizontal], 15)
-//    }
-//
-//}
+
 
 struct EditorTitleView: View {
     
@@ -50,8 +40,24 @@ struct EditorNotes: View {
 }
 
 
-extension View {
-    func editorTitle() -> some View {
-        self.modifier(EditorTitleModifier())
-    }
-}
+
+
+
+//struct EditorTitleModifier: ViewModifier {
+//
+//    func body(content: Content) -> some View {
+//        content
+//            .font(.system(size: 20))
+//            .lineLimit(2)
+//            .fixedSize(horizontal: false, vertical: true)
+//            .padding([.horizontal], 15)
+//    }
+//
+//}
+
+
+//extension View {
+//    func editorTitle() -> some View {
+//        self.modifier(EditorTitleModifier())
+//    }
+//}

@@ -11,7 +11,7 @@ class SharedVM: ObservableObject {
     
     // MARK: - Managing Current Schedule
     
-    @Published private (set) var currentSchedule: ScheduleVM?
+    private (set) var currentSchedule: ScheduleVM?
     
     func setCurrentSchedule(to schedule: ScheduleVM) {
         self.currentSchedule = schedule

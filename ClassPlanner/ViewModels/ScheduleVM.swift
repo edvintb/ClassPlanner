@@ -70,7 +70,7 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         }
     }
     
-
+    
     
     // MARK: - Intents
 
