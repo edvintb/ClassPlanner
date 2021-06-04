@@ -47,29 +47,17 @@ struct CourseEditorView: View {
     // Needed to stop editing
     // also has the Suggestion Model created - good place for it?
     @ObservedObject var courseSuggestionVM: CourseSuggestionVM
-    
-    // Needed to rename course in all schedules
-    // Needed to remove course from current schedule
-    @ObservedObject var scheduleStore: ScheduleStore
-    
+
     // StateObject in Stephan's solution. Not recreated when redrawn is the difference
     // Okay to create here bc this view does not get redrawn
     @ObservedObject var searchModel: SearchModel
     
-//    private var showAlert: Binding<Bool> {
-//        get { $panel.existingCourseEntered }
-//        set { panel.existingCourseEntered = false }
-//    }
-    
-    init(course: Course, scheduleStore: ScheduleStore, courseSuggestionVM: CourseSuggestionVM, context: NSManagedObjectContext) {
+    init(course: Course, courseSuggestionVM: CourseSuggestionVM, context: NSManagedObjectContext) {
         self.courseSuggestionVM = courseSuggestionVM
         self.course = course
-        self.scheduleStore = scheduleStore
         // Breaks when we delete a course
-        self.searchModel = SearchModel(course: course, context: context)
+        self.searchModel = SearchModel(startingText: course.name, context: context, avoid: course.objectID)
 
-//        print("Editor init called")
-        
         // Updating the name of the course as we type it in
         searchModel.$currentText
             .removeDuplicates()
@@ -107,12 +95,16 @@ struct CourseEditorView: View {
         }
     }
     
-    @State private var currentName: String = ""
+//    @State private var currentName: String = ""
     
     var nameField: some View {
-        SuggestionInput(text: $searchModel.currentText,
-                        suggestionGroups: searchModel.suggestionGroups,
-                        suggestionModel: courseSuggestionVM.suggestionModel)
+        HStack {
+            Text(" \(nameSymbol)").font(.system(size: 16, weight: .thin, design: .serif))
+            SuggestionInput(text: $searchModel.currentText,
+                            suggestionGroups: searchModel.suggestionGroups,
+                            suggestionModel: courseSuggestionVM.suggestionModel)
+        }
+
     }
     
     var semesterSelector: some View {

@@ -29,25 +29,13 @@ struct ScheduleEditorView: View {
             Divider().padding(5)
             EditorNotes(notes: schedule.notes)
             Form {
-                TextField("Name", text: $schedule.name, onCommit: {
-                    scheduleStore.setName(schedule.name, for: schedule)
-                }).cornerRadius(textFieldCornerRadius)
-                .focusable(true) { print($0)}
-                TextField("Notes...", text: $schedule.notes)
-                    .cornerRadius(textFieldCornerRadius)
-                    .focusable()
+                nameField
+                noteEditor
                 Spacer(minLength: 12)
                 coursesView
-                // Make them all colorpickers for Big Sur
-                Grid(Array(1..<Color.colorSelection.count), id: \.self) { index in
-                    RoundedRectangle(cornerRadius: frameCornerRadius)
-                        .onTapGesture { schedule.setColor(to: index) }
-                        .foregroundColor(Color.colorSelection[index])
-                        .padding(3)
-                }
-                bottomButtons
-                
+                EditorColorGrid { schedule.setColor(to: $0) }
             }
+            bottomButtons
 //            .frame(width: editorWidth, height: editorHeight, alignment: .center)
             .padding()
             
@@ -56,8 +44,28 @@ struct ScheduleEditorView: View {
     }
     
     var nameField: some View {
-        TextField("Name", text: $schedule.name, onCommit: { schedule.name = scheduleStore.name(for: schedule) })
-            .cornerRadius(textFieldCornerRadius)
+        HStack {
+            Text(nameSymbol).font(.system(size: 16, weight: .thin, design: .serif))
+            TextField("Name", text: $schedule.name, onCommit: { schedule.name = scheduleStore.name(for: schedule) })
+                .cornerRadius(textFieldCornerRadius)
+        }
+    }
+    
+    var noteEditor: some View {
+        HStack {
+            Text(" \(noteSymbol)")
+            ZStack {
+                if #available(OSX 11.0, *) {
+                    TextEditor(text: $schedule.notes)
+                        .cornerRadius(textFieldCornerRadius)
+                        .focusable()
+                } else {
+                    TextField("Notes...", text: $schedule.notes)
+                        .cornerRadius(textFieldCornerRadius)
+                        .focusable()
+                }
+            }
+        }
     }
     
 //    var coursesView: some View {
@@ -76,20 +84,6 @@ struct ScheduleEditorView: View {
 //            }
 //        }
 //    }
-    
-
-    
-    
-    var noteEditor: some View {
-        ZStack {
-            if #available(OSX 11.0, *) {
-                TextEditor(text: $schedule.notes)
-            } else {
-                TextField("Notes...", text: $schedule.notes)
-                    .cornerRadius(textFieldCornerRadius)
-            }
-        }
-    }
 
     var coursesView: some View {
         VStack(alignment: .leading, spacing: 10) {

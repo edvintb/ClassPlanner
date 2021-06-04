@@ -14,6 +14,7 @@ struct PanelView: View {
     @ObservedObject var scheduleStore: ScheduleStore
     @ObservedObject var courseStore: CourseStore
     @ObservedObject var courseSuggestionVM: CourseSuggestionVM
+    @ObservedObject var categorySuggestionVM: CategorySuggestionVM
     
     @Environment(\.managedObjectContext) var context
     
@@ -59,11 +60,11 @@ struct PanelView: View {
     func getEditor(_ selection: EditOption) -> some View {
         switch selection {
         case .course(let course):
-            CourseEditorView(course: course, scheduleStore: scheduleStore, courseSuggestionVM: courseSuggestionVM, context: context)
+            CourseEditorView(course: course, courseSuggestionVM: courseSuggestionVM, context: context)
         case .category(let category):
-            CategoryEditorView(category: category, courseStore: CourseStore(context: context))
+            CategoryEditorView(category: category, categorySuggestionVM: categorySuggestionVM, context: context)
         case .concentration(let concentration):
-            Text("Concentration: \(concentration.name)")
+            ConcentrationEditorView(concentration: concentration)
         case .schedule(let schedule):
             ScheduleEditorView(schedule: schedule, scheduleStore: scheduleStore)
                 .alert(item: $scheduleStore.existingNameAlert) { nameString in

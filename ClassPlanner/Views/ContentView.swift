@@ -15,10 +15,11 @@ struct ContentView: View {
     @ObservedObject var courseStore: CourseStore
     @ObservedObject var concentrationVM: ConcentrationVM
     @ObservedObject var courseSuggestionVM: CourseSuggestionVM
+    @ObservedObject var categorySuggestionVM: CategorySuggestionVM
 
     var body: some View {
         NavigationView {
-            PanelView(scheduleStore: scheduleStore, courseStore: courseStore, courseSuggestionVM: courseSuggestionVM)
+            PanelView(scheduleStore: scheduleStore, courseStore: courseStore, courseSuggestionVM: courseSuggestionVM, categorySuggestionVM: categorySuggestionVM)
                     .frame(minWidth: editorWidth*1.1, alignment: .top)
                 VSplitView {
                     ScheduleView(store: scheduleStore, schedule: schedule)

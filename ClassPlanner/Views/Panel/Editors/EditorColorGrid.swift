@@ -9,6 +9,8 @@ import SwiftUI
 
 struct EditorColorGrid: View {
     
+    // Make them all colorpickers for Big Sur
+    
     let tapAction: (Int) -> ()
     
     var body: some View {
@@ -18,6 +20,6 @@ struct EditorColorGrid: View {
                 .onTapGesture { tapAction(index) }
                 .padding(3)
         }
-        .frame(height: 2*courseHeight)
+        .frame(minHeight: 2*courseHeight)
     }
 }

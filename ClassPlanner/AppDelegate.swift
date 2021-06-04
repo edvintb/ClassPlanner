@@ -26,12 +26,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let concentrationVM = ConcentrationVM(shared: shared)
 
         let courseSuggestionVM = CourseSuggestionVM(context: context, shared: shared)
+        let categorySuggestionVM = CategorySuggestionVM(context: context, shared: shared)
                 
         let courseStore = CourseStore(context: context)
         
         let scheduleStore = ScheduleStore(directory: url, context: context, shared: shared)
         
-        let contentView = ContentView(scheduleStore: scheduleStore, courseStore: courseStore, concentrationVM: concentrationVM, courseSuggestionVM: courseSuggestionVM)
+        let contentView = ContentView(scheduleStore: scheduleStore,
+                                      courseStore: courseStore,
+                                      concentrationVM: concentrationVM,
+                                      courseSuggestionVM: courseSuggestionVM,
+                                      categorySuggestionVM: categorySuggestionVM)
             .environment(\.managedObjectContext, context)
             .environmentObject(shared)
 

@@ -20,11 +20,11 @@ final class SearchModel: ObservableObject {
 //    @Environment(\.managedObjectContext) var context
     
     private let context: NSManagedObjectContext
-    private let currentCourseID: NSManagedObjectID
+    private let currentCourseID: NSManagedObjectID?
     
     var courses: [Course] {
-        let request = Course.fetchRequest(NSPredicate(format: "SELF != %@", argumentArray: [currentCourseID] ))
-//        let request = Course.fetchRequest(.all)
+        let predicate = (currentCourseID == nil ? .all : NSPredicate(format: "SELF != %@", argumentArray: [currentCourseID!] ))
+        let request = Course.fetchRequest(predicate)
         let courses = (try? context.fetch(request)) ?? []
         return courses
     }
@@ -34,10 +34,12 @@ final class SearchModel: ObservableObject {
     
     private var cancellables: Set<AnyCancellable> = []
     
-    init(course: Course, context: NSManagedObjectContext) {
+    init(startingText: String, context: NSManagedObjectContext, avoid id: NSManagedObjectID? = nil) {
         self.context = context
-        self.currentText = course.name
-        self.currentCourseID = course.objectID
+        self.currentText = startingText
+        self.currentCourseID = id
+        
+        
 //        print("Search model init")
     
         // Perhaps load the harvard-json into a file and decode it like this
@@ -66,7 +68,7 @@ final class SearchModel: ObservableObject {
                     return []
                 }
                 // prefix gives number of results
-                let courseSuggestions = self.courses.lazy.filter({ $0.name.localizedCaseInsensitiveContains(text) }).prefix(10).map { course -> Suggestion<Course> in
+                let courseSuggestions = self.courses.lazy.filter({ $0.name.lowercased().hasPrefix(text.lowercased()) }).prefix(10).map { course -> Suggestion<Course> in
                     Suggestion(text: course.name, value: course)
                 }
 //                let germanSuggestions = self.germanWords.lazy.filter({ $0.hasPrefix(text) }).prefix(10).map { word -> Suggestion<String> in
@@ -85,6 +87,11 @@ final class SearchModel: ObservableObject {
             .assign(to: \SearchModel.suggestionGroups, on: self)
             .store(in: &cancellables)
         
+
+    }
+}
+
+
 //        self.$currentText
 //            .debounce(for: 0.3, scheduler: RunLoop.main)
 //            .removeDuplicates()
@@ -99,5 +106,3 @@ final class SearchModel: ObservableObject {
 //            }
 //            .assign(to: \DictionaryModel.currentTranslation, on: self)
 //            .store(in: &cancellables)
-    }
-}

@@ -47,6 +47,7 @@ let noteSymbol: String = "🗒"
 let fallSymbol: String = "🍁"
 let springSymbol: String = "🌱"
 let gradeSymbol: String = "􀫓"
+let nameSymbol: String = "􀌮"
 let textFieldCornerRadius: CGFloat = 3.5
 
 let panelScheduleHeight: CGFloat = 50

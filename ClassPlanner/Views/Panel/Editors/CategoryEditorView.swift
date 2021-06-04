@@ -7,6 +7,7 @@
 
 import SwiftUI
 import CoreData
+import Combine
 
 struct CategoryEditorView: View {
     
@@ -15,9 +16,13 @@ struct CategoryEditorView: View {
     
     @ObservedObject var category: Category
     
-    // Used to search courses
-    @ObservedObject var courseStore: CourseStore
+//    // Used to search courses
+//    @ObservedObject var courseStore: CourseStore
     
+    @ObservedObject var categorySuggestionVM: CategorySuggestionVM
+    @ObservedObject var searchModel: SearchModel
+    
+    private var cancellables = Set<AnyCancellable>()
     private var color: Color { category.getColor() }
     
     // Sort courses depending on current schedule
@@ -30,40 +35,87 @@ struct CategoryEditorView: View {
         }
     }
     
+    init(category: Category, categorySuggestionVM: CategorySuggestionVM, context: NSManagedObjectContext) {
+        self.categorySuggestionVM = categorySuggestionVM
+        self.category = category
+        // Breaks when we delete a course
+        self.searchModel = SearchModel(startingText: "", context: context)
+
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Spacer(minLength: 7)
+            concentrationName
             EditorTitleView(title: category.name).foregroundColor(color)
             Divider().padding(5)
             EditorNotes(notes: category.notes)
             Form {
-                TextField("Name", text: $category.name, onCommit: { save() }).cornerRadius(textFieldCornerRadius)
-                // Bug when not writing anything / removing everything -- check for other formatted fields
-                IntTextField("# Required", integer: $category.numberOfRequired, onCommit: { save() })
-                noteEditor
-                Spacer(minLength: 12)
-                searchField
-                Spacer(minLength: 12)
-                coursesView
-                // Make them all colorpickers for Big Sur
+                Section {
+                    nameField
+                    requiredField
+                    noteEditor
+                }
+                Spacer().frame(height: 20)
+                Section(header: header, footer: footer) {
+                    courseSearchField
+                    coursesView
+                }
+                Spacer()
                 EditorColorGrid { category.color = $0; save() }
                 bottomButtons
                 
             }
-//            .frame(width: editorWidth, height: editorHeight, alignment: .center)
             .padding()
-            
+
         }
 
     }
     
+    var concentrationName: some View {
+        HStack {
+            Spacer()
+            Text(category.concentration?.name ?? "No concentration")
+                .opacity(0.4)
+                .font(.footnote)
+            Spacer()
+        }
+        
+    }
+    
+    var nameField: some View {
+        HStack {
+            Text(nameSymbol).font(.system(size: 16, weight: .thin, design: .serif))
+            TextField("Name", text: $category.name, onCommit: { save() }).cornerRadius(textFieldCornerRadius)
+        }
+    }
+    
     var requiredField: some View {
         HStack {
-            Text(" \(enrollmentSymbol)")
+            Text(" # ").font(.system(size: 17.5, weight: .thin, design: .default)).foregroundColor(.yellow)
             IntTextField("# Required", integer: $category.numberOfRequired, onCommit: { save() })
                 .cornerRadius(textFieldCornerRadius)
         }
     }
+    
+    
+    var header: some View {
+        Text("Add Courses")
+            .opacity(emptyHoverOpacity)
+    }
+    
+    var footer: some View {
+        Text("Click Course to Remove")
+            .opacity(emptyHoverOpacity)
+    }
+    
+    var courseSearchField: some View {
+        SuggestionInput(text: $searchModel.currentText,
+                        suggestionGroups: searchModel.suggestionGroups,
+                        suggestionModel: categorySuggestionVM.suggestionModel)
+    }
+    
+
     
 //    var coursesView: some View {
 //        HStack {
@@ -86,7 +138,8 @@ struct CategoryEditorView: View {
     
     
     var noteEditor: some View {
-        ZStack {
+        HStack {
+            Text(noteSymbol)
             if #available(OSX 11.0, *) {
                 TextEditor(text: $category.notes)
                     .cornerRadius(textFieldCornerRadius)
@@ -96,31 +149,34 @@ struct CategoryEditorView: View {
             }
         }
     }
-    
-    @State var startIndex: Int = 0
-    var showingCourses: [Course] { Array(courseStore.dbCourses[startIndex..<min(startIndex + 5, courseStore.dbCourses.count)]) }
-    
-    var searchField: some View {
-        VStack(spacing: 10) {
-            Spacer(minLength: 5)
-            SearchTextField(query: $courseStore.courseQuery, placeholder: "Search for Courses...")
-            if showingCourses.count == 0 {
-                Text("No Results").opacity(0.2).frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
-            }
-            else {
-                // Must be fixed
-                Spacer(minLength: 1)
-                Text("Courses")
-                Text("Click to add").frame(minWidth: 50, maxWidth: .infinity, alignment: .trailing)
-                Divider()
-                Grid(showingCourses, desiredAspectRatio: 3) { course in
-                    Text(course.name)
-                }
-            }
-
-                Divider()
-            }.frame(height: 40 + CGFloat((showingCourses.count + 1) / 3) * 50, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-    }
+//
+//    @State var startIndex: Int = 0
+//
+//
+//
+//    var showingCourses: [Course] { Array(courseStore.dbCourses[startIndex..<min(startIndex + 5, courseStore.dbCourses.count)]) }
+//
+//    var searchField: some View {
+//        VStack(spacing: 10) {
+//            Spacer(minLength: 5)
+//            SearchTextField(query: $courseStore.courseQuery, placeholder: "Search for Courses...")
+//            if showingCourses.count == 0 {
+//                Text("No Results").opacity(0.2).frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, alignment: .leading)
+//            }
+//            else {
+//                // Must be fixed
+//                Spacer(minLength: 1)
+//                Text("Courses")
+//                Text("Click to add").frame(minWidth: 50, maxWidth: .infinity, alignment: .trailing)
+//                Divider()
+//                Grid(showingCourses, desiredAspectRatio: 3) { course in
+//                    Text(course.name)
+//                }
+//            }
+//
+//                Divider()
+//            }.frame(height: 40 + CGFloat((showingCourses.count + 1) / 3) * 50, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+//    }
     
     var coursesView: some View {
         Grid (courses, desiredAspectRatio: 2) { course in

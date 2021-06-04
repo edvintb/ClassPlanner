@@ -19,10 +19,10 @@ struct ScheduleView: View {
                 VStack(alignment: .leading, spacing: 2) {
                     scheduleName(schedule: schedule)
                     Divider().padding([.leading, .bottom], 3)
-//                        .frame(width: (courseWidth + 2*courseSpacing)*CGFloat(schedule.semesters.count))
+                        .frame(width: (courseWidth + 8)*CGFloat(schedule.semesters.count))
                     semesters
                 }
-                .frame(minWidth: geo.frame(in: .local).width, minHeight: geo.frame(in: .local).height, alignment: .topLeading)
+                .frame(minWidth: geo.size.width, alignment: .topLeading)
             }
         }
     }
@@ -42,6 +42,7 @@ struct ScheduleView: View {
             ForEach (schedule.semesters, id: \.self) { semester in
                 SemesterView(semester: semester, schedule: schedule)
             }
+            Spacer().frame(width: 5)
         }
     }
 }
