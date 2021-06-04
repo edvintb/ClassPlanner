@@ -26,12 +26,7 @@ struct CourseView: View {
     @State private var isDropping: Bool = false
     @State private var isFrontUp: Bool
     
-    let allTargetedOnDrop: Bool
-    private var color: Color { course.getColor() }
-    private var empty: Bool { course.name == "" }
-    
-    init(course: Course, allTargetedOnDrop: Bool = false) {
-        self.allTargetedOnDrop = allTargetedOnDrop
+    init(course: Course) {
         self.course = course
         _isFrontUp = State(wrappedValue: course.name != "")
     }
@@ -39,22 +34,21 @@ struct CourseView: View {
     var body: some View {
         ZStack(alignment: .center) {
             container
-            if empty            { EmptyView() }
-            else if isFrontUp   { front }
-            else                { back }
+            if course.name.isEmpty { EmptyView() }
+            else if isFrontUp      { front }
+            else                   { back }
         }
         .onDrag { NSItemProvider(object: course.stringID as NSString) }
         .gesture(tapGesture)
         .frame(height: courseHeight, alignment: .center)
-        // .padding(.horizontal, 5)
     }
     
     var container: some View {
         RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
-            .foregroundColor(color)
+            .foregroundColor(course.getColor())
             .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
-            .shadow(color: color, radius: isDropping ? hoverShadowRadius : 0)
-            .shadow(color: color, radius: isDropping ? hoverShadowRadius : 0)
+            .shadow(color: course.getColor(), radius: isDropping ? hoverShadowRadius : 0)
+            .shadow(color: course.getColor(), radius: isDropping ? hoverShadowRadius : 0)
     }
     
     var front: some View {
@@ -118,7 +112,7 @@ struct CourseView: View {
     
     var tapGesture: some Gesture {
         TapGesture().onEnded {
-            if empty { shared.setEditSelection(to: .course(course: course)) }
+            if course.name.isEmpty { shared.setEditSelection(to: .course(course: course)) }
             else {
                 withAnimation(Animation.easeInOut(duration: 0.2)) {
                     isFrontUp.toggle()

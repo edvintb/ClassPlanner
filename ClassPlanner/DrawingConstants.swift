@@ -22,6 +22,8 @@ let hoverShadowRadius: CGFloat = 3
 let courseSpacing: CGFloat = 10
 let emptyHoverOpacity: Double = 0.2
 
+let emptyOpacity: Double = 0.2
+
 let concentrationHeight: CGFloat = 1.5*courseHeight
 let concentrationsMinHeight: CGFloat = 150
 

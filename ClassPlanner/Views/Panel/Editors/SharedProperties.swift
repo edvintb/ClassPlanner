@@ -10,15 +10,14 @@ import SwiftUI
 struct EditorTitleView: View {
     
     let title: String
-    var empty: Bool { title.isEmpty }
     
     var body: some View {
-        Text(empty ? "Name" : title)
+        Text(title.isEmpty ? "Name" : title)
             .font(.system(size: 20))
             .lineLimit(2)
             .fixedSize(horizontal: false, vertical: true)
             .padding([.horizontal], 15)
-            .opacity(empty ? 0.2 : 1)
+            .opacity(title.isEmpty ? emptyOpacity : 1)
     }
 }
 
