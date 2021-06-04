@@ -37,13 +37,13 @@ struct ContentView: View {
             return schedule
         }
         else if let schedule = scheduleStore.schedules.first {
-            scheduleStore.setCurrentSchedule(to: schedule)
+            shared.setCurrentSchedule(to: schedule)
             return schedule
         }
         else {
             scheduleStore.addSchedule()
             let newSchedule = scheduleStore.schedules.first!
-            scheduleStore.setCurrentSchedule(to: newSchedule)
+            shared.setCurrentSchedule(to: newSchedule)
             return newSchedule
         }
     }

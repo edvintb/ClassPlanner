@@ -12,9 +12,10 @@ import Combine
 
 class CourseSuggestionVM: ObservableObject {
     
+    private let shared: SharedVM
+    
     let suggestionModel = SuggestionsModel<Course>()
     
-    private let shared: SharedVM
     private var cancellables = Set<AnyCancellable>()
     
     init(context: NSManagedObjectContext, shared: SharedVM) {
@@ -23,13 +24,11 @@ class CourseSuggestionVM: ObservableObject {
         suggestionModel.$suggestionConfirmed
             .sink { [unowned self] confirmed in
                 if confirmed,
-                   let newCourse = self.suggestionModel.selectedSuggestion?.value,
-                    case let .course(oldCourse) = shared.currentEditSelection {
-                        shared.replaceCourse(old: oldCourse, new: newCourse)
-                        shared.setEditSelection(to: .course(course: newCourse))
-                }
-                else {
-                    print("Not confirmed suggestion")
+                let schedule = shared.currentSchedule,
+                let newCourse = self.suggestionModel.selectedSuggestion?.value,
+                case let .course(oldCourse) = shared.currentEditSelection {
+                    schedule.replaceCourse(old: oldCourse, with: newCourse)
+                    shared.setEditSelection(to: .course(course: newCourse))
                 }
             }
             .store(in: &cancellables)
@@ -40,16 +39,13 @@ class CourseSuggestionVM: ObservableObject {
                 let request = Course.fetchRequest(predicate)
                 let courses = (try? context.fetch(request)) ?? []
                 if let newCourse = courses.first,
+                   let schedule = shared.currentSchedule,
                    case let .course(oldCourse) = shared.currentEditSelection {
-                    shared.replaceCourse(old: oldCourse, new: newCourse)
-                    shared.setEditSelection(to: .course(course: newCourse))
+                        schedule.replaceCourse(old: oldCourse, with: newCourse)
+                        shared.setEditSelection(to: .course(course: newCourse))
                 }
             }
             .store(in: &cancellables)
-        
-
-        
-        
     }
     
     //        suggestionModel.$suggestionConfirmed

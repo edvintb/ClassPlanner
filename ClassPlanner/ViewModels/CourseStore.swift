@@ -13,24 +13,13 @@ import Combine
 
 class CourseStore: ObservableObject {
     
-    // This thing needs a way to alter a given schedule
-    // The current schedule is in the ScheduleStore
-    // We actually only need to drag them out of here and drop them into the schedule
-    
-    private let shared: SharedVM
-    
-    private var subscriptions: Set<AnyCancellable> = []
+    private var cancellables: Set<AnyCancellable> = []
     
     @Published private (set) var dbCourses: [Course] = [] // Initialize to all courses to filter
     @Published private (set) var networkCourses: [Course] = []
     @Published var courseQuery: String = ""
     
-    func setEditCourse(course: Course) {
-        shared.setEditSelection(to: .course(course: course))
-    }
-    
-    init(context: NSManagedObjectContext, shared: SharedVM) {
-        self.shared = shared
+    init(context: NSManagedObjectContext) {
         
         $courseQuery
             .removeDuplicates()
@@ -44,7 +33,7 @@ class CourseStore: ObservableObject {
                 print("DB value")
                 dbSearch(query: query, context: context)
             }
-            .store(in: &subscriptions)
+            .store(in: &cancellables)
         
         
         $courseQuery
@@ -61,7 +50,7 @@ class CourseStore: ObservableObject {
             } receiveValue: { [unowned self] text in
                 print("Value Recieved")
                 networkSearch(searchText: text)
-            }.store(in: &subscriptions)
+            }.store(in: &cancellables)
     }
     
     private func dbSearch(query: String, context: NSManagedObjectContext) {

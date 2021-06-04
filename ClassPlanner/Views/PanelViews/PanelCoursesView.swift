@@ -49,7 +49,7 @@ struct PanelCoursesView: View {
                 if matchingCourses.isEmpty { noResultsView }
                 else {
                     Columns(matchingCourses, numberOfColumns: 2, maxNumberRows: 7, moreView: moreView) { course in
-                        PanelCourseView(course: course, viewModel: courseStore)
+                        PanelCourseView(course: course)
                             .onDrag { NSItemProvider(object: course.stringID as NSString) }
                             .scaleEffect(isDropping ? hoverScaleFactor : 1)
                     }

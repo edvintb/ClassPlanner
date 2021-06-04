@@ -61,7 +61,7 @@ struct PanelView: View {
         case .course(let course):
             CourseEditorView(course: course, scheduleStore: scheduleStore, courseSuggestionVM: courseSuggestionVM, context: context)
         case .category(let category):
-            CategoryEditorView(category: category, courseStore: CourseStore(context: context, shared: shared))
+            CategoryEditorView(category: category, courseStore: CourseStore(context: context))
         case .concentration(let concentration):
             Text("Concentration: \(concentration.name)")
         case .schedule(let schedule):

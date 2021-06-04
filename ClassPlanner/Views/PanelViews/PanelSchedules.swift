@@ -25,7 +25,7 @@ struct PanelSchedules: View {
                 ForEach (store.schedules) { schedule in
                     scheduleView(for: schedule)
                         .onTapGesture {
-                            store.setCurrentSchedule(to: schedule)
+                            shared.setCurrentSchedule(to: schedule)
                             shared.setEditSelection(to: .schedule(schedule: schedule))
                         }
                 }

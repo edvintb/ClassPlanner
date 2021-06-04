@@ -20,6 +20,8 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     
     var url: URL? { didSet { save() }}
     
+    private var cancellables = Set<AnyCancellable>()
+    
     init(url: URL, context: NSManagedObjectContext) {
         self.context = context
         self.name = url.lastPathComponent
@@ -118,8 +120,6 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
 
     
     // MARK: - Supporting functionality
-    
-    private var cancellables = Set<AnyCancellable>()
 
     private func save() {
         if url != nil {

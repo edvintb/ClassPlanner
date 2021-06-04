@@ -13,52 +13,36 @@ import SwiftUI
 
 class ScheduleStore: ObservableObject {
     
-    
     private let shared: SharedVM
+    private let directory: URL
+    private let context: NSManagedObjectContext
     
-    private (set) var directory: URL
-    let storeName: String = "Schedules"
-    let context: NSManagedObjectContext
-    
-    
-    // Perhaps remove this whole thing and just go with the single source of truth
-    // in the schedule itself? It still gets stored in the filename itself
+    // Duplicate needed for editing & later verification
     @Published private (set) var scheduleNames = [ScheduleVM:String]()
     
+    // Publishes user tries to set to an existing name
     @Published var existingNameAlert: IdentifiableString?
-    
-    private var cancellables: Set<AnyCancellable> = []
     
     var schedules: [ScheduleVM] {
         scheduleNames.keys.sorted { scheduleNames[$0]! < scheduleNames[$1]! }
     }
     
-    func setCurrentSchedule(to schedule: ScheduleVM) {
-        shared.setCurrentSchedule(to: schedule)
+    func name(for schedule: ScheduleVM) -> String {
+        scheduleNames[schedule, default: "Untitled"]
     }
+    
+    private var cancellables: Set<AnyCancellable> = []
     
     init(directory: URL, context: NSManagedObjectContext, shared: SharedVM) {
         self.shared = shared
         self.context = context
         self.directory = directory
         do {
-            // Why on earth did the documents folder disappear??
             let schedules = try FileManager.default.contentsOfDirectory(atPath: directory.path)
             for schedule in schedules {
                 let url = directory.appendingPathComponent(schedule)
                 let scheduleVM = ScheduleVM(url: url, context: context)
                 scheduleNames[scheduleVM] = schedule
-                
-                // Try updating the stored name when we change in schedule
-//                scheduleVM.$name
-//                    .debounce(for: 0.5, scheduler: DispatchQueue.main)
-//                    .removeDuplicates()
-//                    .sink { [unowned self] name in
-//                        if name != "" {
-//                            self.setName(name, for: scheduleVM)
-//                        }
-//                    }
-//                    .store(in: &cancellables)
             }
         }
         catch {
@@ -66,29 +50,8 @@ class ScheduleStore: ObservableObject {
         }
     }
     
-    // MARK: - Intents
-    
-    func removeFromSchedule(course: Course) {
-        if let schedule = shared.currentSchedule {
-            schedule.deleteCourse(course)
-        }
-    }
-    
-    func replaceCourse(old: Course, new: Course) {
-        if old == new { return }
-        if let schedule = shared.currentSchedule {
-            schedule.replaceCourse(old: old, with: new)
-        }
-    }
-    
     
     // MARK: - Naming Schedules
-    func name(for schedule: ScheduleVM) -> String {
-        if scheduleNames[schedule] == nil {
-            scheduleNames[schedule] = "Untitled"
-        }
-        return scheduleNames[schedule]!
-    }
     
     func setName(_ newName: String, for schedule: ScheduleVM) {
         if approveName(newName, for: schedule) {
@@ -115,7 +78,7 @@ class ScheduleStore: ObservableObject {
         return true
     }
     
-    // MARK: - Handling Schedules
+    // MARK: - Adding & Removing Schedules
     
     func addSchedule(named name: String = "Untitled") {
         let uniqueName = name.uniqued(withRespectTo: scheduleNames.values)
@@ -127,7 +90,7 @@ class ScheduleStore: ObservableObject {
 
     func removeSchedule(_ schedule: ScheduleVM) {
         if let name = scheduleNames[schedule] {
-            if name == "" { print("Found empty name. THIS CAUSES DISAPPEAR"); return }
+            if name == "" { print("Found empty name. THIS CAUSES /Documents/ to DISAPPEAR"); return }
             let url = directory.appendingPathComponent(name)
             try? FileManager.default.removeItem(at: url)
         }

@@ -9,19 +9,13 @@ import Foundation
 
 class SharedVM: ObservableObject {
     
+    // MARK: - Managing Current Schedule
+    
     @Published private (set) var currentSchedule: ScheduleVM?
     
     func setCurrentSchedule(to schedule: ScheduleVM) {
         self.currentSchedule = schedule
     }
-    
-    func replaceCourse(old: Course, new: Course) {
-        if old == new { return }
-        if let schedule = currentSchedule {
-            schedule.replaceCourse(old: old, with: new)
-        }
-    }
-    
     
     // MARK: - Edit Functionality
     

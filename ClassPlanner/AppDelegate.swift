@@ -27,7 +27,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let scheduleStore = ScheduleStore(directory: url, context: context, shared: shared)
         let concentrationVM = ConcentrationVM(shared: shared, scheduleStore: scheduleStore)
         
-        let courseStore = CourseStore(context: context, shared: shared)
+        let courseStore = CourseStore(context: context)
         
         let contentView = ContentView(scheduleStore: scheduleStore, courseStore: courseStore, concentrationVM: concentrationVM, courseSuggestionVM: courseSuggestionVM)
             .environment(\.managedObjectContext, context)

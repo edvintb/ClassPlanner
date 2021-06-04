@@ -18,8 +18,9 @@ import SwiftUI
 
 struct PanelCourseView: View {
     
+    @EnvironmentObject var shared: SharedVM
     @ObservedObject var course: Course
-    @ObservedObject var viewModel: CourseStore
+    
     
     @State private var isFrontUp: Bool = true
     
@@ -56,7 +57,7 @@ struct PanelCourseView: View {
                 Text("+").font(.system(size: 1.2*titleSize, weight: .semibold))
             }
                 .contentShape(Rectangle())
-            .onTapGesture { viewModel.setEditCourse(course: course) }
+            .onTapGesture { shared.setEditSelection(to: .course(course: course)) }
                 .padding([.horizontal], 7)
             Divider()
                 .padding([.horizontal], 5)
