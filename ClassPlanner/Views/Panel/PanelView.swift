@@ -42,16 +42,16 @@ struct PanelView: View {
     @ViewBuilder
     func getPanelContent(_ selection: PanelOption) -> some View {
         switch selection {
-        case .editor:
-            getEditor(shared.currentEditSelection)
-        case .courses:
-            CourseStoreView(courseStore: courseStore)
-        case .concentrations:
-            PanelConcentrations()
-        case .schedules:
-            ScheduleStoreView(store: scheduleStore)
-        case .otherPeople:
-            Text("Other People")
+            case .editor:
+                getEditor(shared.currentEditSelection)
+            case .courses:
+                CourseStoreView(courseStore: courseStore)
+            case .concentrations:
+                ConcentrationStoreView()
+            case .schedules:
+                ScheduleStoreView(store: scheduleStore)
+            case .otherPeople:
+                Text("Other People")
         }
     }
     

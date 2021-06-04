@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct PanelConcentrations: View {
+struct ConcentrationStoreView: View {
     
     var body: some View {
         VStack {

@@ -14,15 +14,21 @@ struct CategoryEditorView: View {
     @EnvironmentObject var shared: SharedVM
     
     @ObservedObject var category: Category
+    
+    // Used to search courses
     @ObservedObject var courseStore: CourseStore
-
-//    @Environment(\.colorScheme) var colorScheme
-
-
-//    @Binding var isPresented: Bool
     
     private var color: Color { category.getColor() }
-    private var courses: [Course] { category.courses.sorted { $0.name < $1.name } }
+    
+    // Sort courses depending on current schedule
+    private var courses: [Course] {
+        if let schedule = shared.currentSchedule {
+            return category.coursesSortedBySchedule(schedule: schedule)
+        }
+        else {
+            return category.coursesSorted()
+        }
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -40,12 +46,7 @@ struct CategoryEditorView: View {
                 Spacer(minLength: 12)
                 coursesView
                 // Make them all colorpickers for Big Sur
-                Grid(Array(1..<Color.colorSelection.count), id: \.self) { index in
-                    RoundedRectangle(cornerRadius: frameCornerRadius)
-                        .onTapGesture { category.color = index; save() }
-                        .foregroundColor(Color.colorSelection[index])
-                        .padding(3)
-                }
+                EditorColorGrid { category.color = $0; save() }
                 bottomButtons
                 
             }
@@ -88,8 +89,10 @@ struct CategoryEditorView: View {
         ZStack {
             if #available(OSX 11.0, *) {
                 TextEditor(text: $category.notes)
+                    .cornerRadius(textFieldCornerRadius)
             } else {
                 TextField("Notes...", text: $category.notes, onCommit: { save() })
+                    .cornerRadius(textFieldCornerRadius)
             }
         }
     }

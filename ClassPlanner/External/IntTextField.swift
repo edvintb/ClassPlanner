@@ -23,7 +23,10 @@ struct IntTextField: View {
         self.onCommit = onCommit
     }
     
-    var body: some View { TextField(placeholder, text: numberProxy, onCommit: onCommit) }
+    var body: some View {
+        TextField(placeholder, text: numberProxy, onCommit: onCommit)
+            .cornerRadius(textFieldCornerRadius)
+    }
     
     var numberFormatter: NumberFormatter {
         let numberFormatter = NumberFormatter()
