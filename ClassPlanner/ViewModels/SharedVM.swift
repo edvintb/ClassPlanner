@@ -17,6 +17,19 @@ class SharedVM: ObservableObject {
         self.currentSchedule = schedule
     }
     
+    // MARK: - Managing Current Concentrations
+    
+    @Published private (set) var currentConcentrations = Set<Concentration>()
+    
+    func insertConcentration(_ concentration: Concentration) {
+        currentConcentrations.insert(concentration)
+    }
+    
+    func removeConcentration(_ concentration: Concentration) {
+        currentConcentrations.remove(concentration)
+    }
+    
+    
     // MARK: - Edit Functionality
     
     @Published private (set) var currentPanelSelection: PanelOption = .schedules

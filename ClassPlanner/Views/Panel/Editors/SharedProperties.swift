@@ -43,14 +43,30 @@ struct EditorColorGrid: View {
     let tapAction: (Int) -> ()
     
     var body: some View {
-        Grid(Array(1..<Color.colorSelection.count), id: \.self) { index in
-            RoundedRectangle(cornerRadius: frameCornerRadius)
-                .foregroundColor(Color.colorSelection[index])
-                .onTapGesture { tapAction(index) }
-                .padding(3)
+        Spacer()
+        VStack(spacing: 3) {
+            gridRow([1, 2, 3])
+            gridRow([4, 5 ,6])
+            gridRow([7, 8, 9])
         }
-        .frame(minHeight: 2*courseHeight)
+        .frame(height: editorColorGridHeight)
     }
+    
+    private func gridRow(_ indices: [Int]) -> some View {
+        HStack(spacing: 3) {
+            ForEach(indices, id: \.self) { index in
+                gridView(index: index)
+            }
+        }
+    }
+    
+    private func gridView(index: Int) -> some View {
+        RoundedRectangle(cornerRadius: frameCornerRadius)
+            .foregroundColor(Color.colorSelection[index])
+            .onTapGesture { tapAction(index) }
+            .padding(3)
+    }
+    
 }
 
 struct NoteEditor: View {
@@ -98,11 +114,10 @@ struct EditorHeader: View {
     
     
     var body: some View {
-        Spacer(minLength: 7)
         EditorTitleView(title: title).foregroundColor(color)
         Divider().padding(5)
         EditorNotes(notes: notes)
-        Spacer(minLength: 12)
+        Spacer().frame(height: 12)
     }
 }
 

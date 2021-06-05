@@ -41,10 +41,10 @@ class ConcentrationVM: ObservableObject {
         dragIndex = category.index
     }
     
-    func categoryDragEnded() {
-        if let category = dragCategory, let index = dragIndex { category.move(to: index) }
-        dragCategory = nil
-    }
+//    func categoryDragEnded() {
+//        if let category = dragCategory, let index = dragIndex { category.move(to: index) }
+//        dragCategory = nil
+//    }
     
     func concentrationDragEnded() {
         if let concentration = dragConcentration, let index = dragIndex{ concentration.move(to: index) }

@@ -8,6 +8,7 @@
 import CoreData
 import Combine
 import AppKit
+import SwiftUI
 
 
 public class Course: NSManagedObject {
@@ -36,13 +37,9 @@ extension Course {
         return courses
     }
     
-    static func fromURI(uri: URL, context: NSManagedObjectContext) -> Course? {
-        let id = context.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: uri)
-        if id == nil { return nil }
-        let object = try? context.existingObject(with: id!)
-        if object == nil { return nil }
-        let course = object as? Course
-        return course
+    static func fromCourseURI(uri: URL, context: NSManagedObjectContext) -> Course? {
+        let object = NSManagedObject.fromURI(uri: uri, context: context)
+        return object as? Course
     }
 
     
@@ -58,14 +55,6 @@ extension Course {
     
     var isEmpty: Bool {
         self.notes == "" && self.workload == 0 && self.enrollment == 0 && self.qscore == 0 && self.color == 0
-    }
-
-    var stringID: String {
-        self.objectID.uriRepresentation().absoluteString
-    }
-    
-    var urlID: URL {
-        self.objectID.uriRepresentation()
     }
     
     var name: String {
@@ -88,9 +77,17 @@ extension Course {
         set { self.enrollment_ = Int16(newValue) }
     }
     
+    var grade: String {
+        "A"
+    }
+    
     var color: Int {
         get { Int(self.color_) }
         set { self.color_ = Int16(newValue) }
+    }
+    
+    func getColor() -> Color {
+        Color.colorSelection[self.color % Color.colorSelection.count]
     }
     
 }

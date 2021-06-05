@@ -46,7 +46,7 @@ struct EmptyCourseView: View {
     
     private func getDroppedCourse(id: String) -> Course? {
         if let uri = URL(string: id) {
-            return Course.fromURI(uri: uri, context: context)
+            return Course.fromCourseURI(uri: uri, context: context)
         }
         return nil
     }

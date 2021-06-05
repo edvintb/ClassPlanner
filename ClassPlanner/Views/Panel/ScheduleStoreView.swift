@@ -43,8 +43,6 @@ struct ScheduleStoreView: View {
             shared.setCurrentSchedule(to: schedule)
             shared.setEditSelection(to: .schedule(schedule: schedule))
         }
-       
-
     }
     
     
@@ -55,7 +53,7 @@ struct ScheduleStoreView: View {
             })
             Spacer()
         }
-        .padding([.top, .horizontal], 5)
+        .padding(.horizontal, 5)
         .padding(.bottom, 2)
 
     }

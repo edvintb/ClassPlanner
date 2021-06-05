@@ -19,24 +19,26 @@ struct PanelView: View {
     @Environment(\.managedObjectContext) var context
     
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer().frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: 7, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-            HStack {
-                Spacer()
-                ForEach (PanelOption.allCases, id: \.self) { option in
-                    Text(PanelOption.symbols[option] ?? "X")
-                        .foregroundColor(shared.currentPanelSelection == option ? .blue : nil)
-                        .onTapGesture { shared.setPanelSelection(to: option) }
-                    Spacer()
-                }
-            }
-            Spacer().frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: 5, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+        VStack(spacing: 7) {
+            Spacer().frame(height: 5)
+            symbolsView
             Divider()
-            
-
             getPanelContent(shared.currentPanelSelection)
         }
-
+    }
+    
+    
+    var symbolsView: some View {
+        HStack {
+            Spacer()
+            ForEach (PanelOption.allCases, id: \.self) { option in
+                Text(PanelOption.symbols[option] ?? "X")
+                    .font(.callout)
+                    .foregroundColor(shared.currentPanelSelection == option ? .blue : nil)
+                    .onTapGesture { shared.setPanelSelection(to: option) }
+                Spacer()
+            }
+        }
     }
     
     

@@ -28,16 +28,15 @@ struct ScheduleEditorView: View {
             Form {
                 NameEditor(entryView: nameField)
                 NoteEditor(text: $schedule.notes) {}
-                Spacer(minLength: 20)
+                Spacer().frame(height: 20)
                 Section(header: sectionHeader) {
                     coursesView
                 }
                 EditorColorGrid { schedule.setColor(to: $0) }
                 EditorButtons(deleteAction: deleteAction, closeAction: closeAction)
             }
-            .padding(7)
+            .padding(editorPadding)
         }
-        
     }
     
     var nameField: some View {
@@ -48,7 +47,7 @@ struct ScheduleEditorView: View {
     var sectionHeader: some View {
         VStack(spacing: 3) {
             HStack {
-                Text("Term").opacity(0.4)
+                Text("Semester").opacity(grayTextOpacity)
                 Spacer()
                 Text(workloadSymbol)
             }

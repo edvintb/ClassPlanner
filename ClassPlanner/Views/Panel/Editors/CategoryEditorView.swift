@@ -45,25 +45,25 @@ struct CategoryEditorView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Spacer(minLength: 7)
             concentrationName
+            Spacer().frame(height: 6)
             EditorHeader(title: category.name, notes: category.notes, color: category.getColor() )
             Form {
                 NameEditor(entryView: nameField)
                 requiredField
-                NoteEditor(text: $category.notes) { save() }
+                NoteEditor(text: $category.notes) { category.save() }
                 Spacer().frame(height: 25)
                 Section(header: header) {
                     courseSearchField
                     coursesView
                 }
-                EditorColorGrid { category.color = $0; save() }
-                EditorButtons(deleteAction: deleteAction, closeAction: closeAction)
+                EditorColorGrid { category.color = $0; category.save() }
+                EditorButtons(deleteAction: deleteAction, closeAction: shared.stopEdit)
                 
             }
-            .padding(7)
+            .padding(editorPadding)
         }
-
+        
     }
     
     var concentrationName: some View {
@@ -77,13 +77,13 @@ struct CategoryEditorView: View {
     }
     
     var nameField: some View {
-        TextField("Name", text: $category.name, onCommit: { save() }).cornerRadius(textFieldCornerRadius)
+        TextField("Name", text: $category.name, onCommit: { category.save() }).cornerRadius(textFieldCornerRadius)
     }
     
     var requiredField: some View {
         HStack {
             Text("  # ").font(.system(size: 17.5, weight: .thin, design: .default)).foregroundColor(.yellow)
-            IntTextField("# Required", integer: $category.numberOfRequired, onCommit: { save() })
+            IntTextField("# Required", integer: $category.numberOfRequired, onCommit: { category.save() })
                 .cornerRadius(textFieldCornerRadius)
         }
     }
@@ -105,19 +105,6 @@ struct CategoryEditorView: View {
                         suggestionGroups: searchModel.suggestionGroups,
                         suggestionModel: categorySuggestionVM.suggestionModel)
     }
-    
-    var noteEditor: some View {
-        HStack {
-            Text(noteSymbol)
-            if #available(OSX 11.0, *) {
-                TextEditor(text: $category.notes)
-                    .cornerRadius(textFieldCornerRadius)
-            } else {
-                TextField("Notes...", text: $category.notes, onCommit: { save() })
-                    .cornerRadius(textFieldCornerRadius)
-            }
-        }
-    }
 
     
     var coursesView: some View {
@@ -133,26 +120,9 @@ struct CategoryEditorView: View {
     
     
     func deleteAction() {
-        shared.setEditSelection(to: .none)
+        shared.stopEdit()
         category.delete()
     }
-    
-    func closeAction() {
-        shared.setEditSelection(to: .none)
-    }
-
-    func save() {
-        if let context = category.managedObjectContext {
-            do {
-                try context.save()
-            } catch {
-                print("Unexpected Error: \(error)")
-            }
-        }
-    }
-    
-
-    
 }
 
 

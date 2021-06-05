@@ -16,9 +16,6 @@ struct CategoryView: View {
 
     // Needs to look at the schedule to check the courses
     @ObservedObject var schedule: ScheduleVM
-    
-    // Needed for dragging
-    @ObservedObject var concentrationVM: ConcentrationVM
 
     @State private var dragOffset: CGSize = .zero
     @State private var isDropping: Bool = false
@@ -38,9 +35,9 @@ struct CategoryView: View {
     private var numberOfContainedCourses: Int {
         if let schedule = shared.currentSchedule {
             return
-                category.courses.filter {
-                    schedule.courseURLs.contains($0.objectID.uriRepresentation())
-                }.count
+                category.courses.reduce(into: 0) { acc, course in
+                    acc += Int(schedule.courseURLs.contains(course.urlID))
+                }
         }
         else {
             return 0
@@ -63,14 +60,13 @@ struct CategoryView: View {
             Spacer(minLength: 4)
         }
         .scaleEffect(isDropping ? hoverScaleFactor : 1)
-        .onHover { isDropping = concentrationVM.hoverOverCategory(category, entered: $0) }
-        .offset(dragOffset)
+//        .onHover { isDropping = concentrationVM.hoverOverCategory(category, entered: $0) }
+//        .offset(dragOffset)
         .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
+        .onDrag({ NSItemProvider(object: category.stringID as NSString) })
     }
 
-    
-    
     var title: some View {
         HStack(spacing: 0) {
             Text(category.name == "" ? "Name" : category.name)
@@ -88,8 +84,8 @@ struct CategoryView: View {
         .lineLimit(2)
         .font(.system(size: categoryCourseFontSize + 1))
         .contentShape(Rectangle())
-        .onTapGesture { concentrationVM.setEditCategory(category) }
-        .gesture(dragGesture)
+        .onTapGesture { shared.setEditSelection(to: .category(category: category)) }
+        
     }
     
     func courseView(course: Course) -> some View {
@@ -109,14 +105,19 @@ struct CategoryView: View {
     }
     
     func drop(providers: [NSItemProvider]) -> Bool {
-//        print("Found")
-//        print(providers)
         let found = providers.loadFirstObject(ofType: String.self) { location in
             if let uri = URL(string: location) {
                 if let context = category.managedObjectContext {
-                    if let newCourse = Course.fromURI(uri: uri, context: context) {
+                    if let droppedObject = NSManagedObject.fromURI(uri: uri, context: context) {
                         withAnimation {
-                            category.addCourse(newCourse)
+                            if let course = droppedObject as? Course {
+                                category.addCourse(course)
+                            }
+                            if let category = droppedObject as? Category {
+                                if let concentration = self.category.concentration {
+                                    category.move(to: self.category.index, concentration: concentration)
+                                }
+                            }
                         }
                     }
                 }
@@ -126,19 +127,19 @@ struct CategoryView: View {
     }
     
     
-
-    
-    var dragGesture: some Gesture {
-        DragGesture(coordinateSpace: .global)
-            .onChanged {
-                dragOffset = CGSize(width: $0.translation.width, height: -$0.translation.height)
-                if concentrationVM.dragCategory == nil { concentrationVM.setDragCategory(to: category) }
-            }
-            .onEnded { _ in
-                concentrationVM.categoryDragEnded()
-                dragOffset = .zero
-            }
-    }
+//
+//
+//    var dragGesture: some Gesture {
+//        DragGesture(coordinateSpace: .global)
+//            .onChanged {
+//                dragOffset = CGSize(width: $0.translation.width, height: -$0.translation.height)
+//                if concentrationVM.dragCategory == nil { concentrationVM.setDragCategory(to: category) }
+//            }
+//            .onEnded { _ in
+//                concentrationVM.categoryDragEnded()
+//                dragOffset = .zero
+//            }
+//    }
     
 
 }

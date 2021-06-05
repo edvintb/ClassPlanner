@@ -9,16 +9,14 @@ import SwiftUI
 
 struct ConcentrationContainerView: View {
     
-    @ObservedObject var concentrationVM: ConcentrationVM
+    @EnvironmentObject var shared: SharedVM
+    
     @ObservedObject var schedule: ScheduleVM
     
-    @FetchRequest private var concentrations: FetchedResults<Concentration>
-
-    init(concentrationVM: ConcentrationVM, schedule: ScheduleVM) {
-        self.concentrationVM = concentrationVM
-        self.schedule = schedule
-        let request = Concentration.fetchRequest(.all)
-        _concentrations = FetchRequest(fetchRequest: request)
+//    @FetchRequest private var concentrations: FetchedResults<Concentration>
+    
+    private var concentrations: [Concentration] {
+        shared.currentConcentrations.sorted(by: { $0.index < $1.index })
     }
     
     var body: some View {
@@ -36,7 +34,7 @@ struct ConcentrationContainerView: View {
         VStack(alignment: .leading) {
             Spacer(minLength: 4)
             ForEach (concentrations) { concentration in
-                ConcentrationView(concentration: concentration, concentrationVM: concentrationVM, schedule: schedule)
+                ConcentrationWithCategories(concentration: concentration, schedule: schedule)
             }
             EmptyConcentrationView()
         }

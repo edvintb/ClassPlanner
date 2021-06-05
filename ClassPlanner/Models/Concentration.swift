@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreData
+import SwiftUI
 
 extension Concentration {
     
@@ -14,10 +15,10 @@ extension Concentration {
     
     static func createEmpty(in context: NSManagedObjectContext) {
         let request = Concentration.fetchRequest(.all)
-        let existingConcentrations = (try? context.count(for: request)) ?? 0
+        let count = (try? context.count(for: request)) ?? 0
         let concentration = Concentration(context: context)
         concentration.name = ""
-        concentration.index = existingConcentrations
+        concentration.index = count
         try? context.save()
     }
     
@@ -68,7 +69,7 @@ extension Concentration {
     }
     
     // MARK: - Property Access
-
+    
     var index: Int {
         get { Int(self.index_) }
         set { self.index_ = Int16(newValue) }
@@ -84,7 +85,6 @@ extension Concentration {
         set { self.notes_ = newValue }
     }
     
-    
     var categories: Set<Category> {
         get { (self.categories_ as? Set<Category>) ?? [] }
         set { self.categories_ = newValue as NSSet}
@@ -93,6 +93,15 @@ extension Concentration {
     var courses: Set<Course> {
         get { (self.courses_ as? Set<Course>) ?? [] }
         set { self.courses_ = newValue as NSSet}
+    }
+    
+    var color: Int {
+        get { Int(self.color_) }
+        set { self.color_ = Int16(newValue) }
+    }
+    
+    func getColor() -> Color {
+        Color.colorSelection[self.color % Color.colorSelection.count]
     }
 
     

@@ -36,12 +36,11 @@ struct CourseStoreView: View {
     }
     
     var matchingCourses: [Course] {
-        courses.filter { query.isEmpty || $0.name.lowercased().hasPrefix(query.lowercased()) }
+        courses.filter { query.isEmpty || $0.name.localizedCaseInsensitiveContains(query) }
     }
 
     var body: some View {
         ScrollView {
-            Spacer(minLength: 3)
             SearchTextField(query: $courseStore.courseQuery).padding([.horizontal], 10).padding([.vertical], 5)
             if matchingCourses.isEmpty { noResultsView }
             else { coursesView }
@@ -85,7 +84,7 @@ struct CourseStoreView: View {
     
     private func getDroppedCourse(id: String) -> Course? {
         if let uri = URL(string: id) {
-            return Course.fromURI(uri: uri, context: context)
+            return Course.fromCourseURI(uri: uri, context: context)
         }
         return nil
     }

@@ -42,7 +42,7 @@ struct ScheduleCourseView: View {
     private func getDroppedCourse(id: String) -> Course? {
         if let context = course.managedObjectContext {
             if let uri = URL(string: id) {
-                if let newCourse = Course.fromURI(uri: uri, context: context) {
+                if let newCourse = Course.fromCourseURI(uri: uri, context: context) {
                     if newCourse == course { return nil }
                     return newCourse
                 }

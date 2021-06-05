@@ -25,7 +25,7 @@ let emptyHoverOpacity: Double = 0.2
 let emptyOpacity: Double = 0.2
 let grayTextOpacity: Double = 0.4
 
-let concentrationHeight: CGFloat = 1.5*courseHeight
+let concentrationHeight: CGFloat = 1.4*courseHeight
 let concentrationsMinHeight: CGFloat = 150
 
 let categoryHeight: CGFloat = concentrationHeight
@@ -37,7 +37,7 @@ let checkMarkColor: Color = Color(.sRGB, red: 0, green: 200, blue: 200, opacity:
 let editorWidth: CGFloat = 300
 let scheduleMinHeight: CGFloat = 400
 
-let mainMinWidth: CGFloat = 200
+let mainMinWidth: CGFloat = 1000
 
 let maxIntegers: Int = 3
 let maxDecimals: Int = 2
@@ -56,3 +56,6 @@ let textFieldCornerRadius: CGFloat = 3.5
 let panelScheduleHeight: CGFloat = 50
 
 let myRed: Color = Color(.sRGB, red: 200, green: 40, blue: 40, opacity: 1)
+
+let editorPadding: CGFloat = 7
+let editorColorGridHeight: CGFloat = 250

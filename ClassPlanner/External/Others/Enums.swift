@@ -9,18 +9,18 @@ import Foundation
 
 enum PanelOption: Equatable, Hashable, CaseIterable {
     
-    case editor
-    case courses
-    case concentrations
     case schedules
+    case concentrations
+    case courses
+    case editor
     case otherPeople
     
     static var symbols: [PanelOption:String] {
-        [.editor : "Editor",
-         .courses : "Courses",
-         .concentrations : "Concentrations",
-         .schedules : "Schedules",
-         .otherPeople : "Other People"]
+        [.editor : "􀈎",
+         .courses : "􀧵",
+         .concentrations : "􀈥",
+         .schedules : "􀈕",
+         .otherPeople : "􀝊"]
     }
 }
 

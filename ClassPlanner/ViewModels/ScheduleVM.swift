@@ -64,7 +64,7 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     
     func courses(for semester: Int) -> [Course] {
         model.schedule[semester, default: []].reduce(into: []) { acc, uri in
-            if let course = Course.fromURI(uri: uri, context: context) {
+            if let course = Course.fromCourseURI(uri: uri, context: context) {
                 acc.append(course)
             }
         }

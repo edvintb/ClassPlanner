@@ -20,14 +20,13 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             PanelView(scheduleStore: scheduleStore, courseStore: courseStore, courseSuggestionVM: courseSuggestionVM, categorySuggestionVM: categorySuggestionVM)
-                    .frame(minWidth: editorWidth*1.1, alignment: .top)
+                .frame(minWidth: editorWidth*1.1, maxWidth: 500, alignment: .top)
                 VSplitView {
                     ScheduleView(store: scheduleStore, schedule: schedule)
                         .frame(minHeight: scheduleMinHeight, idealHeight: 400)
-                    ConcentrationContainerView(concentrationVM: concentrationVM, schedule: schedule)
+                    ConcentrationContainerView(schedule: schedule)
                         .frame(minHeight: concentrationsMinHeight, idealHeight: 150)
                 }
-                .frame(minWidth: mainMinWidth, idealWidth: 600)
             }
     }
     

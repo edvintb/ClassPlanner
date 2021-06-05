@@ -27,22 +27,38 @@ extension NumberFormatter {
 
 extension Color {
     static var colorSelection: [Color] {
-        [.primary, .black, .white, .red, .blue, .yellow, .green, .orange, .purple]
+        [.primary, .black, .white, .red, .blue, .yellow, .green, .orange, .purple, .gray]
     }
 }
 
-extension Course {
+extension NSManagedObject {
     
-    func getColor() -> Color {
-        Color.colorSelection[self.color % Color.colorSelection.count]
+    static func fromURI(uri: URL, context: NSManagedObjectContext) -> NSManagedObject? {
+        let id = context.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: uri)
+        if id == nil { return nil }
+        let object = try? context.existingObject(with: id!)
+        return object
     }
-}
-
-extension Category {
     
-    func getColor() -> Color {
-        Color.colorSelection[self.color % Color.colorSelection.count]
+    var stringID: String {
+        self.objectID.uriRepresentation().absoluteString
     }
+    
+    var urlID: URL {
+        self.objectID.uriRepresentation()
+    }
+    
+    func save() {
+        if let context = self.managedObjectContext {
+            do {
+                self.objectWillChange.send()
+                try context.save()
+            } catch {
+                print("Unexpected Error when saving managed object")
+            }
+        }
+    }
+    
 }
 
 extension Animation {

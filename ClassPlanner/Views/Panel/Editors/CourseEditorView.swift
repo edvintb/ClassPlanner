@@ -82,17 +82,14 @@ struct CourseEditorView: View {
                 workloadEntry
                 qscoreEntry
                 enrollmentEntry
-                NoteEditor(text: $course.notes) { save() }
-                EditorColorGrid { course.color = $0; save() }
-                Spacer()
-                EditorButtons(deleteAction: <#T##() -> ()#>, closeAction: <#T##() -> ()#>)
+                NoteEditor(text: $course.notes) { course.save() }
+                EditorColorGrid { course.color = $0; course.save() }
+                bottomButtons
             }
-            .padding(7)
-            
+            .padding(editorPadding)
         }
+        
     }
-    
-//    @State private var currentName: String = ""
     
     var nameField: some View {
         SuggestionInput(text: $searchModel.currentText,
@@ -113,14 +110,6 @@ struct CourseEditorView: View {
                     .shadow(color: course.spring ? .green : .black, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
             })
             Spacer()
-        }
-    }
-    
-    var icons: some View {
-        VStack {
-            Text(" \(workloadSymbol)")
-            Text("  \(qscoreSymbol) ").foregroundColor(.red).font(.system(size: 14.5))
-            Text(" \(enrollmentSymbol)")
         }
     }
     
@@ -151,37 +140,11 @@ struct CourseEditorView: View {
         }
     }
     
-    var noteEditor: some View {
-        HStack {
-            Text(" \(noteSymbol)")
-            ZStack {
-                if #available(OSX 11.0, *) {
-                    TextEditor(text: $course.notes)
-                        .cornerRadius(textFieldCornerRadius)
-                        .focusable()
-                } else {
-                    TextField("Notes...", text: $course.notes, onCommit: { save() })
-                        .cornerRadius(textFieldCornerRadius)
-                        .focusable()
-                }
-            }
-        }
-    }
-        
-    var colorGrid: some View {
-        Grid(Array(1..<Color.colorSelection.count), id: \.self) { index in
-            RoundedRectangle(cornerRadius: frameCornerRadius)
-                .foregroundColor(Color.colorSelection[index])
-                .onTapGesture { course.color = index; save() }
-                .padding(3)
-        }
-        .frame(height: 2*courseHeight)
-    }
     
     
     var bottomButtons: some View {
         HStack {
-            deleteButton
+            EditorButtons(deleteAction: deleteAction, closeAction: shared.stopEdit)
             Spacer()
             if let schedule = shared.currentSchedule {
                 addRemoveButton(schedule: schedule)
@@ -190,24 +153,18 @@ struct CourseEditorView: View {
     }
     
     
-    
-    var deleteButton: some View {
-        Button("Delete") {
-            withAnimation {
-                // Perhaps remove -- then I won't need the panelVM
-                if let schedule = shared.currentSchedule {
-                    schedule.removeCourse(course)
-                    shared.stopEdit()
-                    course.delete()
-                    save()
-                }
-                
-            }
+    func deleteAction() {
+        if let schedule = shared.currentSchedule {
+            schedule.removeCourse(course)
+            shared.stopEdit()
+            course.delete()
+            course.save()
         }
     }
     
+    
     func addRemoveButton(schedule: ScheduleVM) -> some View {
-        if schedule.courseURLs.contains(course.objectID.uriRepresentation()) {
+        if schedule.courseURLs.contains(course.urlID) {
             return
                 Button("Remove from current") {
                     withAnimation {
@@ -216,7 +173,7 @@ struct CourseEditorView: View {
                             shared.stopEdit()
                             course.delete()
                         }
-                        save()
+                        course.save()
                     }
                 }
         }
@@ -226,22 +183,28 @@ struct CourseEditorView: View {
                     let newPos = CoursePosition(semester: 0, index: 0)
                     withAnimation {
                         schedule.addCourse(course, at: newPos)
-                        save()
+                        course.save()
                     }
                 }
         }
     }
     
+    
+    
     func save() {
-        if let context = course.managedObjectContext {
-            do {
-                course.objectWillChange.send()
-                try context.save()
-            } catch {
-                print("Unexpected Error when saving in CourseEditor: \(error)")
-            }
-        }
+        course.save()
     }
+    
+    
+    //    var icons: some View {
+    //        VStack {
+    //            Text(" \(workloadSymbol)")
+    //            Text("  \(qscoreSymbol) ").foregroundColor(.red).font(.system(size: 14.5))
+    //            Text(" \(enrollmentSymbol)")
+    //        }
+    //    }
+    
+    
     //    init(_ course: Course, to semester: Int, at position: Int, _ isPresented: Binding<Bool>) {
     //        _isPresented = isPresented
     //        course.position = position
