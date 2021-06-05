@@ -23,6 +23,7 @@ let courseSpacing: CGFloat = 10
 let emptyHoverOpacity: Double = 0.2
 
 let emptyOpacity: Double = 0.2
+let grayTextOpacity: Double = 0.4
 
 let concentrationHeight: CGFloat = 1.5*courseHeight
 let concentrationsMinHeight: CGFloat = 150

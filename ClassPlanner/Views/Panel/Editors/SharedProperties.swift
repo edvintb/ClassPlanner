@@ -106,6 +106,28 @@ struct EditorHeader: View {
     }
 }
 
+struct EditorButtons: View {
+    
+    let deleteAction: () -> ()
+    let closeAction: () -> ()
+    
+    var body: some View {
+        HStack {
+            Button("Delete") {
+                withAnimation {
+                    deleteAction()
+                }
+            }
+            Spacer()
+            Button("Close") {
+                withAnimation {
+                    closeAction()
+                }
+            }
+        }
+    }
+}
+
 
 
 

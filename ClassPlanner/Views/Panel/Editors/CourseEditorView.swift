@@ -85,7 +85,7 @@ struct CourseEditorView: View {
                 NoteEditor(text: $course.notes) { save() }
                 EditorColorGrid { course.color = $0; save() }
                 Spacer()
-                bottomButtons
+                EditorButtons(deleteAction: <#T##() -> ()#>, closeAction: <#T##() -> ()#>)
             }
             .padding(7)
             
@@ -188,6 +188,8 @@ struct CourseEditorView: View {
             }
         }
     }
+    
+    
     
     var deleteButton: some View {
         Button("Delete") {

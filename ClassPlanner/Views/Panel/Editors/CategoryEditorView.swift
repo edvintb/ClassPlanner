@@ -58,7 +58,7 @@ struct CategoryEditorView: View {
                     coursesView
                 }
                 EditorColorGrid { category.color = $0; save() }
-                bottomButtons
+                EditorButtons(deleteAction: deleteAction, closeAction: closeAction)
                 
             }
             .padding(7)
@@ -131,24 +131,16 @@ struct CategoryEditorView: View {
         }.frame(height: CGFloat(courses.count) * 20)
     }
     
-    var bottomButtons: some View {
-        HStack {
-            Button("Delete") {
-                withAnimation {
-                    shared.setEditSelection(to: .none)
-                    category.delete()
-                }
-            }
-            Spacer()
-            Button("Close") {
-                withAnimation {
-                    shared.setEditSelection(to: .none)
-                }
-            }
-        }
+    
+    func deleteAction() {
+        shared.setEditSelection(to: .none)
+        category.delete()
+    }
+    
+    func closeAction() {
+        shared.setEditSelection(to: .none)
     }
 
-    
     func save() {
         if let context = category.managedObjectContext {
             do {

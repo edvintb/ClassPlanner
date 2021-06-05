@@ -33,7 +33,7 @@ struct ScheduleEditorView: View {
                     coursesView
                 }
                 EditorColorGrid { schedule.setColor(to: $0) }
-                bottomButtons
+                EditorButtons(deleteAction: deleteAction, closeAction: closeAction)
             }
             .padding(7)
         }
@@ -75,22 +75,15 @@ struct ScheduleEditorView: View {
         }
     }
     
-    var bottomButtons: some View {
-        HStack {
-            Button("Delete") {
-                withAnimation {
-                    shared.setEditSelection(to: .none)
-                    scheduleStore.removeSchedule(schedule)
-                }
-            }
-            Spacer()
-            Button("Close") {
-                withAnimation {
-                    shared.setEditSelection(to: .none)
-                }
-            }
-        }
+    func deleteAction() {
+        shared.setEditSelection(to: .none)
+        scheduleStore.removeSchedule(schedule)
     }
+    
+    func closeAction() {
+        shared.setEditSelection(to: .none)
+    }
+    
 }
 
 
