@@ -21,6 +21,7 @@ struct ScheduleView: View {
                     Divider().padding([.leading, .bottom], 3)
                         .frame(width: (courseWidth + 8)*CGFloat(schedule.semesters.count))
                     semesters
+                    Spacer().frame(height: geo.size.height)
                 }
                 .frame(minWidth: geo.size.width, alignment: .topLeading)
             }

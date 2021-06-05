@@ -69,10 +69,7 @@ struct CourseEditorView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Spacer(minLength: 7)
-            EditorTitleView(title: course.name).foregroundColor(color)
-            Divider().padding(5)
-            EditorNotes(notes: course.notes)
+            EditorHeader(title: course.name, notes: course.notes, color: course.getColor())
 //                .frame(width: editorWidth, alignment: .leading)
             // Add professor & prereqs & Grade
             // Suggestions as typed for prereq and professor
@@ -80,17 +77,17 @@ struct CourseEditorView: View {
             // Add concentrations it is part of
             // Ability to add to categories?? Search and click concentrations to expand
             Form {
-                nameField
+                NameEditor(entryView: nameField)
                 semesterSelector
                 workloadEntry
                 qscoreEntry
                 enrollmentEntry
-                noteEditor
+                NoteEditor(text: $course.notes) { save() }
                 EditorColorGrid { course.color = $0; save() }
                 Spacer()
                 bottomButtons
             }
-            .padding()
+            .padding(7)
             
         }
     }
@@ -98,12 +95,9 @@ struct CourseEditorView: View {
 //    @State private var currentName: String = ""
     
     var nameField: some View {
-        HStack {
-            Text(" \(nameSymbol)").font(.system(size: 16, weight: .thin, design: .serif))
-            SuggestionInput(text: $searchModel.currentText,
-                            suggestionGroups: searchModel.suggestionGroups,
-                            suggestionModel: courseSuggestionVM.suggestionModel)
-        }
+        SuggestionInput(text: $searchModel.currentText,
+                        suggestionGroups: searchModel.suggestionGroups,
+                        suggestionModel: courseSuggestionVM.suggestionModel)
 
     }
     
@@ -200,7 +194,7 @@ struct CourseEditorView: View {
             withAnimation {
                 // Perhaps remove -- then I won't need the panelVM
                 if let schedule = shared.currentSchedule {
-                    schedule.deleteCourse(course)
+                    schedule.removeCourse(course)
                     shared.stopEdit()
                     course.delete()
                     save()
@@ -215,7 +209,7 @@ struct CourseEditorView: View {
             return
                 Button("Remove from current") {
                     withAnimation {
-                        schedule.deleteCourse(course)
+                        schedule.removeCourse(course)
                         if course.isEmpty {
                             shared.stopEdit()
                             course.delete()

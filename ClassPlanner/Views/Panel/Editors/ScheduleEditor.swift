@@ -24,49 +24,92 @@ struct ScheduleEditorView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Spacer(minLength: 7)
-            EditorTitleView(title: schedule.name).foregroundColor(schedule.color)
-            Divider().padding(5)
-            EditorNotes(notes: schedule.notes)
+            EditorHeader(title: schedule.name, notes: schedule.notes, color: schedule.color)
             Form {
-                nameField
-                noteEditor
-                Spacer(minLength: 12)
-                coursesView
+                NameEditor(entryView: nameField)
+                NoteEditor(text: $schedule.notes) {}
+                Spacer(minLength: 20)
+                Section(header: sectionHeader) {
+                    coursesView
+                }
                 EditorColorGrid { schedule.setColor(to: $0) }
+                bottomButtons
             }
-            bottomButtons
-//            .frame(width: editorWidth, height: editorHeight, alignment: .center)
-            .padding()
-            
+            .padding(7)
         }
         
     }
     
     var nameField: some View {
-        HStack {
-            Text(nameSymbol).font(.system(size: 16, weight: .thin, design: .serif))
-            TextField("Name", text: $schedule.name, onCommit: { schedule.name = scheduleStore.name(for: schedule) })
-                .cornerRadius(textFieldCornerRadius)
-        }
+        TextField("Name", text: $schedule.name, onCommit: { schedule.name = scheduleStore.name(for: schedule) })
+            .cornerRadius(textFieldCornerRadius)
     }
     
-    var noteEditor: some View {
-        HStack {
-            Text(" \(noteSymbol)")
-            ZStack {
-                if #available(OSX 11.0, *) {
-                    TextEditor(text: $schedule.notes)
-                        .cornerRadius(textFieldCornerRadius)
-                        .focusable()
-                } else {
-                    TextField("Notes...", text: $schedule.notes)
-                        .cornerRadius(textFieldCornerRadius)
-                        .focusable()
+    var sectionHeader: some View {
+        VStack(spacing: 3) {
+            HStack {
+                Text("Term").opacity(0.4)
+                Spacer()
+                Text(workloadSymbol)
+            }
+            Divider()
+            Spacer().frame(height: 5)
+        }
+
+    }
+
+    var coursesView: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            ForEach(schedule.semesters, id: \.self) { semester in
+                HStack {
+                    Text(semester % 2 == 0 ? fallSymbol : springSymbol)
+                    ForEach (schedule.courses(for: semester)) { course in
+                        Text(course.name)
+                            .foregroundColor(course.getColor())
+                            .lineLimit(1)
+                    }
+                    Spacer()
+                    Text("\(Int(schedule.courses(for: semester).reduce(into: 0) { $0 += $1.workload })) ")
                 }
             }
         }
     }
+    
+    var bottomButtons: some View {
+        HStack {
+            Button("Delete") {
+                withAnimation {
+                    shared.setEditSelection(to: .none)
+                    scheduleStore.removeSchedule(schedule)
+                }
+            }
+            Spacer()
+            Button("Close") {
+                withAnimation {
+                    shared.setEditSelection(to: .none)
+                }
+            }
+        }
+    }
+}
+
+
+//    var noteEditor: some View {
+//        HStack {
+//            Text(" \(noteSymbol)")
+//            ZStack {
+//                if #available(OSX 11.0, *) {
+//                    TextEditor(text: $schedule.notes)
+//                        .cornerRadius(textFieldCornerRadius)
+//                        .focusable()
+//                } else {
+//                    TextField("Notes...", text: $schedule.notes)
+//                        .cornerRadius(textFieldCornerRadius)
+//                        .focusable()
+//                }
+//            }
+//        }
+//    }
     
 //    var coursesView: some View {
 //        HStack {
@@ -84,49 +127,6 @@ struct ScheduleEditorView: View {
 //            }
 //        }
 //    }
-
-    var coursesView: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            ForEach(schedule.semesters, id: \.self) { semester in
-                HStack {
-                    Text(semester % 2 == 0 ? fallSymbol : springSymbol)
-                    ForEach (schedule.courses(for: semester)) { course in
-                        Text(course.name)
-                            .foregroundColor(course.getColor())
-                            .lineLimit(1)
-                    }
-                    Spacer()
-                    // Format to remove decimals -- what happens with 3 digits?
-                    Text(workloadSymbol + " \(Int(schedule.courses(for: semester).reduce(into: 0) { $0 += $1.workload }))")
-                        .frame(width: 45, alignment: .leading)
-                        
-                    
-                }
-            }
-            
-            
-        }
-    }
-    
-    var bottomButtons: some View {
-        HStack {
-            Button("Delete") {
-                withAnimation {
-                    // Only thing panel is needed for -- do we have to close to delete?
-                    shared.setEditSelection(to: .none)
-                    scheduleStore.removeSchedule(schedule)
-                }
-            }
-            Spacer()
-            Button("Close") {
-                withAnimation {
-                    shared.setEditSelection(to: .none)
-                }
-            }
-        }
-    }
-}
-
 
 
 // Put this in if we want to start searching courses from the editor

@@ -78,8 +78,8 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         model.moveCourse(course, to: newPos)
     }
 
-    func deleteCourse(_ course: Course) {
-        model.deleteCourse(course)
+    func removeCourse(_ course: Course) {
+        model.removeCourse(course)
     }
     
     func replaceCourse(old: Course, with newCourse: Course) {

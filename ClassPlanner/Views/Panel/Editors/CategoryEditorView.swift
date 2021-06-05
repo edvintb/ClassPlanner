@@ -47,27 +47,21 @@ struct CategoryEditorView: View {
         VStack(alignment: .leading, spacing: 0) {
             Spacer(minLength: 7)
             concentrationName
-            EditorTitleView(title: category.name).foregroundColor(color)
-            Divider().padding(5)
-            EditorNotes(notes: category.notes)
+            EditorHeader(title: category.name, notes: category.notes, color: category.getColor() )
             Form {
-                Section {
-                    nameField
-                    requiredField
-                    noteEditor
-                }
-                Spacer().frame(height: 20)
-                Section(header: header, footer: footer) {
+                NameEditor(entryView: nameField)
+                requiredField
+                NoteEditor(text: $category.notes) { save() }
+                Spacer().frame(height: 25)
+                Section(header: header) {
                     courseSearchField
                     coursesView
                 }
-                Spacer()
                 EditorColorGrid { category.color = $0; save() }
                 bottomButtons
                 
             }
-            .padding()
-
+            .padding(7)
         }
 
     }
@@ -80,19 +74,15 @@ struct CategoryEditorView: View {
                 .font(.footnote)
             Spacer()
         }
-        
     }
     
     var nameField: some View {
-        HStack {
-            Text(nameSymbol).font(.system(size: 16, weight: .thin, design: .serif))
-            TextField("Name", text: $category.name, onCommit: { save() }).cornerRadius(textFieldCornerRadius)
-        }
+        TextField("Name", text: $category.name, onCommit: { save() }).cornerRadius(textFieldCornerRadius)
     }
     
     var requiredField: some View {
         HStack {
-            Text(" # ").font(.system(size: 17.5, weight: .thin, design: .default)).foregroundColor(.yellow)
+            Text("  # ").font(.system(size: 17.5, weight: .thin, design: .default)).foregroundColor(.yellow)
             IntTextField("# Required", integer: $category.numberOfRequired, onCommit: { save() })
                 .cornerRadius(textFieldCornerRadius)
         }
@@ -100,13 +90,14 @@ struct CategoryEditorView: View {
     
     
     var header: some View {
-        Text("Add Courses")
-            .opacity(emptyHoverOpacity)
-    }
-    
-    var footer: some View {
-        Text("Click Course to Remove")
-            .opacity(emptyHoverOpacity)
+        HStack {
+            Text("Add Courses")
+                .opacity(emptyHoverOpacity)
+            Spacer()
+            Text("Click to Remove")
+                .opacity(emptyHoverOpacity)
+        }
+
     }
     
     var courseSearchField: some View {
@@ -115,8 +106,64 @@ struct CategoryEditorView: View {
                         suggestionModel: categorySuggestionVM.suggestionModel)
     }
     
+    var noteEditor: some View {
+        HStack {
+            Text(noteSymbol)
+            if #available(OSX 11.0, *) {
+                TextEditor(text: $category.notes)
+                    .cornerRadius(textFieldCornerRadius)
+            } else {
+                TextField("Notes...", text: $category.notes, onCommit: { save() })
+                    .cornerRadius(textFieldCornerRadius)
+            }
+        }
+    }
 
     
+    var coursesView: some View {
+        Grid (courses, desiredAspectRatio: 2) { course in
+            HStack {
+                Text(course.name == "" ? "No name" : course.name)
+                    .foregroundColor(course.getColor())
+                    .contentShape(Rectangle())
+                    .onTapGesture { category.removeCourse(course) }
+            }
+        }.frame(height: CGFloat(courses.count) * 20)
+    }
+    
+    var bottomButtons: some View {
+        HStack {
+            Button("Delete") {
+                withAnimation {
+                    shared.setEditSelection(to: .none)
+                    category.delete()
+                }
+            }
+            Spacer()
+            Button("Close") {
+                withAnimation {
+                    shared.setEditSelection(to: .none)
+                }
+            }
+        }
+    }
+
+    
+    func save() {
+        if let context = category.managedObjectContext {
+            do {
+                try context.save()
+            } catch {
+                print("Unexpected Error: \(error)")
+            }
+        }
+    }
+    
+
+    
+}
+
+
 //    var coursesView: some View {
 //        HStack {
 //            VStack(alignment: .leading, spacing: 0) {
@@ -133,22 +180,41 @@ struct CategoryEditorView: View {
 //            }
 //        }
 //    }
-    
 
-    
-    
-    var noteEditor: some View {
-        HStack {
-            Text(noteSymbol)
-            if #available(OSX 11.0, *) {
-                TextEditor(text: $category.notes)
-                    .cornerRadius(textFieldCornerRadius)
-            } else {
-                TextField("Notes...", text: $category.notes, onCommit: { save() })
-                    .cornerRadius(textFieldCornerRadius)
-            }
-        }
-    }
+//        Text("+").font(.title)
+//            .rotationEffect(Angle(degrees: 45))
+//            .foregroundColor(.red)
+//            .onTapGesture {
+//                self.isPresented = false
+//                viewModel.deleteCourse(course)
+//            }
+
+//    var cancel: some View {
+//        Button("Cancel") {
+//            self.isPresented = false
+//        }
+//    }
+//
+//    var done: some View {
+//        Button("Done") {
+////            if self.draft.destination != self.flightSearch.destination {
+////                self.draft.destination.fetchIncomingFlights()
+////            }
+////            self.flightSearch = self.draft
+//            self.isPresented = false
+//        }
+//    }
+
+//
+//    var numberFormatter: NumberFormatter {
+//        let numberFormatter = NumberFormatter()
+//        numberFormatter.maximumSignificantDigits = 3
+//        numberFormatter.roundingMode = .ceiling
+//        numberFormatter.zeroSymbol = ""
+//        return numberFormatter
+//    }
+
+
 //
 //    @State var startIndex: Int = 0
 //
@@ -177,77 +243,3 @@ struct CategoryEditorView: View {
 //                Divider()
 //            }.frame(height: 40 + CGFloat((showingCourses.count + 1) / 3) * 50, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
 //    }
-    
-    var coursesView: some View {
-        Grid (courses, desiredAspectRatio: 2) { course in
-            HStack {
-                Text(course.name == "" ? "No name" : course.name)
-                    .foregroundColor(course.getColor())
-                    .contentShape(Rectangle())
-                    .onTapGesture { category.removeCourse(course) }
-            }
-        }.frame(width: editorWidth, height: CGFloat(courses.count) * 20, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
-    }
-    
-    var bottomButtons: some View {
-        HStack {
-            Button("Delete") {
-                withAnimation {
-                    // Only thing panel is needed for -- do we have to close to delete?
-                    shared.setEditSelection(to: .none)
-                    category.delete()
-                }
-            }
-            Spacer()
-            Button("Close") {
-                withAnimation {
-                    shared.setEditSelection(to: .none)
-                }
-            }
-        }
-//        Text("+").font(.title)
-//            .rotationEffect(Angle(degrees: 45))
-//            .foregroundColor(.red)
-//            .onTapGesture {
-//                self.isPresented = false
-//                viewModel.deleteCourse(course)
-//            }
-    }
-//
-//    var numberFormatter: NumberFormatter {
-//        let numberFormatter = NumberFormatter()
-//        numberFormatter.maximumSignificantDigits = 3
-//        numberFormatter.roundingMode = .ceiling
-//        numberFormatter.zeroSymbol = ""
-//        return numberFormatter
-//    }
-    
-    func save() {
-        if let context = category.managedObjectContext {
-            do {
-                try context.save()
-            } catch {
-                print("Unexpected Error: \(error)")
-            }
-        }
-    }
-    
-//    var cancel: some View {
-//        Button("Cancel") {
-//            self.isPresented = false
-//        }
-//    }
-//
-//    var done: some View {
-//        Button("Done") {
-////            if self.draft.destination != self.flightSearch.destination {
-////                self.draft.destination.fetchIncomingFlights()
-////            }
-////            self.flightSearch = self.draft
-//            self.isPresented = false
-//        }
-//    }
-    
-}
-
-

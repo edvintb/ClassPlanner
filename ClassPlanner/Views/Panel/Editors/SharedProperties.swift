@@ -53,6 +53,59 @@ struct EditorColorGrid: View {
     }
 }
 
+struct NoteEditor: View {
+    
+    @Binding var text: String
+    
+    let onCommit: () -> ()
+    
+    var body: some View {
+        HStack {
+            Text(" \(noteSymbol)")
+            ZStack {
+                if #available(OSX 11.0, *) {
+                    TextEditor(text: $text)
+                        .cornerRadius(textFieldCornerRadius)
+                        .focusable()
+                } else {
+                    TextField("Notes...", text: $text, onCommit: onCommit)
+                        .cornerRadius(textFieldCornerRadius)
+                        .focusable()
+                }
+            }
+        }
+    }
+}
+
+
+struct NameEditor<V>: View where V: View {
+    
+    let entryView: V
+    
+    var body: some View {
+        HStack {
+            Text(" \(nameSymbol)").font(.system(size: 16, weight: .thin, design: .serif))
+            entryView
+        }
+    }
+}
+
+struct EditorHeader: View {
+    
+    let title: String
+    let notes: String
+    let color: Color
+    
+    
+    var body: some View {
+        Spacer(minLength: 7)
+        EditorTitleView(title: title).foregroundColor(color)
+        Divider().padding(5)
+        EditorNotes(notes: notes)
+        Spacer(minLength: 12)
+    }
+}
+
 
 
 

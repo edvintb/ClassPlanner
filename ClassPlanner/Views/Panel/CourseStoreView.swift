@@ -36,25 +36,37 @@ struct CourseStoreView: View {
     }
     
     var matchingCourses: [Course] {
-        courses.filter { query.isEmpty || $0.name.localizedCaseInsensitiveContains(query) }
+        courses.filter { query.isEmpty || $0.name.lowercased().hasPrefix(query.lowercased()) }
     }
 
     var body: some View {
-        GeometryReader { geo in
-            ScrollView {
-                Spacer(minLength: 3)
-                SearchTextField(query: $courseStore.courseQuery).padding([.horizontal], 10).padding([.vertical], 5)
-                if matchingCourses.isEmpty { noResultsView }
-                else {
-                    Columns(matchingCourses, numberOfColumns: 2, maxNumberRows: 7, moreView: moreView) { course in
-                        CourseView(course: course)
-                            .onDrag { NSItemProvider(object: course.stringID as NSString) }
-                            .scaleEffect(isDropping ? hoverScaleFactor : 1)
-                    }
-                    .padding([.horizontal], 7)
-                }
+        ScrollView {
+            Spacer(minLength: 3)
+            SearchTextField(query: $courseStore.courseQuery).padding([.horizontal], 10).padding([.vertical], 5)
+            if matchingCourses.isEmpty { noResultsView }
+            else { coursesView }
+        }
+        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
+    }
+    
+    var coursesView: some View {
+        Columns(matchingCourses, numberOfColumns: 2, maxNumberRows: 7, moreView: moreView) { course in
+            CourseView(course: course)
+                .onDrag { NSItemProvider(object: course.stringID as NSString) }
+                .scaleEffect(isDropping ? hoverScaleFactor : 1)
+        }
+        .padding([.horizontal], 7)
+    }
+    
+    var noResultsView: some View {
+        HStack {
+            Spacer()
+            VStack {
+                Spacer()
+                Text("No Results").opacity(0.2).font(.system(size: 20))
+                Spacer()
             }
-            .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
+            Spacer()
         }
     }
     
@@ -63,7 +75,7 @@ struct CourseStoreView: View {
             if let droppedCourse = getDroppedCourse(id: id) {
                 if let schedule = shared.currentSchedule {
                     withAnimation {
-                        schedule.deleteCourse(droppedCourse)
+                        schedule.removeCourse(droppedCourse)
                     }
                 }
             }
@@ -78,16 +90,7 @@ struct CourseStoreView: View {
         return nil
     }
     
-    var noResultsView: some View {
-        HStack {
-            VStack {
-                Text("No Results").opacity(0.2).font(.system(size: 20))
-//                CourseView(course: Course.withName("", context: context))
-//                    .padding([.horizontal], 5)
-            }
-            Spacer()
-        }
-    }
+
     
     var moreView: some View {
         ZStack {

@@ -51,10 +51,12 @@ struct ScheduleModel: Codable, Hashable, Equatable {
         }
     }
     
-    mutating func deleteCourse(_ course: Course) {
+    mutating func removeCourse(_ course: Course) {
         if let pos = getPositionInSchedule(for: course) {
             remove(at: pos)
         }
+        // Removing empty courses results in deleting
+        if course.isEmpty { course.delete() }
     }
     
     private mutating func insert(_ course: Course, at pos: CoursePosition) {
