@@ -15,13 +15,21 @@ struct ConcentrationContainerView: View {
     
     @Environment(\.managedObjectContext) var context
     
+//    private var concentrations: [Concentration] {
+//        shared.currentConcentrations.reduce(into: []) { acc, uri in
+//            if let concentration = NSManagedObject.fromURI(uri: uri, context: context) as? Concentration {
+//                acc.append(concentration)
+//            }
+//        }.sorted(by: { $0.index < $1.index })
+//    }
+    
     private var concentrations: [Concentration] {
-        shared.currentConcentrations.reduce(into: []) { acc, uri in
-            if let concentration = NSManagedObject.fromURI(uri: uri, context: context) as? Concentration {
-                acc.append(concentration)
-            }
-        }.sorted(by: { $0.index < $1.index })
+        shared.currentConcentrations.compactMap { uri in
+            NSManagedObject.fromURI(uri: uri, context: context) as? Concentration
+        }
     }
+    
+    @State var isDropping: Bool = false
     
     var body: some View {
         ScrollView([.vertical, .horizontal]) {
@@ -33,12 +41,39 @@ struct ConcentrationContainerView: View {
     var concentrationViews: some View {
         VStack (alignment: .leading, spacing: 4) {
             Spacer(minLength: 4)
-            ForEach (concentrations.indices) { index in
-                ConcentrationView(concentration: concentrations[index], schedule: schedule)
+            ForEach (concentrations) { concentration in
+                ConcentrationView(categoryViews: categoryViews, concentration: concentration)
+                    .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0, at: concentration) }
             }
             EmptyConcentrationView()
         }
         .padding(.horizontal, 5)
+    }
+    
+    func categoryViews(concentration: Concentration) -> some View {
+        CategoryContainer(concentration: concentration, schedule: schedule)
+    }
+    
+    func drop(providers: [NSItemProvider], at newConcentration: Concentration) -> Bool {
+        let found = providers.loadFirstObject(ofType: String.self) { id in
+            if let newIndex = shared.currentConcentrations.firstIndex(of: newConcentration.urlID) {
+                if let droppedConcentration = getDroppedConcentration(id: id) {
+                    withAnimation {
+                        shared.moveInsertConcentration(droppedConcentration, at: newIndex)
+                    }
+                }
+            }
+  
+        }
+        return found
+    }
+    
+    private func getDroppedConcentration(id: String) -> Concentration? {
+        if let uri = URL(string: id) {
+            let object = NSManagedObject.fromURI(uri: uri, context: context)
+            return object as? Concentration
+        }
+        return nil
     }
 }
 

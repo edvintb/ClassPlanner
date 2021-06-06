@@ -40,14 +40,12 @@ struct CourseStoreView: View {
     }
 
     var body: some View {
-//        ScrollView {
-//            SearchTextField(query: $courseStore.courseQuery).padding([.horizontal], 10).padding([.vertical], 5)
-//            if matchingCourses.isEmpty { noResultsView }
-//            else { coursesView }
-//        }
-//        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
-        
-        EmptyView()
+        ScrollView {
+            SearchTextField(query: $courseStore.courseQuery).padding([.horizontal], 10).padding([.vertical], 5)
+            if matchingCourses.isEmpty { noResultsView }
+            else { coursesView }
+        }
+        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
     }
     
     var coursesView: some View {

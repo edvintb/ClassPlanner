@@ -7,26 +7,26 @@
 
 import SwiftUI
 
-struct ConcentrationWithCategories: View {
-    
-    
-    @EnvironmentObject var shared: SharedVM
-    @ObservedObject var concentration: Concentration
-    @Environment(\.managedObjectContext) var context
-    
-    private var categories: [Category] {
-        concentration.categories.sorted(by: {$0.index < $1.index })
-    }
-    
-    @State private var isDropping: Bool = false
-
-    // Needs to tell categories to change with schedule
-    @ObservedObject var schedule: ScheduleVM
-
-    var body: some View {
-        ConcentrationView(concentration: concentration, schedule: schedule)
-            .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
-    }
+//struct ConcentrationWithCategories: View {
+//    
+//    
+//    @EnvironmentObject var shared: SharedVM
+//    @ObservedObject var concentration: Concentration
+//    @Environment(\.managedObjectContext) var context
+//    
+//    private var categories: [Category] {
+//        concentration.categories.sorted(by: {$0.index < $1.index })
+//    }
+//    
+//    @State private var isDropping: Bool = false
+//
+//    // Needs to tell categories to change with schedule
+//    @ObservedObject var schedule: ScheduleVM
+//
+//    var body: some View {
+//        ConcentrationView(concentration: concentration, schedule: schedule)
+//            .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
+//    }
     
 //    func testCategories() -> some View {
 //        HStack {
@@ -39,74 +39,74 @@ struct ConcentrationWithCategories: View {
 //    }
     
     
-    func categoryViews(size: CGSize) -> some View {
-        let categories = self.categories
-        return
-            HStack {
-                ForEach (categories) { category in
-//                    ConditionalScrollView(wanted: CGFloat(category.courses.count + 1) * categoryCourseFontSize*1.5, given: size.height) {
-                        CategoryView(category: category, schedule: schedule)
-//                    }
-                }
-                EmptyCategoryView(concentration: concentration)
-            }
-            .padding([.horizontal], 7)
-//            .frame(height: size.height, alignment: .topLeading)
-    }
+//    func categoryViews(size: CGSize) -> some View {
+//        let categories = self.categories
+//        return
+//            HStack {
+//                ForEach (categories) { category in
+////                    ConditionalScrollView(wanted: CGFloat(category.courses.count + 1) * categoryCourseFontSize*1.5, given: size.height) {
+//                        CategoryView(category: category, schedule: schedule)
+////                    }
+//                }
+//                EmptyCategoryView(concentration: concentration)
+//            }
+//            .padding([.horizontal], 7)
+////            .frame(height: size.height, alignment: .topLeading)
+//    }
+//    
+//    func drop(providers: [NSItemProvider]) -> Bool {
+//        let found = providers.loadFirstObject(ofType: String.self) { id in
+//            if let droppedConcentration = getDroppedConcentration(id: id) {
+//                withAnimation {
+//                    shared.insertConcentration(droppedConcentration)
+//                    // Fix moving to correct place 
+//                }
+//            }
+//        }
+//        return found
+//    }
+//    
+//    private func getDroppedConcentration(id: String) -> Concentration? {
+//        if let uri = URL(string: id) {
+//            let object = NSManagedObject.fromURI(uri: uri, context: context)
+//            return object as? Concentration
+//        }
+//        return nil
+//    }
+//}
+
+
+
+
+
+
+struct ConcentrationView<V>: View  where V: View{
     
-    func drop(providers: [NSItemProvider]) -> Bool {
-        let found = providers.loadFirstObject(ofType: String.self) { id in
-            if let droppedConcentration = getDroppedConcentration(id: id) {
-                withAnimation {
-                    shared.insertConcentration(droppedConcentration)
-                    // Fix moving to correct place 
-                }
-            }
-        }
-        return found
-    }
-    
-    private func getDroppedConcentration(id: String) -> Concentration? {
-        if let uri = URL(string: id) {
-            let object = NSManagedObject.fromURI(uri: uri, context: context)
-            return object as? Concentration
-        }
-        return nil
-    }
-}
-
-
-
-
-
-
-struct ConcentrationView: View {
+    let categoryViews: (Concentration) -> V
     
     @EnvironmentObject var shared: SharedVM
     @ObservedObject var concentration: Concentration
-    @ObservedObject var schedule: ScheduleVM
     
     private var categories: [Category] {
         concentration.categories.sorted(by: {$0.index < $1.index })
     }
     
-    @State private var dragOffset: CGSize = .zero
+//    @State private var dragOffset: CGSize = .zero
     @State private var isTargeted: Bool = false
     
     private var empty: Bool {
         concentration.name == ""
     }
-    private var isDragging: Bool {
-        dragOffset != .zero
-    }
+    
     
     var body: some View {
         ZStack {
             container
-            VStack(spacing: 1) {
+            VStack(alignment: .leading, spacing: 1) {
                 title
                 Divider()
-                CategoryContainer(concentration: concentration, schedule: schedule)
+                categoryViews(concentration)
+//                Spacer()
             }
         }
         .scaleEffect(isTargeted ? 1.01 : 1)
@@ -124,11 +124,14 @@ struct ConcentrationView: View {
         HStack {
             titleText
             Spacer()
-            Text("Delete")
-                .gesture(deleteGesture)
+            Text("\(concentration.index)")
         }
         .padding(7)
         .contentShape(Rectangle())
+        .foregroundColor(concentration.getColor())
+        .onTapGesture {
+            shared.setEditSelection(to: .concentration(concentration: concentration))
+        }
     }
     
 

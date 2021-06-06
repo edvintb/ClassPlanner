@@ -21,17 +21,23 @@ class SharedVM: ObservableObject {
     }
     
     // MARK: - Managing Current Concentrations
-    
+    // Perhaps this belongs somewhere else
     @Published private (set) var currentConcentrations: [URL]
     
-    func insertConcentration(_ concentration: Concentration) {
-        currentConcentrations.insert(concentration.urlID, at: 0)
+    func moveInsertConcentration(_ concentration: Concentration, at newIndex: Int) {
+        if let currentIndex = currentConcentrations.firstIndex(of: concentration.urlID) {
+            currentConcentrations.remove(at: currentIndex)
+        }
+        currentConcentrations.insert(concentration.urlID, at: newIndex)
     }
     
     func removeConcentration(_ concentration: Concentration) {
-        currentConcentrations.remove(at: 0)
+        if let removeIndex = currentConcentrations.firstIndex(of: concentration.urlID) {
+            currentConcentrations.remove(at: removeIndex)
+        }
     }
     
+    // Needed to automatically save & load with User Defaults
     init() {
         
         let concentrationKey = "CurrentConcentrations"

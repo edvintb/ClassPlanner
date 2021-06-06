@@ -32,6 +32,36 @@ struct ConcentrationEditorView: View {
     
     func deleteAction() {
         shared.stopEdit()
+        shared.removeConcentration(concentration)
         concentration.delete()
+        concentration.save()
+    }
+    
+    var bottomButtons: some View {
+        HStack {
+            EditorButtons(deleteAction: deleteAction, closeAction: shared.stopEdit)
+            Spacer()
+            addRemoveButton
+        }
+    }
+    
+    var addRemoveButton: some View {
+        if shared.currentConcentrations.contains(concentration.urlID) {
+            return
+                Button("Remove from current") {
+                    withAnimation {
+                        shared.removeConcentration(concentration)
+                        // concentration.save()
+                    }
+                }
+        }
+        else {
+            return
+                Button("Add to current") {
+                    withAnimation {
+                        shared.moveInsertConcentration(concentration, at: 0)
+                    }
+                }
+        }
     }
 }

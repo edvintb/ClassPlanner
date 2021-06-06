@@ -29,7 +29,7 @@ struct EmptyConcentrationView: View {
         let found = providers.loadFirstObject(ofType: String.self) { id in
             if let droppedConcentration = getDroppedConcentration(id: id) {
                 withAnimation {
-                    shared.insertConcentration(droppedConcentration)
+                    shared.moveInsertConcentration(droppedConcentration, at: shared.currentConcentrations.count)
                 }
             }
         }
@@ -43,4 +43,5 @@ struct EmptyConcentrationView: View {
         }
         return nil
     }
+    
 }

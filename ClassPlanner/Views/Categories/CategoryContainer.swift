@@ -24,6 +24,7 @@ struct CategoryContainer: View {
             }
             EmptyCategoryView(concentration: concentration)
         }
+        .padding(.horizontal, 5)
     }
 
 }

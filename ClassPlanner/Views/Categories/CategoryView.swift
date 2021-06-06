@@ -92,7 +92,7 @@ struct CategoryView: View {
                 .foregroundColor(course.getColor())
             Spacer()
             if let schedule = shared.currentSchedule {
-                if schedule.courseURLs.contains(course.objectID.uriRepresentation()) {
+                if schedule.courseURLs.contains(course.urlID) {
                     Text("􀁢")
                         .foregroundColor(checkMarkColor)
                 }
