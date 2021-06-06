@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import Combine
 
 class SharedVM: ObservableObject {
+    
+    private var cancellables = Set<AnyCancellable>()
     
     // MARK: - Managing Current Schedule
     
@@ -19,14 +22,30 @@ class SharedVM: ObservableObject {
     
     // MARK: - Managing Current Concentrations
     
-    @Published private (set) var currentConcentrations = Set<Concentration>()
+    @Published private (set) var currentConcentrations: [URL]
     
     func insertConcentration(_ concentration: Concentration) {
-        currentConcentrations.insert(concentration)
+        currentConcentrations.insert(concentration.urlID, at: 0)
     }
     
     func removeConcentration(_ concentration: Concentration) {
-        currentConcentrations.remove(concentration)
+        currentConcentrations.remove(at: 0)
+    }
+    
+    init() {
+        
+        let concentrationKey = "CurrentConcentrations"
+        
+        let stringArray = (UserDefaults.standard.stringArray(forKey: concentrationKey))
+        let urlIDs = stringArray?.compactMap { URL(string: $0) }
+        self.currentConcentrations = urlIDs ?? []
+        
+        $currentConcentrations.sink { concentrations in
+            let stringURL = concentrations.map { $0.absoluteString }
+            UserDefaults.standard.setValue(stringURL, forKey: concentrationKey)
+            print("Saved current concentrations")
+        }
+        .store(in: &cancellables)
     }
     
     

@@ -17,7 +17,7 @@ struct EmptyConcentrationView: View {
     
     var body: some View {
         RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
-            .frame(height: concentrationHeight)
+            .frame(minHeight: concentrationHeight)
             .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
             .opacity((isTargeted || isDropping) ? emptyHoverOpacity : 0)
             .onHover { isTargeted = $0 }

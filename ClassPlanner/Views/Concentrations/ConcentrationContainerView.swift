@@ -13,28 +13,28 @@ struct ConcentrationContainerView: View {
     
     @ObservedObject var schedule: ScheduleVM
     
-//    @FetchRequest private var concentrations: FetchedResults<Concentration>
+    @Environment(\.managedObjectContext) var context
     
     private var concentrations: [Concentration] {
-        shared.currentConcentrations.sorted(by: { $0.index < $1.index })
+        shared.currentConcentrations.reduce(into: []) { acc, uri in
+            if let concentration = NSManagedObject.fromURI(uri: uri, context: context) as? Concentration {
+                acc.append(concentration)
+            }
+        }.sorted(by: { $0.index < $1.index })
     }
     
     var body: some View {
-        GeometryReader { geo in
-            ScrollView([.vertical]) {
+        ScrollView([.vertical, .horizontal]) {
                 concentrationViews
-                    // Set the frame to take up entire scrollView
-                    .frame(minHeight: geo.size.height, alignment: .topLeading)
-
-            }
+                .padding(.horizontal, 5)
         }
     }
     
     var concentrationViews: some View {
-        VStack(alignment: .leading) {
+        VStack (alignment: .leading, spacing: 4) {
             Spacer(minLength: 4)
-            ForEach (concentrations) { concentration in
-                ConcentrationWithCategories(concentration: concentration, schedule: schedule)
+            ForEach (concentrations.indices) { index in
+                ConcentrationView(concentration: concentrations[index], schedule: schedule)
             }
             EmptyConcentrationView()
         }

@@ -24,24 +24,34 @@ struct ConcentrationWithCategories: View {
     @ObservedObject var schedule: ScheduleVM
 
     var body: some View {
-        ConcentrationView(categoryViews: categories, concentration: concentration)
+        ConcentrationView(concentration: concentration, schedule: schedule)
             .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
     }
     
+//    func testCategories() -> some View {
+//        HStack {
+//            ForEach (categories) { category in
+//                    CategoryView(category: category, schedule: schedule)
+//            }
+//            EmptyCategoryView(concentration: concentration)
+//        }
+//        .padding([.horizontal], 7)
+//    }
     
-    func categories(in size: CGSize) -> some View {
+    
+    func categoryViews(size: CGSize) -> some View {
         let categories = self.categories
         return
             HStack {
                 ForEach (categories) { category in
-                    ConditionalScrollView(wanted: CGFloat(category.courses.count + 1) * categoryCourseFontSize*1.5, given: size.height) {
+//                    ConditionalScrollView(wanted: CGFloat(category.courses.count + 1) * categoryCourseFontSize*1.5, given: size.height) {
                         CategoryView(category: category, schedule: schedule)
-                    }
+//                    }
                 }
                 EmptyCategoryView(concentration: concentration)
             }
             .padding([.horizontal], 7)
-            .frame(height: size.height, alignment: .topLeading)
+//            .frame(height: size.height, alignment: .topLeading)
     }
     
     func drop(providers: [NSItemProvider]) -> Bool {
@@ -70,20 +80,15 @@ struct ConcentrationWithCategories: View {
 
 
 
-struct ConcentrationView<V>: View where V: View{
-    
-    let categoryViews: (CGSize) -> V
+struct ConcentrationView: View {
     
     @EnvironmentObject var shared: SharedVM
     @ObservedObject var concentration: Concentration
+    @ObservedObject var schedule: ScheduleVM
     
-    // Needed for dragging
-//    @ObservedObject var concentrationVM: ConcentrationVM
-    
-    // Needs to tell categories to change with schedule
-//    @ObservedObject var schedule: ScheduleVM
-    
-
+    private var categories: [Category] {
+        concentration.categories.sorted(by: {$0.index < $1.index })
+    }
     
     @State private var dragOffset: CGSize = .zero
     @State private var isTargeted: Bool = false
@@ -98,28 +103,21 @@ struct ConcentrationView<V>: View where V: View{
     var body: some View {
         ZStack {
             container
-            VStack(alignment: .leading, spacing: 1) {
+            VStack(spacing: 1) {
                 title
                 Divider()
-                GeometryReader { geo in
-                    categoryViews(geo.size)
-                }
+                CategoryContainer(concentration: concentration, schedule: schedule)
             }
         }
-        .frame(minHeight: concentrationHeight)
         .scaleEffect(isTargeted ? 1.01 : 1)
         .onDrag({ NSItemProvider(object: concentration.stringID as NSString) })
-//        .onHover { isTargeted = concentrationVM.hoverOverConcentration(concentration, entered: $0) }
-//        .offset(dragOffset)
-//        .zIndex(concentrationVM.dragConcentration == concentration ? 1 : 0)
-        
-
     }
     
     var container: some View {
         RoundedRectangle(cornerRadius: frameCornerRadius)
             .stroke()
             .opacity(emptyHoverOpacity)
+            .frame(minHeight: concentrationHeight)
     }
     
     var title: some View {

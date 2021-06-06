@@ -22,23 +22,25 @@ struct ConcentrationStoreView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading) {
-            buttons
-            ForEach (concentrations) { concentration in
-                concentrationView(concentration)
-            }
-        }
-        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
+//        VStack(alignment: .leading) {
+//            buttons
+//            ForEach (concentrations) { concentration in
+//                concentrationView(concentration)
+//            }
+//        }
+//        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
+        EmptyView()
         Spacer()
     }
     
     private func concentrationView(_ concentration: Concentration) -> some View {
-        ConcentrationView(categoryViews: categories, concentration: concentration)
-            .onDrag({ NSItemProvider(object: concentration.stringID as NSString) })
-            .padding(editorPadding)
+//        ConcentrationView(categoryViews: categories, concentration: concentration)
+//            .onDrag({ NSItemProvider(object: concentration.stringID as NSString) })
+//            .padding(editorPadding)
+        EmptyView()
     }
     
-    private func categories(size: CGSize) -> some View {
+    private func categories() -> some View {
         EmptyView()
     }
     

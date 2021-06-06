@@ -9,15 +9,18 @@ import SwiftUI
 
 struct EmptyCategoryView: View {
     
-    let concentration: Concentration
+    @ObservedObject var concentration: Concentration
+    
     @State private var isTargeted: Bool = false
     
     var body: some View {
-        RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
-            .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
-            .opacity(isTargeted ? emptyHoverOpacity : 0)
-            .onHover { isTargeted = $0 }
-            .onTapGesture { concentration.addCategory() }
+        VStack {
+            RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
+                .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
+                .opacity(isTargeted ? emptyHoverOpacity : 0)
+                .onHover { isTargeted = $0 }
+                .onTapGesture { concentration.addCategory() }
+        }
 //            RoundedRectangle(cornerRadius: frameCornerRadius).opacity(0.001)
 //                .frame(minWidth: 0, maxWidth: .infinity, minHeight: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxHeight: categoryHeight, alignment: .center)
     }

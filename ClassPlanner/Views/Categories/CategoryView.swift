@@ -9,7 +9,6 @@ import SwiftUI
 
 struct CategoryView: View {
     
-    
     // Needed to set edit selection
     @EnvironmentObject var shared: SharedVM
     @ObservedObject var category: Category
@@ -17,7 +16,6 @@ struct CategoryView: View {
     // Needs to look at the schedule to check the courses
     @ObservedObject var schedule: ScheduleVM
 
-    @State private var dragOffset: CGSize = .zero
     @State private var isDropping: Bool = false
     
     private var color: Color { category.getColor() }
@@ -56,12 +54,11 @@ struct CategoryView: View {
             ForEach (courses) { course in
                 courseView(course: course)
                     .onDrag { NSItemProvider(object: course.stringID as NSString) }
+                    .onTapGesture { shared.setEditSelection(to: .course(course: course)) }
             }
             Spacer(minLength: 4)
         }
         .scaleEffect(isDropping ? hoverScaleFactor : 1)
-//        .onHover { isDropping = concentrationVM.hoverOverCategory(category, entered: $0) }
-//        .offset(dragOffset)
         .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
         .onDrag({ NSItemProvider(object: category.stringID as NSString) })
