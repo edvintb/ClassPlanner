@@ -15,17 +15,21 @@ struct ScheduleView: View {
     
     @State private var isShowingContent: Bool = false
     
+    private var maxNumberCoursesInSemester: CGFloat {
+        CGFloat(schedule.semesters.map { schedule.courses(for: $0).count }.max() ?? 0)
+    }
+    
     var body: some View {
         GeometryReader { geo in
             ScrollView([.vertical, .horizontal]) {
                 VStack(alignment: .leading, spacing: 7) {
                     scheduleName(schedule: schedule)
                     Divider().padding(.bottom, 3)
-                        .frame(width: (courseWidth + 8)*CGFloat(schedule.semesters.count))
                     semesters
-                    Spacer().frame(height: geo.size.height)
+                    Spacer().frame(height: geo.size.height - 215)
                 }
-                .frame(minWidth: geo.size.width, alignment: .topLeading)
+                .frame(minWidth: geo.size.width - 15, alignment: .topLeading)
+                .onAppear { print(maxNumberCoursesInSemester) }
 //            }
 //            ScrollView([.vertical, .horizontal]) {
 //                if isShowingContent {
@@ -66,7 +70,7 @@ struct ScheduleView: View {
     var semesters: some View {
         let semesters = schedule.semesters
         return
-            HStack {
+            HStack(spacing: 10) {
                 Spacer().frame(width: 5)
                 ForEach (semesters, id: \.self) { semester in
                     SemesterView(semester: semester, schedule: schedule)

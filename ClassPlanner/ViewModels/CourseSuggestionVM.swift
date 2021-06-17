@@ -35,15 +35,15 @@ class CourseSuggestionVM: ObservableObject {
         
         suggestionModel.suggestionsCancelled
             .sink { [unowned self] _ in
-                let predicate = NSPredicate(format: "name_ =[c] %@", argumentArray: [self.suggestionModel.textBinding?.wrappedValue ?? ""])
-                let request = Course.fetchRequest(predicate)
-                let courses = (try? context.fetch(request)) ?? []
-                if let newCourse = courses.first,
-                   let schedule = shared.currentSchedule,
-                   case let .course(oldCourse) = shared.currentEditSelection {
-                        print("Found replacement")
-                        schedule.replaceCourse(old: oldCourse, with: newCourse)
-                        shared.setEditSelection(to: .course(course: newCourse))
+                if case let .course(oldCourse) = shared.currentEditSelection {
+                    let predicate = NSPredicate(format: "name_ =[c] %@ AND SELF != %@", argumentArray: [self.suggestionModel.textBinding?.wrappedValue ?? "", oldCourse])
+                    let request = Course.fetchRequest(predicate)
+                    let courses = (try? context.fetch(request)) ?? []
+                    if let newCourse = courses.first,
+                       let schedule = shared.currentSchedule {
+                            schedule.replaceCourse(old: oldCourse, with: newCourse)
+                            shared.setEditSelection(to: .course(course: newCourse))
+                    }
                 }
             }
             .store(in: &cancellables)

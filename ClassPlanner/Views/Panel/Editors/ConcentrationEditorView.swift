@@ -23,7 +23,7 @@ struct ConcentrationEditorView: View {
                 NameEditor(entryView: nameField)
                 NoteEditor(text: $concentration.notes) { concentration.save() }
                 Spacer().frame(height: 30)
-                Section(header: Text("Click to Remove").opacity(grayTextOpacity)) {
+                Section(header: categorySectionHeader) {
                     categoriesView
                 }
                 EditorColorGrid { concentration.color = $0; concentration.save() }
@@ -38,6 +38,15 @@ struct ConcentrationEditorView: View {
             .cornerRadius(textFieldCornerRadius)
     }
     
+    var categorySectionHeader: some View {
+        HStack {
+            Text("Categories")
+            Spacer()
+            Text("Click to Remove")
+        }
+        .opacity(grayTextOpacity)
+    }
+    
     var categoriesView: some View {
         ZStack {
             RoundedRectangle(cornerRadius: frameCornerRadius).stroke().opacity(emptyOpacity)
@@ -46,6 +55,7 @@ struct ConcentrationEditorView: View {
                     Columns(categories, numberOfColumns: 2, moreView: EmptyView()) { category in
                         categoryView(category)
                     }
+                    .frame(width: geo.size.width)
                 }.cornerRadius(frameCornerRadius)
             }
         }

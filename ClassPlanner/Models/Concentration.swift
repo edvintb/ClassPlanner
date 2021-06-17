@@ -13,13 +13,10 @@ extension Concentration {
     
     // MARK: - Static functions
     
-    static func createEmpty(in context: NSManagedObjectContext) {
-        let request = Concentration.fetchRequest(.all)
-        let count = (try? context.count(for: request)) ?? 0
+    static func createEmpty(in context: NSManagedObjectContext) -> Concentration{
         let concentration = Concentration(context: context)
-        concentration.name = ""
-        concentration.index = count
         try? context.save()
+        return concentration
     }
     
     static func fetchRequest(_ predicate: NSPredicate) -> NSFetchRequest<Concentration> {

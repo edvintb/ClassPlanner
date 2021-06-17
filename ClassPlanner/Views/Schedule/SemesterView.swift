@@ -36,7 +36,7 @@ struct SemesterView: View {
     var topView: some View {
         HStack {
             Text(String(format: "\(workloadSymbol) %.1f", totalWorkload))
-            
+            Spacer()
         }
     }
     

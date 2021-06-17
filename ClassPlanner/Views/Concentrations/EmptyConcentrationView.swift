@@ -22,7 +22,7 @@ struct EmptyConcentrationView: View {
             .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
             .opacity((isTargeted || isDropping) ? emptyHoverOpacity : 0)
             .onHover { isTargeted = $0 }
-            .onTapGesture { Concentration.createEmpty(in: context) }
+            .onTapGesture { concentrationVM.addConcentration(context: context) }
             .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
     }
     

@@ -7,18 +7,12 @@
 
 import Foundation
 import Combine
+import CoreData
 
 class ConcentrationVM: ObservableObject {
-//
-//    private let shared: SharedVM
-//
+
+
     private var cancellables = Set<AnyCancellable>()
-    
-    // MARK: - Editing
-    
-//    func setEditCategory(_ category: Category) {
-//        shared.setEditSelection(to: .category(category: category))
-//    }
     
     // MARK: - Managing Current Concentrations
 
@@ -37,10 +31,13 @@ class ConcentrationVM: ObservableObject {
         }
     }
     
+    func addConcentration(context: NSManagedObjectContext) {
+        let new = Concentration.createEmpty(in: context)
+        moveInsertConcentration(new, at: currentConcentrations.count)
+    }
+    
     // Needed to automatically save & load with User Defaults
     init() {
-        
-//        self.shared = shared
         
         let concentrationKey = "CurrentConcentrations"
         

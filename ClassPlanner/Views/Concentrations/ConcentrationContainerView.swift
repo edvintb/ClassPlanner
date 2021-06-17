@@ -53,10 +53,9 @@ struct ConcentrationContainerView: View {
                         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0, at: concentration) }
                 }
                 EmptyConcentrationView(concentrationVM: concentrationVM)
+                    .frame(width: size.width - 40)
             }
-    //        .frame(width: size.width)
-            .padding(.horizontal, 5)
-            .padding(.horizontal, 5)
+            .padding(.horizontal, 10)
         
     }
     

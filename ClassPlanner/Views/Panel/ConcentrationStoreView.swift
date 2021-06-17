@@ -106,7 +106,7 @@ struct ConcentrationStoreView: View {
     
     
     private func addConcentration() {
-        Concentration.createEmpty(in: context)
+        concentrationVM.addConcentration(context: context)
     }
     
 //    var buttons: some View {

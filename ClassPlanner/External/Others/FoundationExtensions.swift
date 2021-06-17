@@ -68,21 +68,7 @@ extension Animation {
     }
 }
 
-//extension Concentration {
-//
-//    func getColor(dark: Bool) -> Color {
-//        if self.color == 0 { return (dark ? .white : .black) }
-//        return Color.colorSelection[self.color]
-//    }
-//}
 
-
-//extension GeometryProxy {
-//    func convert(_ point: CGPoint, from coordinateSpace: CoordinateSpace) -> CGPoint {
-//        let frame = self.frame(in: coordinateSpace)
-//        return CGPoint(x: point.x-frame.origin.x, y: frame.height - point.y + frame.origin.y )
-//    }
-//}
 
 extension Int {
     init(_ bool: Bool) {
@@ -143,18 +129,15 @@ public extension String {
         var numbersFound = 0
         if self.first?.isNumber != true { return nil }
         var numeric = self.filter {
-            print("Filter called")
             if $0.isWholeNumber {
                 numbersFound += 1
                 return true
             } else if allowDecimalSeparator && ($0 == "." || $0 == ",") {
-                defer { print("Defered call"); hasFoundDecimal = true }
-                print("Returned")
+                defer { hasFoundDecimal = true }
                 return !hasFoundDecimal
             }
             return false
         }
-        print("Exited filter")
         if numbersFound > maxDigits { numeric.removeLast(numbersFound - maxDigits) }
         return numeric
     }
@@ -195,6 +178,22 @@ extension Array where Element == NSItemProvider {
         loadObjects(ofType: theType, firstOnly: true, using: load)
     }
 }
+
+//extension Concentration {
+//
+//    func getColor(dark: Bool) -> Color {
+//        if self.color == 0 { return (dark ? .white : .black) }
+//        return Color.colorSelection[self.color]
+//    }
+//}
+
+
+//extension GeometryProxy {
+//    func convert(_ point: CGPoint, from coordinateSpace: CoordinateSpace) -> CGPoint {
+//        let frame = self.frame(in: coordinateSpace)
+//        return CGPoint(x: point.x-frame.origin.x, y: frame.height - point.y + frame.origin.y )
+//    }
+//}
 
 //
 //struct MultilineTextField: NSViewRepresentable {

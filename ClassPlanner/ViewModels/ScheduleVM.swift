@@ -108,12 +108,8 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         let index = model.schedule[semester]?.count ?? 0
         let course = Course(context: context)
         let newPos = CoursePosition(semester: semester, index: index)
-        try? context.save()
-        print(context)
         do {
             try context.save()
-            print(course.objectID.isTemporaryID)
-            print(course.managedObjectContext)
             model.moveCourse(course, to: newPos)
             save()
             
@@ -137,7 +133,6 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     private func save() {
         if url != nil {
             try? self.model.json?.write(to: url!)
-            print("Saved")
         }
     }
     
