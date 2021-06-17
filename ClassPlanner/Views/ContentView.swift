@@ -18,13 +18,18 @@ struct ContentView: View {
     @ObservedObject var categorySuggestionVM: CategorySuggestionVM
 
     var body: some View {
-        NavigationView {
-            PanelView(scheduleStore: scheduleStore, courseStore: courseStore, courseSuggestionVM: courseSuggestionVM, categorySuggestionVM: categorySuggestionVM)
+        HSplitView {
+            PanelView(scheduleStore: scheduleStore,
+                      courseStore: courseStore,
+                      courseSuggestionVM: courseSuggestionVM,
+                      categorySuggestionVM: categorySuggestionVM,
+                      concentrationVM: concentrationVM,
+                      schedule: schedule)
                 .frame(minWidth: editorWidth*1.1, maxWidth: 500, alignment: .top)
                 VSplitView {
                     ScheduleView(store: scheduleStore, schedule: schedule)
                         .frame(minHeight: scheduleMinHeight, idealHeight: 400)
-                    ConcentrationContainerView(schedule: schedule)
+                    ConcentrationContainerView(schedule: schedule, concentrationVM: concentrationVM)
                         .frame(minHeight: concentrationsMinHeight, idealHeight: 150)
                 }
             }

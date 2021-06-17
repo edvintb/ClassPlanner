@@ -9,7 +9,8 @@ import SwiftUI
 
 struct EmptyConcentrationView: View {
     
-    @EnvironmentObject var shared: SharedVM
+//    @EnvironmentObject var shared: SharedVM
+    @ObservedObject var concentrationVM: ConcentrationVM
     
     @Environment(\.managedObjectContext) var context
     @State private var isTargeted: Bool = false
@@ -29,7 +30,7 @@ struct EmptyConcentrationView: View {
         let found = providers.loadFirstObject(ofType: String.self) { id in
             if let droppedConcentration = getDroppedConcentration(id: id) {
                 withAnimation {
-                    shared.moveInsertConcentration(droppedConcentration, at: shared.currentConcentrations.count)
+                    concentrationVM.moveInsertConcentration(droppedConcentration, at: concentrationVM.currentConcentrations.count)
                 }
             }
         }

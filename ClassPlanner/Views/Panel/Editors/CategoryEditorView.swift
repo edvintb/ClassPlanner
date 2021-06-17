@@ -11,19 +11,18 @@ import Combine
 
 struct CategoryEditorView: View {
     
+    // Make this guy look at the current schedule too for automatic updating
+    
     // Used to stop editing
     @EnvironmentObject var shared: SharedVM
     
     @ObservedObject var category: Category
     
-//    // Used to search courses
-//    @ObservedObject var courseStore: CourseStore
-    
+    // Needed to search courses w/ suggestions
     @ObservedObject var categorySuggestionVM: CategorySuggestionVM
     @ObservedObject var searchModel: SearchModel
     
-    private var cancellables = Set<AnyCancellable>()
-    private var color: Color { category.getColor() }
+
     
     // Sort courses depending on current schedule
     private var courses: [Course] {
@@ -34,6 +33,9 @@ struct CategoryEditorView: View {
             return category.coursesSorted()
         }
     }
+    
+    private var cancellables = Set<AnyCancellable>()
+    private var color: Color { category.getColor() }
     
     init(category: Category, categorySuggestionVM: CategorySuggestionVM, context: NSManagedObjectContext) {
         self.categorySuggestionVM = categorySuggestionVM
@@ -82,7 +84,7 @@ struct CategoryEditorView: View {
     
     var requiredField: some View {
         HStack {
-            Text("  # ").font(.system(size: 17.5, weight: .thin, design: .default)).foregroundColor(.yellow)
+            Text(numberRequiredSymbol).font(.system(size: 17.5, weight: .thin, design: .default)).foregroundColor(.yellow)
             IntTextField("# Required", integer: $category.numberOfRequired, onCommit: { category.save() })
                 .cornerRadius(textFieldCornerRadius)
         }
@@ -108,14 +110,39 @@ struct CategoryEditorView: View {
 
     
     var coursesView: some View {
-        Grid (courses, desiredAspectRatio: 2) { course in
-            HStack {
-                Text(course.name == "" ? "No name" : course.name)
-                    .foregroundColor(course.getColor())
-                    .contentShape(Rectangle())
-                    .onTapGesture { category.removeCourse(course) }
+        GeometryReader { geo in
+            Columns(courses, numberOfColumns: 2, moreView: EmptyView()) { course in
+                HStack {
+                    Text(course.name == "" ? "No name" : course.name)
+                        .foregroundColor(course.getColor())
+                    Spacer()
+                    if let schedule = shared.currentSchedule {
+                        if schedule.courseURLs.contains(course.urlID) {
+                            Text("􀁢")
+                                .foregroundColor(checkMarkColor)
+                        }
+                    }
+                }
+                .padding(.vertical, 7)
+                .padding(.horizontal, 10)
+                .frame(width: geo.size.width/2, alignment: .leading)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    withAnimation {
+                        category.removeCourse(course)
+                    }
+                }
             }
-        }.frame(height: CGFloat(courses.count) * 20)
+        }
+//
+//        Grid (courses, desiredAspectRatio: 2) { course in
+//            HStack {
+//                Text(course.name == "" ? "No name" : course.name)
+//                    .foregroundColor(course.getColor())
+//                    .contentShape(Rectangle())
+//                    .onTapGesture { category.removeCourse(course) }
+//            }
+//        }.frame(height: CGFloat(courses.count) * 20)
     }
     
     

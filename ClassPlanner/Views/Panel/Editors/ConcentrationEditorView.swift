@@ -11,6 +11,10 @@ struct ConcentrationEditorView: View {
     
     @EnvironmentObject var shared: SharedVM
     @ObservedObject var concentration: Concentration
+    @ObservedObject var concentrationVM: ConcentrationVM
+    @ObservedObject var schedule: ScheduleVM
+    
+    private var categories: [Category] { concentration.categories.sorted(by: { $0.index < $1.index }) }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -18,6 +22,10 @@ struct ConcentrationEditorView: View {
             Form {
                 NameEditor(entryView: nameField)
                 NoteEditor(text: $concentration.notes) { concentration.save() }
+                Spacer().frame(height: 30)
+                Section(header: Text("Click to Remove").opacity(grayTextOpacity)) {
+                    categoriesView
+                }
                 EditorColorGrid { concentration.color = $0; concentration.save() }
                 EditorButtons(deleteAction: deleteAction, closeAction: shared.stopEdit)
             }
@@ -30,9 +38,33 @@ struct ConcentrationEditorView: View {
             .cornerRadius(textFieldCornerRadius)
     }
     
+    var categoriesView: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: frameCornerRadius).stroke().opacity(emptyOpacity)
+            GeometryReader { geo in
+                ScrollView {
+                    Columns(categories, numberOfColumns: 2, moreView: EmptyView()) { category in
+                        categoryView(category)
+                    }
+                }.cornerRadius(frameCornerRadius)
+            }
+        }
+    }
+    
+    func categoryView(_ category: Category) -> some View {
+        CategoryView(category: category, schedule: schedule)
+        .padding(10)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            withAnimation {
+                concentration.removeCategory(category)
+            }
+        }
+    }
+    
     func deleteAction() {
         shared.stopEdit()
-        shared.removeConcentration(concentration)
+        concentrationVM.removeConcentration(concentration)
         concentration.delete()
         concentration.save()
     }
@@ -46,11 +78,11 @@ struct ConcentrationEditorView: View {
     }
     
     var addRemoveButton: some View {
-        if shared.currentConcentrations.contains(concentration.urlID) {
+        if concentrationVM.currentConcentrations.contains(concentration.urlID) {
             return
                 Button("Remove from current") {
                     withAnimation {
-                        shared.removeConcentration(concentration)
+                        concentrationVM.removeConcentration(concentration)
                         // concentration.save()
                     }
                 }
@@ -59,7 +91,7 @@ struct ConcentrationEditorView: View {
             return
                 Button("Add to current") {
                     withAnimation {
-                        shared.moveInsertConcentration(concentration, at: 0)
+                        concentrationVM.moveInsertConcentration(concentration, at: 0)
                     }
                 }
         }

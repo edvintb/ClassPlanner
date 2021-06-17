@@ -68,6 +68,13 @@ extension Concentration {
         }
     }
     
+    func removeCategory(_ category: Category) {
+        if let context = managedObjectContext {
+            self.categories.remove(category)
+            try? context.save()
+        }
+    }
+    
     // MARK: - Property Access
     
     var index: Int {

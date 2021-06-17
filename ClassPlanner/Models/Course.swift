@@ -77,8 +77,13 @@ extension Course {
         set { self.enrollment_ = Int16(newValue) }
     }
     
-    var grade: String {
-        "A"
+    var grade: Int {
+        get { Int(self.grade_) }
+        set { self.grade_ = Int16(newValue) }
+    }
+    
+    var enumGrade: Grade {
+        Grade.init(rawValue: grade) ?? Grade.A
     }
     
     var color: Int {

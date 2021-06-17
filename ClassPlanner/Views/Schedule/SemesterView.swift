@@ -17,8 +17,13 @@ struct SemesterView: View {
     
     private var courses: [Course] { schedule.courses(for: semester) }
     
+    private var totalWorkload: Double { courses.reduce(into: 0) { acc, course in acc += course.workload }}
+    
+    private var totalGrade: Double { courses.reduce(into: 0) { acc, course in acc += Grade.gradeNumber[course.enumGrade] ?? 0 }}
+    
     var body: some View {
         VStack(spacing: courseSpacing) {
+            topView
             ForEach (courses) { course in
                 ScheduleCourseView(course: course)
             }
@@ -26,6 +31,13 @@ struct SemesterView: View {
             Spacer()
         }
         .frame(width: courseWidth, alignment: .top)
+    }
+    
+    var topView: some View {
+        HStack {
+            Text(String(format: "\(workloadSymbol) %.1f", totalWorkload))
+            
+        }
     }
     
 //    func delete(course: Course) -> some View {

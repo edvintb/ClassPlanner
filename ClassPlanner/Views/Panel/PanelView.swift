@@ -15,6 +15,8 @@ struct PanelView: View {
     @ObservedObject var courseStore: CourseStore
     @ObservedObject var courseSuggestionVM: CourseSuggestionVM
     @ObservedObject var categorySuggestionVM: CategorySuggestionVM
+    @ObservedObject var concentrationVM: ConcentrationVM
+    @ObservedObject var schedule: ScheduleVM
     
     @Environment(\.managedObjectContext) var context
     
@@ -33,9 +35,9 @@ struct PanelView: View {
             Spacer()
             ForEach (PanelOption.allCases, id: \.self) { option in
                 Text(PanelOption.symbols[option] ?? "X")
-                    .font(.callout)
                     .foregroundColor(shared.currentPanelSelection == option ? .blue : nil)
                     .onTapGesture { shared.setPanelSelection(to: option) }
+                    .font(.system(size: 16, weight: .thin, design: .default))
                 Spacer()
             }
         }
@@ -48,13 +50,11 @@ struct PanelView: View {
             case .editor:
                 getEditor(shared.currentEditSelection)
             case .courses:
-                CourseStoreView(courseStore: courseStore)
+                CourseStoreView()
             case .concentrations:
-                ConcentrationStoreView()
+                ConcentrationStoreView(concentrationVM: concentrationVM)
             case .schedules:
                 ScheduleStoreView(store: scheduleStore)
-            case .otherPeople:
-                Text("Other People")
         }
     }
     
@@ -66,7 +66,7 @@ struct PanelView: View {
         case .category(let category):
             CategoryEditorView(category: category, categorySuggestionVM: categorySuggestionVM, context: context)
         case .concentration(let concentration):
-            ConcentrationEditorView(concentration: concentration)
+            ConcentrationEditorView(concentration: concentration, concentrationVM: concentrationVM, schedule: schedule)
         case .schedule(let schedule):
             ScheduleEditorView(schedule: schedule, scheduleStore: scheduleStore)
                 .alert(item: $scheduleStore.existingNameAlert) { nameString in

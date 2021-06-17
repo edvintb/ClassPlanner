@@ -37,13 +37,18 @@ struct ScheduleModel: Codable, Hashable, Equatable {
         // If we can get the position we have to remove it from there
         if let oldPos = getPositionInSchedule(for: course) {
             remove(at: oldPos)
-            insert(course, at: newPos)
         }
         // Otherwise we only insert it
-        else { insert(course, at: newPos) }
+        insert(course, at: newPos)
     }
     
     mutating func replaceCourse(oldCourse: Course, with newCourse: Course) {
+        // If the new course is already in the schedule we will remove it
+        if let currentPos = getPositionInSchedule(for: newCourse) {
+            remove(at: currentPos)
+        }
+        
+        // Update at the position of the old course
         if let pos = getPositionInSchedule(for: oldCourse) {
             update(to: newCourse, at: pos)
             // If we just replaced an empty course we will delete it

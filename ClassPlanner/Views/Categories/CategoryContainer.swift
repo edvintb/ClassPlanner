@@ -18,13 +18,15 @@ struct CategoryContainer: View {
     }
     
     var body: some View {
-        HStack {
-            ForEach(categories) { category in
-                CategoryView(category: category, schedule: schedule)
+        let stableCategories = categories
+        return
+            HStack {
+                ForEach(stableCategories) { category in
+                    CategoryView(category: category, schedule: schedule)
+                }
+                EmptyCategoryView(concentration: concentration)
             }
-            EmptyCategoryView(concentration: concentration)
-        }
-        .padding(.horizontal, 5)
+            .padding(.horizontal, 5)
     }
 
 }

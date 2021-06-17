@@ -40,22 +40,23 @@ import Combine
 // Then we can bind to it with our TextFields and have what we write show up at once
 struct CourseEditorView: View {
     
+    // Needed to stop editing
     @EnvironmentObject var shared: SharedVM
     @ObservedObject var course: Course
+    
+    // Storing course name subscription
     private var cancellables = Set<AnyCancellable>()
     
-    // Needed to stop editing
-    // also has the Suggestion Model created - good place for it?
     @ObservedObject var courseSuggestionVM: CourseSuggestionVM
 
-    // StateObject in Stephan's solution. Not recreated when redrawn is the difference
     // Okay to create here bc this view does not get redrawn
     @ObservedObject var searchModel: SearchModel
     
     init(course: Course, courseSuggestionVM: CourseSuggestionVM, context: NSManagedObjectContext) {
         self.courseSuggestionVM = courseSuggestionVM
         self.course = course
-        // Breaks when we delete a course
+        
+        // Okay to create search model here
         self.searchModel = SearchModel(startingText: course.name, context: context, avoid: course.objectID)
 
         // Updating the name of the course as we type it in
@@ -70,12 +71,12 @@ struct CourseEditorView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             EditorHeader(title: course.name, notes: course.notes, color: course.getColor())
-//                .frame(width: editorWidth, alignment: .leading)
             // Add professor & prereqs & Grade
             // Suggestions as typed for prereq and professor
             // Multiline textfields for the others
             // Add concentrations it is part of
             // Ability to add to categories?? Search and click concentrations to expand
+            // Adding grades into it
             Form {
                 NameEditor(entryView: nameField)
                 semesterSelector
@@ -83,6 +84,7 @@ struct CourseEditorView: View {
                 qscoreEntry
                 enrollmentEntry
                 NoteEditor(text: $course.notes) { course.save() }
+                gradeSelector
                 EditorColorGrid { course.color = $0; course.save() }
                 bottomButtons
             }
@@ -113,12 +115,23 @@ struct CourseEditorView: View {
         }
     }
     
+    var gradeSelector: some View {
+        Picker("", selection: $course.grade) {
+            ForEach(Grade.allCases, id: \.self) { grade in
+                Text(Grade.gradeString[grade] ?? "")
+                    .foregroundColor(Grade.color[grade])
+                    .tag(grade.id)
+            }
+        }.pickerStyle(SegmentedPickerStyle())
+    }
+    
+    
     var workloadEntry: some View {
         HStack {
             Text(" \(workloadSymbol)")
             DoubleTextField("Workload", double: $course.workload, onCommit: { save() })
                 .cornerRadius(textFieldCornerRadius)
-                .focusable()
+//                .focusable()
         }
     }
     
@@ -127,7 +140,7 @@ struct CourseEditorView: View {
             Text("  \(qscoreSymbol) ").foregroundColor(.red).font(.system(size: 14.5))
             DoubleTextField("QScore", double: $course.qscore, onCommit: { save() })
                 .cornerRadius(textFieldCornerRadius)
-                .focusable()
+//                .focusable()
         }
     }
     
@@ -136,7 +149,7 @@ struct CourseEditorView: View {
             Text(" \(enrollmentSymbol)")
             IntTextField("Enrollment", integer: $course.enrollment, onCommit: { save() })
                 .cornerRadius(textFieldCornerRadius)
-                .focusable()
+//                .focusable()
         }
     }
     

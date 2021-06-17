@@ -100,15 +100,22 @@ struct CourseView: View {
     
     func rightProperties() -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("\(gradeSymbol)")
-            Text("\(course.fall ? "\(fallSymbol) " : " - ")/\(course.spring ? " \(springSymbol)" : " -")")
-            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
+            Text(" \(gradeSymbol)") + Text(" \(grade)").foregroundColor(Grade.color[course.enumGrade])
+            Text(" \(course.fall ? "\(fallSymbol)" : "  - ") \(course.spring ? "\(springSymbol)" : " -")")
+//            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
+            Text("   ")
             
         }
         .font(.system(size: iconSize, weight: .regular, design: .default))
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
+    var grade: String {
+        if let grade = Grade.init(rawValue: course.grade) {
+            return Grade.gradeString[grade] ?? "-"
+        }
+        return "-"
+    }
     
     var tapGesture: some Gesture {
         TapGesture().onEnded {

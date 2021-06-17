@@ -23,7 +23,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let shared = SharedVM()
         
-        let concentrationVM = ConcentrationVM(shared: shared)
+        let concentrationVM = ConcentrationVM()
 
         let courseSuggestionVM = CourseSuggestionVM(context: context, shared: shared)
         let categorySuggestionVM = CategorySuggestionVM(context: context, shared: shared)

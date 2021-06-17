@@ -15,11 +15,17 @@ struct ScheduleStoreView: View {
     // Needed if we want to search for schedules
     @State private var query: String = ""
     
+    var matchingSchedules: [ScheduleVM] {
+        let filteredSchedules = store.scheduleNames.filter { schedule, name in
+            query.isEmpty || name.localizedCaseInsensitiveContains(query) }
+        
+        return Array(filteredSchedules.keys.sorted(by: {$0.name < $1.name }))
+    }
+    
     var body: some View {
-        VStack(spacing: 2) {
-            buttons
+        PanelHeaderView(addAction: store.addSchedule, searchQuery: $query) {
             List {
-                ForEach (store.schedules) { schedule in
+                ForEach (matchingSchedules) { schedule in
                     scheduleView(for: schedule)
                 }
             }
@@ -36,9 +42,7 @@ struct ScheduleStoreView: View {
                 .foregroundColor(schedule.color)
                 .padding([.leading], 5)
         }
-        .padding(5)
         .frame(height: panelScheduleHeight)
-        .frame(minWidth: editorWidth)
         .onTapGesture {
             shared.setCurrentSchedule(to: schedule)
             shared.setEditSelection(to: .schedule(schedule: schedule))

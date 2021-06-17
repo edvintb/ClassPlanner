@@ -13,38 +13,66 @@ struct ScheduleView: View {
     @ObservedObject var store: ScheduleStore
     @ObservedObject var schedule: ScheduleVM
     
+    @State private var isShowingContent: Bool = false
+    
     var body: some View {
         GeometryReader { geo in
             ScrollView([.vertical, .horizontal]) {
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 7) {
                     scheduleName(schedule: schedule)
-                    Divider().padding([.leading, .bottom], 3)
+                    Divider().padding(.bottom, 3)
                         .frame(width: (courseWidth + 8)*CGFloat(schedule.semesters.count))
                     semesters
                     Spacer().frame(height: geo.size.height)
                 }
                 .frame(minWidth: geo.size.width, alignment: .topLeading)
+//            }
+//            ScrollView([.vertical, .horizontal]) {
+//                if isShowingContent {
+//                    scrollViewContent
+//                        .frame(minWidth: geo.size.width, alignment: .topLeading)
+//                }
+//            }
+//            .onAppear { isShowingContent = true }
             }
         }
+        
     }
     
+//    var scrollViewContent: some View {
+//        VStack(alignment: .leading, spacing: 2) {
+//            scheduleName(schedule: schedule)
+//            Divider().padding([.leading, .bottom], 3)
+//                .frame(width: (courseWidth + 8)*CGFloat(schedule.semesters.count))
+//            semesters
+////            Spacer().frame(height: geo.size.height)
+//        }
+//    }
+    
     func scheduleName(schedule: ScheduleVM) -> some View {
-        Text(schedule.name)
-            .foregroundColor(schedule.color)
-            .font(.system(size: 20))
-            .contentShape(Rectangle())
-            .onTapGesture { shared.setEditSelection(to: .schedule(schedule: schedule)) }
-            .padding([.horizontal, .top], 8)
+        HStack(spacing: 20) {
+            Text(schedule.name)
+                .font(.system(size: 20))
+                .foregroundColor(schedule.color)
+            Text(String(format: "\(gradeSymbol) %.1f", schedule.gradeAverage))
+                .font(.system(size: 13))
+        }
+        
+        .contentShape(Rectangle())
+        .onTapGesture { shared.setEditSelection(to: .schedule(schedule: schedule)) }
+        .padding([.horizontal, .top], 8)
     }
     
     var semesters: some View {
-        HStack {
-            Spacer().frame(width: 5)
-            ForEach (schedule.semesters, id: \.self) { semester in
-                SemesterView(semester: semester, schedule: schedule)
+        let semesters = schedule.semesters
+        return
+            HStack {
+                Spacer().frame(width: 5)
+                ForEach (semesters, id: \.self) { semester in
+                    SemesterView(semester: semester, schedule: schedule)
+                }
+                Spacer().frame(width: 5)
             }
-            Spacer().frame(width: 5)
-        }
     }
 }
 

@@ -80,7 +80,8 @@ class ScheduleStore: ObservableObject {
     
     // MARK: - Adding & Removing Schedules
     
-    func addSchedule(named name: String = "Untitled") {
+    func addSchedule() {
+        let name = "Untitled"
         let uniqueName = name.uniqued(withRespectTo: scheduleNames.values)
         let schedule: ScheduleVM
         let url = directory.appendingPathComponent(uniqueName)

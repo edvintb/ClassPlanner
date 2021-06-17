@@ -13,23 +13,15 @@ struct CourseStoreView: View {
     // Needed to set panel/editor
     // And to remove courses from current schedule
     @EnvironmentObject var shared: SharedVM
-    
-    @ObservedObject var courseStore: CourseStore
-    
     // Needed to drop-remove courses
     @Environment(\.managedObjectContext) var context
     
-    // Used to search in courseDB
-    @State private var query: String = ""
-    
-    // All courses with a name in courseDB
     @FetchRequest private var courses: FetchedResults<Course>
     
-    // Response when hovering course
+    @State private var query: String = ""
     @State var isDropping: Bool = false
     
-    init(courseStore: CourseStore) {
-        self.courseStore = courseStore
+    init() {
         let predicate = NSPredicate(format: "name_ != %@", argumentArray: [""])
         let request = Course.fetchRequest(predicate)
         _courses = FetchRequest(fetchRequest: request)
@@ -40,33 +32,39 @@ struct CourseStoreView: View {
     }
 
     var body: some View {
-        ScrollView {
-            SearchTextField(query: $courseStore.courseQuery).padding([.horizontal], 10).padding([.vertical], 5)
-            if matchingCourses.isEmpty { noResultsView }
-            else { coursesView }
+        PanelHeaderView(addAction: addCourse, searchQuery: $query) {
+            List {
+                if matchingCourses.isEmpty {
+                    noResultsView
+                }
+                else {
+                    coursesView
+                }
+            }
         }
         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
     }
     
+    
     var coursesView: some View {
-        Columns(matchingCourses, numberOfColumns: 2, maxNumberRows: 7, moreView: moreView) { course in
+        Columns(matchingCourses, numberOfColumns: 2, moreView: moreView) { course in
             CourseView(course: course)
                 .onDrag { NSItemProvider(object: course.stringID as NSString) }
                 .scaleEffect(isDropping ? hoverScaleFactor : 1)
         }
-        .padding([.horizontal], 7)
     }
     
     var noResultsView: some View {
         HStack {
             Spacer()
-            VStack {
-                Spacer()
-                Text("No Results").opacity(0.2).font(.system(size: 20))
-                Spacer()
-            }
+            Text("No Results").opacity(0.2).font(.system(size: 20))
             Spacer()
         }
+    }
+    
+    func addCourse() {
+        let course = Course(context: context)
+        shared.setEditSelection(to: .course(course: course))
     }
     
     func drop(providers: [NSItemProvider]) -> Bool {

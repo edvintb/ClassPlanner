@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum PanelOption: Equatable, Hashable, CaseIterable {
     
@@ -13,14 +14,12 @@ enum PanelOption: Equatable, Hashable, CaseIterable {
     case concentrations
     case courses
     case editor
-    case otherPeople
     
     static var symbols: [PanelOption:String] {
-        [.editor : "􀈎",
-         .courses : "􀧵",
-         .concentrations : "􀈥",
-         .schedules : "􀈕",
-         .otherPeople : "􀝊"]
+         [.schedules : "􀈕",
+          .concentrations : "􀈥",
+          .courses : "􀧵",
+          .editor : "􀈎"]
     }
 }
 
@@ -31,4 +30,62 @@ enum EditOption: Equatable, Hashable {
     case concentration(concentration: Concentration)
     case schedule(schedule: ScheduleVM)
     case none
+}
+
+
+enum Grade: Int, Equatable, CaseIterable, Identifiable {
+    
+    var id: Int { self.rawValue }
+    
+    case APlus
+    case A
+    case AMinus
+    case BPlus
+    case B
+    case BMinus
+    case CPlus
+    case C
+    case CMinus
+    
+    static var gradeString: [Grade:String] {
+        [
+            APlus: "A+",
+            A: "A",
+            AMinus: "A-",
+            BPlus: "B+",
+            B: "B",
+            BMinus: "B-",
+            CPlus: "C+",
+            C :"C",
+            CMinus: "C-",
+        ]
+    }
+    
+    static var gradeNumber: [Grade:Double] {
+        [
+            APlus: 4,
+            A: 4,
+            AMinus: 3.67,
+            BPlus: 3.33,
+            B: 3.00,
+            BMinus: 2.67,
+            CPlus: 2.33,
+            C: 2,
+            CMinus: 1.67,
+        ]
+    }
+    
+    static var color: [Grade:Color] {
+        [
+            APlus: .green,
+            A: .green,
+            AMinus: .green,
+            BPlus: .orange,
+            B: .orange,
+            BMinus: .orange,
+            CPlus: .red,
+            C: .red,
+            CMinus: .red,
+        ]
+    }
 }

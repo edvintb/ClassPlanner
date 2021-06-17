@@ -41,10 +41,7 @@ extension Category {
     }
     
     func move(to index: Int, concentration: Concentration) {
-        // Same position do nothing
-        if self.index == index && self.concentration == concentration { return }
-        
-        // If not we move depending on concentration
+        // Move depending on concentration
         if self.concentration == concentration { moveInConcentration(to: index) }
         else { moveToConcentration(concentration, and: index) }
         
@@ -54,6 +51,7 @@ extension Category {
 
     private func moveInConcentration(to index: Int) {
         if let context = managedObjectContext {
+            if index == self.index { return }
             let topIndex = max(self.index, index)
             let bottomIndex = min(self.index, index)
             let predicate = NSPredicate(format:
@@ -64,7 +62,7 @@ extension Category {
             let down = self.index < index
             otherCategories.forEach(down ? { $0.index -= 1 } : { $0.index += 1 })
             self.index = index
-//            try? context.save()
+            try? context.save()
         }
     }
     

@@ -29,7 +29,7 @@ let concentrationHeight: CGFloat = 1.4*courseHeight
 let concentrationsMinHeight: CGFloat = 150
 
 let categoryHeight: CGFloat = concentrationHeight
-let categoryWidth: CGFloat = courseWidth
+let categoryWidth: CGFloat = 120
 let categoryCourseFontSize: CGFloat = 12
 let categoryCourseFont: Font = .system(size: categoryCourseFontSize)
 let checkMarkColor: Color = Color(.sRGB, red: 0, green: 200, blue: 200, opacity: 0.4)
@@ -51,6 +51,8 @@ let fallSymbol: String = "🍁"
 let springSymbol: String = "🌱"
 let gradeSymbol: String = "􀫓"
 let nameSymbol: String = "􀌮"
+let numberRequiredSymbol: String = "  # "
+
 let textFieldCornerRadius: CGFloat = 3.5
 
 let panelScheduleHeight: CGFloat = 50

@@ -52,7 +52,6 @@ struct SuggestionView<V: Equatable>: View {
             .onTapGesture {
                 model.confirmSuggestion(suggestion)
             }
-//            .onAppear { print("View appeared") }
     }
 }
 
@@ -82,7 +81,6 @@ struct SuggestionGroupView<V: Equatable>: View {
                 }
             }
         }
-//        .onAppear { print("Group apperared") }
     }
 }
 

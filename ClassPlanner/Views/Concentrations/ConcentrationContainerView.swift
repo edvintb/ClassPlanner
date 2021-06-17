@@ -13,41 +13,51 @@ struct ConcentrationContainerView: View {
     
     @ObservedObject var schedule: ScheduleVM
     
+    @ObservedObject var concentrationVM: ConcentrationVM
+    
     @Environment(\.managedObjectContext) var context
     
-//    private var concentrations: [Concentration] {
-//        shared.currentConcentrations.reduce(into: []) { acc, uri in
-//            if let concentration = NSManagedObject.fromURI(uri: uri, context: context) as? Concentration {
-//                acc.append(concentration)
-//            }
-//        }.sorted(by: { $0.index < $1.index })
-//    }
-    
     private var concentrations: [Concentration] {
-        shared.currentConcentrations.compactMap { uri in
+        concentrationVM.currentConcentrations.compactMap { uri in
             NSManagedObject.fromURI(uri: uri, context: context) as? Concentration
         }
     }
     
     @State var isDropping: Bool = false
     
+    @State var isShowingContent: Bool = false
+    
     var body: some View {
-        ScrollView([.vertical, .horizontal]) {
-                concentrationViews
-                .padding(.horizontal, 5)
+        GeometryReader { geo in
+            ScrollView([.vertical, .horizontal]) {
+                concentrationViews(size: geo.size)
+            }
         }
+        
+        //        GeometryReader { geo in
+        //            List {
+        //                ScrollView ([.horizontal]) {
+        //                    concentrationViews(size: geo.size)
+        //                }// ScrollView([.vertical, .horizontal]) {
+        //            }
+        //        }
     }
     
-    var concentrationViews: some View {
-        VStack (alignment: .leading, spacing: 4) {
-            Spacer(minLength: 4)
-            ForEach (concentrations) { concentration in
-                ConcentrationView(categoryViews: categoryViews, concentration: concentration)
-                    .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0, at: concentration) }
+    func concentrationViews(size: CGSize) -> some View {
+        let stableConcentrations = concentrations
+        return
+            VStack (alignment: .leading, spacing: 4) {
+                Spacer(minLength: 4)
+                ForEach (stableConcentrations) { concentration in
+                    ConcentrationView(categoryViews: categoryViews, concentration: concentration)
+                        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0, at: concentration) }
+                }
+                EmptyConcentrationView(concentrationVM: concentrationVM)
             }
-            EmptyConcentrationView()
-        }
-        .padding(.horizontal, 5)
+    //        .frame(width: size.width)
+            .padding(.horizontal, 5)
+            .padding(.horizontal, 5)
+        
     }
     
     func categoryViews(concentration: Concentration) -> some View {
@@ -56,10 +66,10 @@ struct ConcentrationContainerView: View {
     
     func drop(providers: [NSItemProvider], at newConcentration: Concentration) -> Bool {
         let found = providers.loadFirstObject(ofType: String.self) { id in
-            if let newIndex = shared.currentConcentrations.firstIndex(of: newConcentration.urlID) {
+            if let newIndex = concentrationVM.currentConcentrations.firstIndex(of: newConcentration.urlID) {
                 if let droppedConcentration = getDroppedConcentration(id: id) {
                     withAnimation {
-                        shared.moveInsertConcentration(droppedConcentration, at: newIndex)
+                        concentrationVM.moveInsertConcentration(droppedConcentration, at: newIndex)
                     }
                 }
             }

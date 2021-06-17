@@ -41,6 +41,7 @@ class CourseSuggestionVM: ObservableObject {
                 if let newCourse = courses.first,
                    let schedule = shared.currentSchedule,
                    case let .course(oldCourse) = shared.currentEditSelection {
+                        print("Found replacement")
                         schedule.replaceCourse(old: oldCourse, with: newCourse)
                         shared.setEditSelection(to: .course(course: newCourse))
                 }

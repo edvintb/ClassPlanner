@@ -12,12 +12,6 @@ import Combine
 import SwiftUI
 
 final class SearchModel: ObservableObject {
-//    var englishWords: [String]
-//    var englishTranslations: [String:String]
-//    var germanWords: [String]
-//    var germanTranslations: [String:String]
-//
-//    @Environment(\.managedObjectContext) var context
     
     private let context: NSManagedObjectContext
     private let currentCourseID: NSManagedObjectID?
@@ -40,6 +34,33 @@ final class SearchModel: ObservableObject {
         self.currentCourseID = id
         
         
+        self.$currentText
+            .debounce(for: 0.1, scheduler: RunLoop.main)
+            .removeDuplicates()
+            .map { text -> [SuggestionGroup<Course>] in
+                guard !text.isEmpty else {
+                    return []
+                }
+                // prefix gives number of results
+                let courseSuggestions = self.courses.lazy.filter({ $0.name.lowercased().hasPrefix(text.lowercased()) }).prefix(10).map { course -> Suggestion<Course> in
+                    Suggestion(text: course.name, value: course)
+                }
+                var suggestionGroups: [SuggestionGroup<Course>] = []
+                
+                if !courseSuggestions.isEmpty {
+                    suggestionGroups.append(SuggestionGroup<Course>(title: "Courses", suggestions: Array(courseSuggestions)))
+                }
+                return suggestionGroups
+            }
+            .assign(to: \SearchModel.suggestionGroups, on: self)
+            .store(in: &cancellables)
+        
+
+    }
+}
+
+
+
 //        print("Search model init")
     
         // Perhaps load the harvard-json into a file and decode it like this
@@ -59,38 +80,6 @@ final class SearchModel: ObservableObject {
 //            self.germanTranslations = try! JSONDecoder().decode([String:String].self, from: data)
 //            self.germanWords = Array(self.germanTranslations.keys)
 //        }
-        
-        self.$currentText
-            .debounce(for: 0.1, scheduler: RunLoop.main)
-            .removeDuplicates()
-            .map { text -> [SuggestionGroup<Course>] in
-                guard !text.isEmpty else {
-                    return []
-                }
-                // prefix gives number of results
-                let courseSuggestions = self.courses.lazy.filter({ $0.name.lowercased().hasPrefix(text.lowercased()) }).prefix(10).map { course -> Suggestion<Course> in
-                    Suggestion(text: course.name, value: course)
-                }
-//                let germanSuggestions = self.germanWords.lazy.filter({ $0.hasPrefix(text) }).prefix(10).map { word -> Suggestion<String> in
-//                    Suggestion(text: word, value: word)
-//                }
-                var suggestionGroups: [SuggestionGroup<Course>] = []
-                
-                if !courseSuggestions.isEmpty {
-                    suggestionGroups.append(SuggestionGroup<Course>(title: "Courses", suggestions: Array(courseSuggestions)))
-                }
-//                if !germanSuggestions.isEmpty {
-//                    suggestionGroups.append(SuggestionGroup<String>(title: "German", suggestions: Array(germanSuggestions)))
-//                }
-                return suggestionGroups
-            }
-            .assign(to: \SearchModel.suggestionGroups, on: self)
-            .store(in: &cancellables)
-        
-
-    }
-}
-
 
 //        self.$currentText
 //            .debounce(for: 0.3, scheduler: RunLoop.main)

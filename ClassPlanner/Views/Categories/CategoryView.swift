@@ -62,19 +62,20 @@ struct CategoryView: View {
         .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
         .onDrag({ NSItemProvider(object: category.stringID as NSString) })
+        .frame(width: categoryWidth)
     }
 
     var title: some View {
         HStack(spacing: 0) {
             Text(category.name == "" ? "Name" : category.name)
-                .opacity(category.name == "" ? emptyHoverOpacity : 1)
+                .opacity(category.name == "" ? grayTextOpacity : 1)
                 .foregroundColor(color)
             Spacer()
             Text("\(numberOfContainedCourses)")
-                .opacity(moreContainedThanRequired ? 1 : emptyHoverOpacity)
+                .opacity(moreContainedThanRequired ? 1 : grayTextOpacity)
                 .foregroundColor(moreContainedThanRequired ? .green : .primary)
             Text("/\(category.numberOfRequired)")
-                .opacity(category.numberOfRequired == 0 ? emptyHoverOpacity : 1)
+                .opacity(category.numberOfRequired == 0 ? grayTextOpacity : 1)
                 
         }
         .padding([.trailing], 4)

@@ -58,6 +58,14 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         }
     }
     
+    var gradeAverage: Double {
+        courseURLs.reduce(into: 0) { acc, url in
+            if let course = Course.fromURI(uri: url, context: context) as? Course {
+                acc += Grade.gradeNumber[course.enumGrade] ?? 0
+            }
+        } / Double(courseURLs.count == 0 ? 1 : courseURLs.count)
+    }
+    
     func getPosition(course: Course) -> CoursePosition? {
         model.getPositionInSchedule(for: course)
     }
@@ -100,10 +108,15 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         let index = model.schedule[semester]?.count ?? 0
         let course = Course(context: context)
         let newPos = CoursePosition(semester: semester, index: index)
+        try? context.save()
+        print(context)
         do {
             try context.save()
+            print(course.objectID.isTemporaryID)
+            print(course.managedObjectContext)
             model.moveCourse(course, to: newPos)
             save()
+            
         } catch {
             print("Error saving new course: \(error.localizedDescription)")
         }
