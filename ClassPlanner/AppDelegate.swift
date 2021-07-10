@@ -12,14 +12,13 @@ import SwiftUI
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     var window: NSWindow!
-
+    
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Create the SwiftUI view and set the context as the value for the managedObjectContext environment keyPath.
         // Add `@Environment(\.managedObjectContext)` in the views that will need the context.
         
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let context = persistentContainer.viewContext
-//        print(url)
         
         let shared = SharedVM()
         
@@ -49,9 +48,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.setFrameAutosaveName("Main Window")
         window.contentView = NSHostingView(rootView: contentView)
         window.makeKeyAndOrderFront(nil)
-    
+        window.isReleasedWhenClosed = false
     }
-
+    
+    @IBAction func openFromWindowMenu(_ sender: Any) {
+        window.makeKeyAndOrderFront(nil)
+    }
+    
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag{
+            window.makeKeyAndOrderFront(nil)
+        }
+        return true
+    }
+    
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return false
+    }
+    
     func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
     }

@@ -22,7 +22,7 @@ struct EmptyCategoryView: View {
                 .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
                 .opacity((isTargeted || isDropping) ? emptyHoverOpacity : 0)
                 .onHover { isTargeted = $0 }
-                .onTapGesture { concentration.addCategory() }
+                .onTapGesture { _ = concentration.addCategory() }
                 .frame(width: categoryWidth)
                 .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
             RoundedRectangle(cornerRadius: frameCornerRadius).opacity(0.001)
@@ -34,9 +34,18 @@ struct EmptyCategoryView: View {
     func drop(providers: [NSItemProvider]) -> Bool {
         let found = providers.loadFirstObject(ofType: String.self) { location in
             if let uri = URL(string: location) {
-                    if let droppedObject = NSManagedObject.fromURI(uri: uri, context: context) {
-                        if let category = droppedObject as? Category {
+                if let droppedObject = NSManagedObject.fromURI(uri: uri, context: context) {
+                    if let category = droppedObject as? Category {
+                        withAnimation {
                             category.move(to: getCount(), concentration: concentration)
+                        }
+                    }
+                    if let course = droppedObject as? Course {
+                        withAnimation {
+                            if let category = concentration.addCategory() {
+                                category.addCourse(course)
+                            }
+                        }
                     }
                 }
             }
@@ -47,8 +56,8 @@ struct EmptyCategoryView: View {
     private func getCount() -> Int {
         let predicate = NSPredicate(format: "concentration == %@", concentration)
         let request = Category.fetchRequest(predicate)
-        let count = (try? context.count(for: request)) ?? 0
-        return count
+        let count = (try? context.count(for: request)) ?? 1
+        return count - 1
     }
     
 }

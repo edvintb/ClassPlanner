@@ -21,7 +21,8 @@ struct PanelHeaderView<V>: View where V: View{
                 SearchTextField(query: _searchQuery)
                 Spacer()
                 Button(action: { addAction() }, label: {
-                    Text("􀅼")
+//                    Text("􀅼")
+                    Text("+").font(.system(size: 17))
                 })
                
             }

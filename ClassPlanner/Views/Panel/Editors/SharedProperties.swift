@@ -79,15 +79,15 @@ struct NoteEditor: View {
         HStack {
             Text(" \(noteSymbol)")
             ZStack {
-                if #available(OSX 11.0, *) {
-                    TextEditor(text: $text)
-                        .cornerRadius(textFieldCornerRadius)
-                        .focusable()
-                } else {
+//                if #available(OSX 11.0, *) {
+//                    TextEditor(text: $text)
+//                        .cornerRadius(textFieldCornerRadius)
+//                        .focusable()
+//                } else {
                     TextField("Notes...", text: $text, onCommit: onCommit)
                         .cornerRadius(textFieldCornerRadius)
                         .focusable()
-                }
+//                }
             }
         }
     }
@@ -100,7 +100,7 @@ struct NameEditor<V>: View where V: View {
     
     var body: some View {
         HStack {
-            Text(" \(nameSymbol)").font(.system(size: 16, weight: .thin, design: .serif))
+            Text(" \(nameSymbol)") // .font(.system(size: 16, weight: .thin, design: .serif))
             entryView
         }
     }

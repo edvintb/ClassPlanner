@@ -15,11 +15,18 @@ enum PanelOption: Equatable, Hashable, CaseIterable {
     case courses
     case editor
     
+//    static var symbols: [PanelOption:String] {
+//         [.schedules : "􀈕",
+//          .concentrations : "􀈥",
+//          .courses : "􀧵",
+//          .editor : "􀈎"]
+//    }
+    
     static var symbols: [PanelOption:String] {
-         [.schedules : "􀈕",
-          .concentrations : "􀈥",
-          .courses : "􀧵",
-          .editor : "􀈎"]
+         [.schedules : "Schedules",
+          .concentrations : "Majors",
+          .courses : "Classes",
+          .editor : "Editor"]
     }
 }
 
@@ -30,6 +37,7 @@ enum EditOption: Equatable, Hashable {
     case concentration(concentration: Concentration)
     case schedule(schedule: ScheduleVM)
     case none
+    
 }
 
 
@@ -37,7 +45,7 @@ enum Grade: Int, Equatable, CaseIterable, Identifiable {
     
     var id: Int { self.rawValue }
     
-    case APlus
+//    case APlus
     case A
     case AMinus
     case BPlus
@@ -46,10 +54,12 @@ enum Grade: Int, Equatable, CaseIterable, Identifiable {
     case CPlus
     case C
     case CMinus
+    case Pass
+    case Fail
     
     static var gradeString: [Grade:String] {
         [
-            APlus: "A+",
+//            APlus: "A+",
             A: "A",
             AMinus: "A-",
             BPlus: "B+",
@@ -58,12 +68,14 @@ enum Grade: Int, Equatable, CaseIterable, Identifiable {
             CPlus: "C+",
             C :"C",
             CMinus: "C-",
+            Pass: "SAT",
+            Fail: "-"
         ]
     }
     
     static var gradeNumber: [Grade:Double] {
         [
-            APlus: 4,
+//            APlus: 4,
             A: 4,
             AMinus: 3.67,
             BPlus: 3.33,
@@ -72,12 +84,14 @@ enum Grade: Int, Equatable, CaseIterable, Identifiable {
             CPlus: 2.33,
             C: 2,
             CMinus: 1.67,
+            Pass: 0,
+            Fail: 0
         ]
     }
     
     static var color: [Grade:Color] {
         [
-            APlus: .green,
+//            APlus: .green,
             A: .green,
             AMinus: .green,
             BPlus: .orange,

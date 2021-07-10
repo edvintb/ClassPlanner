@@ -16,11 +16,13 @@ struct ScheduleCourseView: View {
     
     @State private var isDropping: Bool = false
     
+    
+    
     var body: some View {
         CourseView(course: course)
             .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
             .scaleEffect(isDropping ? hoverScaleFactor : 1)
-            .opacity(course.name == "" ? emptyHoverOpacity : 1)
+           
     }
     
     

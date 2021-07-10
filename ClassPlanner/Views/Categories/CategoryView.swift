@@ -19,6 +19,13 @@ struct CategoryView: View {
     @State private var isDropping: Bool = false
     
     private var color: Color { category.getColor() }
+    
+    private var isEditingCategory: Bool {
+        if case let .category(editingCategory) = shared.currentEditSelection {
+            if editingCategory == self.category { return true }
+        }
+        return false
+    }
 
     // Sort courses depending on current schedule
     private var courses: [Course] {
@@ -48,15 +55,28 @@ struct CategoryView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            title
-            Divider().padding(.trailing, 4)
-            ForEach (courses) { course in
-                courseView(course: course)
-                    .onDrag { NSItemProvider(object: course.stringID as NSString) }
-                    .onTapGesture { shared.setEditSelection(to: .course(course: course)) }
-            }
-            Spacer(minLength: 4)
+        ZStack {
+            if isEditingCategory { RoundedRectangle(cornerRadius: frameCornerRadius).stroke() }
+            VStack(alignment: .leading, spacing: 0) {
+                title
+                Divider().padding(.trailing, 4)
+                if courses.count > 0 || category.name != "" {
+                    ForEach (courses) { course in
+                        courseView(course: course)
+                            .onDrag { NSItemProvider(object: course.stringID as NSString) }
+                            .onTapGesture { shared.setEditSelection(to: .course(course: course)) }
+                    }
+                }
+                else {
+                    Spacer(minLength: 4)
+                    Text("Drop\nCourse\nto add")
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .opacity(grayTextOpacity - 0.15)
+                        .multilineTextAlignment(.center)
+                }
+
+                Spacer(minLength: 4)
+            }.padding([.top, .leading], isEditingCategory ? 3 : 0)
         }
         .scaleEffect(isDropping ? hoverScaleFactor : 1)
         .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
@@ -71,6 +91,8 @@ struct CategoryView: View {
                 .opacity(category.name == "" ? grayTextOpacity : 1)
                 .foregroundColor(color)
             Spacer()
+//            Text("\(category.index)")
+//            Spacer()
             Text("\(numberOfContainedCourses)")
                 .opacity(moreContainedThanRequired ? 1 : grayTextOpacity)
                 .foregroundColor(moreContainedThanRequired ? .green : .primary)
@@ -94,7 +116,7 @@ struct CategoryView: View {
             Spacer()
             if let schedule = shared.currentSchedule {
                 if schedule.courseURLs.contains(course.urlID) {
-                    Text("􀁢")
+                    Text(courseContainedSymbol)
                         .foregroundColor(checkMarkColor)
                 }
             }

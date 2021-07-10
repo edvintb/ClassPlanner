@@ -3,7 +3,7 @@
 //  PubChemDemo
 //
 //  Created by Stephan Michels on 27.08.20.
-//  Copyright © 2020 Stephan Michels. All rights reserved.
+//  See LICENSE for this sample’s licensing information.
 //
 
 import AppKit

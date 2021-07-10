@@ -27,7 +27,7 @@ struct ConcentrationEditorView: View {
                     categoriesView
                 }
                 EditorColorGrid { concentration.color = $0; concentration.save() }
-                EditorButtons(deleteAction: deleteAction, closeAction: shared.stopEdit)
+                bottomButtons
             }
             .padding(editorPadding)
         }
@@ -52,7 +52,7 @@ struct ConcentrationEditorView: View {
             RoundedRectangle(cornerRadius: frameCornerRadius).stroke().opacity(emptyOpacity)
             GeometryReader { geo in
                 ScrollView {
-                    Columns(categories, numberOfColumns: 2, moreView: EmptyView()) { category in
+                    Columns(categories, numberOfColumns: 2, moreView: EmptyCategoryView(concentration: concentration)) { category in
                         categoryView(category)
                     }
                     .frame(width: geo.size.width)
@@ -67,7 +67,7 @@ struct ConcentrationEditorView: View {
         .contentShape(Rectangle())
         .onTapGesture {
             withAnimation {
-                concentration.removeCategory(category)
+                category.delete()
             }
         }
     }
@@ -77,11 +77,17 @@ struct ConcentrationEditorView: View {
         concentrationVM.removeConcentration(concentration)
         concentration.delete()
         concentration.save()
+        shared.setPanelSelection(to: .concentrations)
+    }
+    
+    func closeAction() {
+        shared.stopEdit()
+        shared.setPanelSelection(to: .concentrations)
     }
     
     var bottomButtons: some View {
         HStack {
-            EditorButtons(deleteAction: deleteAction, closeAction: shared.stopEdit)
+            EditorButtons(deleteAction: deleteAction, closeAction: closeAction)
             Spacer()
             addRemoveButton
         }

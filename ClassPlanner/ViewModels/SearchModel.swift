@@ -2,9 +2,8 @@
 //  SearchModel.swift
 //  ClassPlanner
 //
-//  Created by Edvin Berhan on 2021-05-21.
-//
-//  Original code by Stephan Michels
+//  Created by Stephan Michels on 13.12.20.
+//  See LICENSE for this sample’s licensing information.
 
 import Foundation
 import CoreData

@@ -36,18 +36,17 @@ struct ConcentrationStoreView: View {
             List {
                 ForEach (matchingConcentrations) { concentration in
                     concentrationView(concentration)
+                        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
                 }
             }
         }
-        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
+        
     }
     
     private func concentrationView(_ concentration: Concentration) -> some View {
-        ConcentrationView(categoryViews: categories, concentration: concentration)
+        ConcentrationView(categoryViews: categories, concentration: concentration, concentrationVM: concentrationVM)
             .onDrag({ NSItemProvider(object: concentration.stringID as NSString) })
             .padding(editorPadding)
-            .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
-            .scaleEffect(isDropping ? hoverScaleFactor : 1)
     }
     
     private func categories(concentration: Concentration) -> some View {
@@ -109,21 +108,12 @@ struct ConcentrationStoreView: View {
         concentrationVM.addConcentration(context: context)
     }
     
-//    var buttons: some View {
-//        HStack {
-//            Button(action: { Concentration.createEmpty(in: context) }, label: {
-//                Text("􀅼")
-//            })
-//            Spacer()
-//        }
-//        .padding(.horizontal, 5)
-//        .padding(.bottom, 2)
-//
-//    }
     
     func drop(providers: [NSItemProvider]) -> Bool {
+        print("Dropped")
         let found = providers.loadFirstObject(ofType: String.self) { id in
             if let droppedConcentration = getDroppedConcentration(id: id) {
+                print("Removing")
                 withAnimation {
                     concentrationVM.removeConcentration(droppedConcentration)
                 }

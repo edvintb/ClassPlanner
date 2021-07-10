@@ -59,11 +59,14 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     }
     
     var gradeAverage: Double {
-        courseURLs.reduce(into: 0) { acc, url in
-            if let course = Course.fromURI(uri: url, context: context) as? Course {
-                acc += Grade.gradeNumber[course.enumGrade] ?? 0
-            }
-        } / Double(courseURLs.count == 0 ? 1 : courseURLs.count)
+        var passedCourses = 0
+        return
+            courseURLs.reduce(into: 0) { acc, url in
+                if let course = Course.fromURI(uri: url, context: context) as? Course {
+                    if course.enumGrade == .Pass { passedCourses += 1 }
+                    acc += Grade.gradeNumber[course.enumGrade] ?? 0
+                }
+            } / Double(max(courseURLs.count - passedCourses, 1))
     }
     
     func getPosition(course: Course) -> CoursePosition? {

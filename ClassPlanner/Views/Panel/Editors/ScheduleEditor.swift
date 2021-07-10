@@ -75,12 +75,16 @@ struct ScheduleEditorView: View {
     }
     
     func deleteAction() {
+        print("Calling delete action...")
         shared.setEditSelection(to: .none)
-        scheduleStore.removeSchedule(schedule)
+        shared.setCurrentSchedule(to: nil)
+        scheduleStore.deleteSchedule(schedule)
+        shared.setPanelSelection(to: .schedules)
     }
     
     func closeAction() {
         shared.setEditSelection(to: .none)
+        shared.setPanelSelection(to: .schedules)
     }
     
 }

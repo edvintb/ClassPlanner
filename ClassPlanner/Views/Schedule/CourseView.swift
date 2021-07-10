@@ -7,15 +7,6 @@
 
 import SwiftUI
 
-//enum DragState {
-//    case good
-//    case bad
-//    case unknown
-//}
-
-
-
-
 struct CourseView: View {
     
     // Used to set editor
@@ -26,6 +17,13 @@ struct CourseView: View {
     @State private var isDropping: Bool = false
     @State private var isFrontUp: Bool
     
+    private var isEditingCourse: Bool {
+        if case let .course(editingCourse) = shared.currentEditSelection {
+            if editingCourse == self.course { return true }
+        }
+        return false
+    }
+    
     init(course: Course) {
         self.course = course
         _isFrontUp = State(wrappedValue: course.name != "")
@@ -34,7 +32,7 @@ struct CourseView: View {
     var body: some View {
         ZStack(alignment: .center) {
             container
-            if course.name.isEmpty { EmptyView() }
+            if course.name.isEmpty && course.isEmpty { EmptyView() }
             else if isFrontUp      { front }
             else                   { back }
         }
@@ -46,9 +44,13 @@ struct CourseView: View {
     var container: some View {
         RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
             .foregroundColor(course.getColor())
+            .scaleEffect(isEditingCourse ? 1.04 : 1)
             .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
             .shadow(color: course.getColor(), radius: isDropping ? hoverShadowRadius : 0)
             .shadow(color: course.getColor(), radius: isDropping ? hoverShadowRadius : 0)
+            .shadow(color: .black, radius: isEditingCourse ? hoverShadowRadius : 0)
+            .shadow(color: .black, radius: isEditingCourse ? hoverShadowRadius : 0)
+            .opacity(course.name.isEmpty && !isEditingCourse ? emptyHoverOpacity : 1)
     }
     
     var front: some View {
@@ -100,7 +102,7 @@ struct CourseView: View {
     
     func rightProperties() -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(" \(gradeSymbol)") + Text(" \(grade)").foregroundColor(Grade.color[course.enumGrade])
+            Text(" \(gradeSymbol)").font(.system(size: gradeSymbolSize)) + Text(" \(grade)").foregroundColor(Grade.color[course.enumGrade])
             Text(" \(course.fall ? "\(fallSymbol)" : "  - ") \(course.spring ? "\(springSymbol)" : " -")")
 //            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
             Text("   ")

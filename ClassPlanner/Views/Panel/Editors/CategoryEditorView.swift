@@ -23,7 +23,6 @@ struct CategoryEditorView: View {
     @ObservedObject var searchModel: SearchModel
     
 
-    
     // Sort courses depending on current schedule
     private var courses: [Course] {
         if let schedule = shared.currentSchedule {
@@ -134,7 +133,21 @@ struct CategoryEditorView: View {
                 }
             }
         }
-//
+    }
+    
+    
+    func deleteAction() {
+        shared.stopEdit()
+        category.delete()
+        shared.setPanelSelection(to: .concentrations)
+    }
+    
+    func closeAction() {
+        shared.stopEdit()
+        shared.setPanelSelection(to: .concentrations)
+    }
+}
+
 //        Grid (courses, desiredAspectRatio: 2) { course in
 //            HStack {
 //                Text(course.name == "" ? "No name" : course.name)
@@ -143,14 +156,6 @@ struct CategoryEditorView: View {
 //                    .onTapGesture { category.removeCourse(course) }
 //            }
 //        }.frame(height: CGFloat(courses.count) * 20)
-    }
-    
-    
-    func deleteAction() {
-        shared.stopEdit()
-        category.delete()
-    }
-}
 
 
 //    var coursesView: some View {

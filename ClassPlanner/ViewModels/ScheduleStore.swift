@@ -28,7 +28,7 @@ class ScheduleStore: ObservableObject {
     }
     
     func name(for schedule: ScheduleVM) -> String {
-        scheduleNames[schedule, default: "Untitled"]
+        scheduleNames[schedule, default: "Schedule"]
     }
     
     private var cancellables: Set<AnyCancellable> = []
@@ -57,7 +57,7 @@ class ScheduleStore: ObservableObject {
         if approveName(newName, for: schedule) {
             print("Approved name")
             // Deleting at the old url
-            removeSchedule(schedule)
+            deleteSchedule(schedule)
             // Each time we set the url we are saving
             schedule.url = directory.appendingPathComponent(newName)
             // Update name in store
@@ -66,13 +66,13 @@ class ScheduleStore: ObservableObject {
     }
     
     private func approveName(_ newName: String, for schedule: ScheduleVM) -> Bool {
-        print("Starting to approve")
+        // If the schedule we are naming does not exist we return
+        // This means the schedule has been deleted and should not be named
+        if scheduleNames[schedule] == nil { return false }
         // Setting to the same name has no effect
         if scheduleNames[schedule] == newName { return false }
-        print("not the same name")
         // Setting to empty name resets the name
         if newName == "" { schedule.name = name(for: schedule); return false }
-        print("not an empty name")
         // Setting to existing name toggles alert and resets
         if scheduleNames.values.contains(newName) || newName == "" {
             existingNameAlert = IdentifiableString(value: newName)
@@ -80,14 +80,13 @@ class ScheduleStore: ObservableObject {
             return false
         }
         
-        print("not an existing name")
         return true
     }
     
     // MARK: - Adding & Removing Schedules
     
     func addSchedule() {
-        let name = "Untitled"
+        let name = "Schedule"
         let uniqueName = name.uniqued(withRespectTo: scheduleNames.values)
         let schedule: ScheduleVM
         let url = directory.appendingPathComponent(uniqueName)
@@ -95,13 +94,20 @@ class ScheduleStore: ObservableObject {
         scheduleNames[schedule] = uniqueName
     }
 
-    func removeSchedule(_ schedule: ScheduleVM) {
+    func deleteSchedule(_ schedule: ScheduleVM) {
         if let name = scheduleNames[schedule] {
             if name == "" { print("Found empty name. THIS CAUSES /Documents/ to DISAPPEAR"); return }
             let url = directory.appendingPathComponent(name)
-            try? FileManager.default.removeItem(at: url)
+            print("Removing...")
+            do {
+                try FileManager.default.removeItem(at: url)
+            }
+            catch {
+                print("Error deleting schedule at url: \(url), \(error.localizedDescription)")
+            }
+            
         }
-        scheduleNames[schedule] = nil
+        scheduleNames.removeValue(forKey: schedule)
     }
     
 

@@ -14,9 +14,9 @@ class SharedVM: ObservableObject {
     
     // MARK: - Managing Current Schedule
     
-    private (set) var currentSchedule: ScheduleVM?
+    @Published private (set) var currentSchedule: ScheduleVM?
     
-    func setCurrentSchedule(to schedule: ScheduleVM) {
+    func setCurrentSchedule(to schedule: ScheduleVM?) {
         self.currentSchedule = schedule
     }
     
@@ -40,9 +40,5 @@ class SharedVM: ObservableObject {
     func stopEdit() {
         currentEditSelection = .none
     }
-    
-    
- 
-    
 }
 

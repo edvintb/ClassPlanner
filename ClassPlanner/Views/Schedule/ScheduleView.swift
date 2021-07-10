@@ -22,6 +22,7 @@ struct ScheduleView: View {
     var body: some View {
         GeometryReader { geo in
             ScrollView([.vertical, .horizontal]) {
+//            List {
                 VStack(alignment: .leading, spacing: 7) {
                     scheduleName(schedule: schedule)
                     Divider().padding(.bottom, 3)
@@ -58,8 +59,9 @@ struct ScheduleView: View {
             Text(schedule.name)
                 .font(.system(size: 20))
                 .foregroundColor(schedule.color)
+            Spacer()
             Text(String(format: "\(gradeSymbol) %.1f", schedule.gradeAverage))
-                .font(.system(size: 13))
+                .font(.system(size: 17))
         }
         
         .contentShape(Rectangle())
@@ -70,10 +72,11 @@ struct ScheduleView: View {
     var semesters: some View {
         let semesters = schedule.semesters
         return
-            HStack(spacing: 10) {
+            HStack {
                 Spacer().frame(width: 5)
                 ForEach (semesters, id: \.self) { semester in
                     SemesterView(semester: semester, schedule: schedule)
+                        .padding(.horizontal, courseHorizontalSpacing)
                 }
                 Spacer().frame(width: 5)
             }

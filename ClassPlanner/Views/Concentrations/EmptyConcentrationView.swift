@@ -29,11 +29,14 @@ struct EmptyConcentrationView: View {
     func drop(providers: [NSItemProvider]) -> Bool {
         let found = providers.loadFirstObject(ofType: String.self) { id in
             if let droppedConcentration = getDroppedConcentration(id: id) {
+                let containAdjustment = Int(concentrationVM.currentConcentrations.contains(droppedConcentration.urlID))
+                let insertPos = concentrationVM.currentConcentrations.count - containAdjustment
                 withAnimation {
-                    concentrationVM.moveInsertConcentration(droppedConcentration, at: concentrationVM.currentConcentrations.count)
+                    concentrationVM.moveInsertConcentration(droppedConcentration, at: insertPos)
                 }
             }
         }
+        
         return found
     }
     

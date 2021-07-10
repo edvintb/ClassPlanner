@@ -3,6 +3,7 @@
 //  SuggestionsDemo
 //
 //  Created by Stephan Michels on 13.12.20.
+//  See LICENSE for this sample’s licensing information.
 //
 
 import SwiftUI

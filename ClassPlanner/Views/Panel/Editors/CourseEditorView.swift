@@ -103,17 +103,21 @@ struct CourseEditorView: View {
     var semesterSelector: some View {
         HStack(alignment: .center, spacing: 10) {
             Spacer()
-            Button(action: { course.fall.toggle(); save() }, label: {
-                Text("🍁")
-                    .shadow(color: course.fall ? .green : .black, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
-            })
-            Button(action: { course.spring.toggle(); save() }, label: {
-                Text("🌱")
-                    .shadow(color: course.spring ? .green : .black, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
-            })
+            Toggle(fallSymbol, isOn: $course.fall)
+            Spacer()
+            Toggle(springSymbol, isOn: $course.spring)
             Spacer()
         }
     }
+
+    //            Button(action: { course.fall.toggle(); save() }, label: {
+    //                Text("🍁")
+    //                    .shadow(color: course.fall ? .green : .black, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
+    //            })
+    //            Button(action: { course.spring.toggle(); save() }, label: {
+    //                Text("🌱")
+    //                    .shadow(color: course.spring ? .green : .black, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
+    //            })
     
     var gradeSelector: some View {
         Picker("", selection: $course.grade) {
@@ -157,12 +161,17 @@ struct CourseEditorView: View {
     
     var bottomButtons: some View {
         HStack {
-            EditorButtons(deleteAction: deleteAction, closeAction: shared.stopEdit)
+            EditorButtons(deleteAction: deleteAction, closeAction: closeAction)
             Spacer()
             if let schedule = shared.currentSchedule {
                 addRemoveButton(schedule: schedule)
             }
         }
+    }
+    
+    func closeAction() {
+        shared.stopEdit()
+        shared.setPanelSelection(to: .courses)
     }
     
     
@@ -172,6 +181,7 @@ struct CourseEditorView: View {
             shared.stopEdit()
             course.delete()
             course.save()
+            shared.setPanelSelection(to: .courses)
         }
     }
     

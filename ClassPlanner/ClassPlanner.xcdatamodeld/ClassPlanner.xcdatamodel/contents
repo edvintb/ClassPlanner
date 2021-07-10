@@ -24,7 +24,6 @@
         <attribute name="grade_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="name_" optional="YES" attributeType="String"/>
         <attribute name="notes_" optional="YES" attributeType="String"/>
-        <attribute name="position_" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="qscore" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="semester_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="spring" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
@@ -40,7 +39,7 @@
     <elements>
         <element name="Category" positionX="-364.73828125" positionY="-12.85546875" width="128" height="148"/>
         <element name="Concentration" positionX="-65.42578125" positionY="228.24609375" width="128" height="133"/>
-        <element name="Course" positionX="224.1796875" positionY="-125.2109375" width="128" height="253"/>
+        <element name="Course" positionX="224.1796875" positionY="-125.2109375" width="128" height="238"/>
         <element name="Professor" positionX="473.53515625" positionY="205.5234375" width="128" height="58"/>
     </elements>
 </model>

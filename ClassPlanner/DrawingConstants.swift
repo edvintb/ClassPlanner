@@ -15,11 +15,15 @@ let iconSize: CGFloat = 14
 //let topSpace: CGFloat = 7
 let semesterPadding: CGFloat = 5
 let courseHeight: CGFloat = 100
-let courseWidth: CGFloat = 130
+let courseWidth: CGFloat = 128
 let courseIdealWidth: CGFloat = 70
 let hoverScaleFactor: CGFloat = 1.03
 let hoverShadowRadius: CGFloat = 3
-let courseSpacing: CGFloat = 10
+
+let courseVerticalSpacing: CGFloat = 7
+let courseHorizontalSpacing: CGFloat = 6
+
+
 let emptyHoverOpacity: Double = 0.2
 
 let emptyOpacity: Double = 0.2
@@ -49,9 +53,11 @@ let workloadSymbol: String = "🕑"
 let noteSymbol: String = "🗒"
 let fallSymbol: String = "🍁"
 let springSymbol: String = "🌱"
-let gradeSymbol: String = "􀫓"
-let nameSymbol: String = "􀌮"
+let gradeSymbol: String = "🎓"
+let gradeSymbolSize: CGFloat = 17
+let nameSymbol: String = "💬" // "􀌮" 
 let numberRequiredSymbol: String = "  # "
+let courseContainedSymbol: String = "✓"
 
 let textFieldCornerRadius: CGFloat = 3.5
 

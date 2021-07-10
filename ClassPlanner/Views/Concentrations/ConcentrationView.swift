@@ -86,18 +86,51 @@ struct ConcentrationView<V>: View  where V: View{
     
     @EnvironmentObject var shared: SharedVM
     @ObservedObject var concentration: Concentration
+    @ObservedObject var concentrationVM: ConcentrationVM
     
-    private var categories: [Category] {
-        concentration.categories.sorted(by: {$0.index < $1.index })
+    @Environment(\.managedObjectContext) var context
+    
+    @FetchRequest private var categories: FetchedResults<Category>
+    
+    private var isEditingConcentration: Bool {
+        if case let .concentration(editingConcentration) = shared.currentEditSelection {
+            if editingConcentration == self.concentration { return true }
+        }
+        return false
     }
     
-//    @State private var dragOffset: CGSize = .zero
-    @State private var isTargeted: Bool = false
+    init(categoryViews: @escaping (Concentration) -> V, concentration: Concentration, concentrationVM: ConcentrationVM) {
+        self.categoryViews = categoryViews
+        self.concentration = concentration
+        self.concentrationVM = concentrationVM
+        let predicate = NSPredicate(format: "concentration == %@", argumentArray: [concentration])
+        let request = Category.fetchRequest(predicate)
+        _categories = FetchRequest(fetchRequest: request)
+    }
+    
+    private var requiredCourses: Int {
+        categories.reduce(into: 0) { acc, category in
+            acc += category.numberOfRequired
+        }
+    }
+    
+    private var coursesContained: Int {
+        if let schedule = shared.currentSchedule {
+            let courses = schedule.courseURLs
+            return categories.reduce(into: 0) { acc, category in
+                acc += category.courses.reduce(into: 0) { acc, course in
+                    acc += Int(courses.contains(course.urlID))
+                }
+            }
+        }
+        return 0
+    }
+    
+    @State private var isDropping: Bool = false
     
     private var empty: Bool {
         concentration.name == ""
     }
-    
     
     var body: some View {
         ZStack {
@@ -106,25 +139,27 @@ struct ConcentrationView<V>: View  where V: View{
                 title
                 Divider()
                 categoryViews(concentration)
-//                Spacer()
             }
         }
-        .scaleEffect(isTargeted ? 1.01 : 1)
+        .scaleEffect(isDropping ? 1.01 : 1)
+        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0, at: concentration) }
         .onDrag({ NSItemProvider(object: concentration.stringID as NSString) })
     }
     
     var container: some View {
         RoundedRectangle(cornerRadius: frameCornerRadius)
             .stroke()
-            .opacity(emptyHoverOpacity)
+            .opacity(isEditingConcentration ? 1 : emptyHoverOpacity)
             .frame(minHeight: concentrationHeight)
+            .shadow(color: .black, radius: isEditingConcentration ? 10 : 0)
+            .shadow(color: .black, radius: isEditingConcentration ? 10 : 0)
     }
     
     var title: some View {
         HStack {
             titleText
             Spacer()
-            Text("\(concentration.index)")
+            Text("\(coursesContained)/\(requiredCourses)")
         }
         .padding(7)
         .contentShape(Rectangle())
@@ -142,23 +177,33 @@ struct ConcentrationView<V>: View  where V: View{
             .opacity(empty ? 0.4 : 1)
             .onTapGesture { shared.setEditSelection(to: .concentration(concentration: concentration)) } // Open Concentration Editor
     }
-
-//
-//    var dragGesture: some Gesture {
-//        DragGesture(coordinateSpace: .global)
-//            .onChanged {
-//                dragOffset = CGSize(width: $0.translation.width, height: -$0.translation.height)
-//                if concentrationVM.dragConcentration == nil { concentrationVM.setDragConcentration(to: concentration) }
-//            }
-//            .onEnded { _ in
-//                concentrationVM.concentrationDragEnded()
-//                dragOffset = .zero
-//            }
-//    }
     
     var deleteGesture: some Gesture {
         TapGesture()
             .onEnded { concentration.delete() }
+    }
+    
+    
+    func drop(providers: [NSItemProvider], at newConcentration: Concentration) -> Bool {
+        let found = providers.loadFirstObject(ofType: String.self) { id in
+            if let newIndex = concentrationVM.currentConcentrations.firstIndex(of: newConcentration.urlID) {
+                if let droppedConcentration = getDroppedConcentration(id: id) {
+                    withAnimation {
+                        concentrationVM.moveInsertConcentration(droppedConcentration, at: newIndex)
+                    }
+                }
+            }
+  
+        }
+        return found
+    }
+    
+    private func getDroppedConcentration(id: String) -> Concentration? {
+        if let uri = URL(string: id) {
+            let object = NSManagedObject.fromURI(uri: uri, context: context)
+            return object as? Concentration
+        }
+        return nil
     }
     
     

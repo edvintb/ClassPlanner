@@ -20,7 +20,6 @@ extension Category {
         return request
     }
     
-    
     // MARK: - Instance functions
     
     func addCourse(_ course: Course) {

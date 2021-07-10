@@ -36,8 +36,9 @@ struct PanelView: View {
             ForEach (PanelOption.allCases, id: \.self) { option in
                 Text(PanelOption.symbols[option] ?? "X")
                     .foregroundColor(shared.currentPanelSelection == option ? .blue : nil)
+                    .contentShape(Rectangle())
                     .onTapGesture { shared.setPanelSelection(to: option) }
-                    .font(.system(size: 16, weight: .thin, design: .default))
+                    .font(.system(size: 16, weight: .regular, design: .default))
                 Spacer()
             }
         }
@@ -62,38 +63,39 @@ struct PanelView: View {
     func getEditor(_ selection: EditOption) -> some View {
         switch selection {
         case .course(let course):
-            CourseEditorView(course: course, courseSuggestionVM: courseSuggestionVM, context: context)
+            VStack(spacing: 0) {
+                Text("Course").font(.system(size: 15)).opacity(grayTextOpacity)
+                CourseEditorView(course: course, courseSuggestionVM: courseSuggestionVM, context: context)
+            }
+            
         case .category(let category):
-            CategoryEditorView(category: category, categorySuggestionVM: categorySuggestionVM, context: context)
+            VStack(spacing: 0) {
+                Text("Category").font(.system(size: 15)).opacity(grayTextOpacity)
+                CategoryEditorView(category: category, categorySuggestionVM: categorySuggestionVM, context: context)
+            }
+
         case .concentration(let concentration):
-            ConcentrationEditorView(concentration: concentration, concentrationVM: concentrationVM, schedule: schedule)
+            VStack(spacing: 0) {
+                Text("Major").font(.system(size: 15)).opacity(grayTextOpacity)
+                ConcentrationEditorView(concentration: concentration, concentrationVM: concentrationVM, schedule: schedule)
+            }
         case .schedule(let schedule):
-            ScheduleEditorView(schedule: schedule, scheduleStore: scheduleStore)
-                .alert(item: $scheduleStore.existingNameAlert) { nameString in
-                    Alert(title: Text("Naming Conflict"),
-                          message: Text("Existing schedule with name: \(nameString.value) \nPlease pick another name."),
-                          dismissButton: .default(Text("OK")))
-                }
+            VStack(spacing: 0) {
+                Text("Schedule").font(.system(size: 15)).opacity(grayTextOpacity)
+                ScheduleEditorView(schedule: schedule, scheduleStore: scheduleStore)
+                    .alert(item: $scheduleStore.existingNameAlert) { nameString in
+                        Alert(title: Text("Naming Conflict"),
+                              message: Text("Existing schedule with name: \(nameString.value) \nPlease pick another name."),
+                              dismissButton: .default(Text("OK")))
+                    }
+            }
                 .onDisappear { scheduleStore.setName(schedule.name, for: schedule) }
-//
-//                .alert(isPresented: $scheduleStore.doubleNameAlert) {
-//                    Alert(title: Text("Naming Conflict"),
-//                          message: Text("A schedule with that name already exists.\nPlease pick another name."),
-//                          dismissButton: .default(Text("OK"))
-//                )}
-                
-//                        .alert(isPresented: $scheduleStore.emptyNameAlert) {
-//                            Alert(title: Text("Empty Name"),
-//                                  message: Text("A schedule must have a name."),
-//                                  dismissButton: .default(Text("OK"))
-//                        )}
-//                .onDisappear { scheduleStore.setName(schedule.name, for: schedule) }
         case .none:
             VStack {
                 Spacer()
                 Text("No Selection")
                     .font(.system(size: 15))
-                    .opacity(0.3)
+                    .opacity(grayTextOpacity)
                 Spacer()
             }
             

@@ -30,6 +30,7 @@ struct ConcentrationContainerView: View {
     var body: some View {
         GeometryReader { geo in
             ScrollView([.vertical, .horizontal]) {
+//            List {
                 concentrationViews(size: geo.size)
             }
         }
@@ -49,8 +50,8 @@ struct ConcentrationContainerView: View {
             VStack (alignment: .leading, spacing: 4) {
                 Spacer(minLength: 4)
                 ForEach (stableConcentrations) { concentration in
-                    ConcentrationView(categoryViews: categoryViews, concentration: concentration)
-                        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0, at: concentration) }
+                    ConcentrationView(categoryViews: categoryViews, concentration: concentration, concentrationVM: concentrationVM)
+                        
                 }
                 EmptyConcentrationView(concentrationVM: concentrationVM)
                     .frame(width: size.width - 40)

@@ -22,7 +22,7 @@ struct SemesterView: View {
     private var totalGrade: Double { courses.reduce(into: 0) { acc, course in acc += Grade.gradeNumber[course.enumGrade] ?? 0 }}
     
     var body: some View {
-        VStack(spacing: courseSpacing) {
+        VStack(spacing: courseVerticalSpacing) {
             topView
             ForEach (courses) { course in
                 ScheduleCourseView(course: course)
@@ -37,6 +37,7 @@ struct SemesterView: View {
         HStack {
             Text(String(format: "\(workloadSymbol) %.1f", totalWorkload))
             Spacer()
+            Text(semester % 2 == 0 ? fallSymbol : springSymbol)
         }
     }
     
