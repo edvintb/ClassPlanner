@@ -9,24 +9,43 @@ import SwiftUI
 
 struct EmptyConcentrationView: View {
     
+//    @EnvironmentObject var shared: SharedVM
+    @ObservedObject var concentrationVM: ConcentrationVM
+    
     @Environment(\.managedObjectContext) var context
     @State private var isTargeted: Bool = false
+    @State private var isDropping: Bool = false
     
     var body: some View {
         RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
-            .frame(minWidth: /*@START_MENU_TOKEN@*/0/*@END_MENU_TOKEN@*/, maxWidth: /*@START_MENU_TOKEN@*/.infinity/*@END_MENU_TOKEN@*/, minHeight: concentrationHeight, maxHeight: concentrationHeight, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
+            .frame(minHeight: concentrationHeight)
             .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
-            .opacity(isTargeted ? emptyHoverOpacity : 0)
-            // Change to be able to drop concentrations here?
+            .opacity((isTargeted || isDropping) ? emptyHoverOpacity : 0)
             .onHover { isTargeted = $0 }
-            .onTapGesture { Concentration.createEmpty(in: context) }
+            .onTapGesture { concentrationVM.addConcentration(context: context) }
+            .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
     }
+    
+    func drop(providers: [NSItemProvider]) -> Bool {
+        let found = providers.loadFirstObject(ofType: String.self) { id in
+            if let droppedConcentration = getDroppedConcentration(id: id) {
+                let containAdjustment = Int(concentrationVM.currentConcentrations.contains(droppedConcentration.urlID))
+                let insertPos = concentrationVM.currentConcentrations.count - containAdjustment
+                withAnimation {
+                    concentrationVM.moveInsertConcentration(droppedConcentration, at: insertPos)
+                }
+            }
+        }
+        
+        return found
+    }
+    
+    private func getDroppedConcentration(id: String) -> Concentration? {
+        if let uri = URL(string: id) {
+            let object = NSManagedObject.fromURI(uri: uri, context: context)
+            return object as? Concentration
+        }
+        return nil
+    }
+    
 }
-
-
-//
-//struct EmptyConcentrationView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        EmptyConcentrationView()
-//    }
-//}

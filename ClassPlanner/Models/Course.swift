@@ -8,54 +8,11 @@
 import CoreData
 import Combine
 import AppKit
-
-extension CodingUserInfoKey {
-  static let managedObjectContext = CodingUserInfoKey(rawValue: "managedObjectContext")!
-}
-
-enum DecoderConfigurationError: Error {
-  case missingManagedObjectContext
-}
+import SwiftUI
 
 
-public class Course: NSManagedObject, Codable {
-    
-    enum CodingKeys: CodingKey {
-       case name, workload, enrollment, qscore, spring, fall, notes, color
-     }
+public class Course: NSManagedObject {
 
-     required convenience public init(from decoder: Decoder) throws {
-        
-        guard let context = decoder.userInfo[CodingUserInfoKey.managedObjectContext] as? NSManagedObjectContext else {
-          throw DecoderConfigurationError.missingManagedObjectContext
-        }
-        
-        self.init(context: context)
-        
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        self.name = try container.decode(String.self, forKey: .name)
-        self.workload = try container.decode(Double.self, forKey: .workload)
-        self.enrollment = try container.decode(Int.self, forKey: .enrollment)
-        self.qscore = try container.decode(Double.self, forKey: .qscore)
-        self.spring = try container.decode(Bool.self, forKey: .spring)
-        self.fall = try container.decode(Bool.self, forKey: .fall)
-        self.notes = try container.decode(String.self, forKey: .notes)
-        self.color = try container.decode(Int.self, forKey: .color)
-        
-    }
-    
-    
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(name, forKey: .name)
-        try container.encode(workload, forKey: .workload)
-        try container.encode(enrollment, forKey: .enrollment)
-        try container.encode(qscore, forKey: .qscore)
-        try container.encode(spring, forKey: .spring)
-        try container.encode(fall, forKey: .fall)
-        try container.encode(notes, forKey: .notes)
-        try container.encode(color, forKey: .color)
-    }
     
 }
 
@@ -64,40 +21,11 @@ extension Course {
     
     // MARK: - Static functions
     
-    static func createEmpty(in semester: Int, at position: Int, in context: NSManagedObjectContext){
-        let course = Course(context: context)
-        course.name = ""
-        course.semester = semester
-        course.position = position
-        course.fall = false
-        course.spring = false
-//        print(course)
-        try? context.save()
-    }
-    
     static func fetchRequest(_ predicate: NSPredicate) -> NSFetchRequest<Course> {
         let request = NSFetchRequest<Course>(entityName: "Course")
         request.sortDescriptors = [NSSortDescriptor(key: "name_", ascending: true)]
         request.predicate = predicate
         return request
-    }
-    
-    static func withName(_ name: String, context: NSManagedObjectContext) -> Course {
-         // lookup name in Core Data
-        let request = NSFetchRequest<Course>(entityName: "Course")
-        request.predicate = NSPredicate(format: "name_ == %@", name)
-        request.sortDescriptors = [NSSortDescriptor(key: "position_", ascending: true)]
-        let courses = (try? context.fetch(request)) ?? []
-        if courses.count > 1 { print("More than one course with the name found") }
-        if let course = courses.first {
-            try? context.save()
-            return course
-        } else {
-            let course = Course(context: context)
-            course.name_ = name
-            try? context.save()
-            return course
-        }
     }
     
     static func fromURIs(uri: [URL], context: NSManagedObjectContext) -> [Course] {
@@ -109,16 +37,156 @@ extension Course {
         return courses
     }
     
-    static func fromURI(uri: URL, context: NSManagedObjectContext) -> Course? {
-        let id = context.persistentStoreCoordinator?.managedObjectID(forURIRepresentation: uri)
-        if id == nil { return nil }
-        let object = try? context.existingObject(with: id!)
-        if object == nil { return nil }
-        let course = object as? Course
-        return course
+    static func fromCourseURI(uri: URL, context: NSManagedObjectContext) -> Course? {
+        let object = NSManagedObject.fromURI(uri: uri, context: context)
+        return object as? Course
+    }
+
+    
+    func delete() {
+        if let context = self.managedObjectContext {
+            context.delete(self)
+            try? context.save()
+        }
+    }
+
+    
+    // MARK: - Property access
+    
+    var isEmpty: Bool {
+        self.notes == "" && self.workload == 0 && self.enrollment == 0 && self.qscore == 0 && self.color == 0
     }
     
+    var name: String {
+        get { self.name_ ?? ""}
+        set { self.name_ = newValue }
+    }
     
+    var notes: String {
+        get { self.notes_ ?? ""}
+        set { self.notes_ = newValue }
+    }
+    
+    var workload: Double {
+        get { self.workload_ }
+        set { self.workload_ = newValue }
+    }
+    
+    var enrollment: Int {
+        get { Int(self.enrollment_) }
+        set { self.enrollment_ = Int16(newValue) }
+    }
+    
+    var grade: Int {
+        get { Int(self.grade_) }
+        set { self.grade_ = Int16(newValue) }
+    }
+    
+    var enumGrade: Grade {
+        Grade.init(rawValue: grade) ?? Grade.A
+    }
+    
+    var color: Int {
+        get { Int(self.color_) }
+        set { self.color_ = Int16(newValue) }
+    }
+    
+    func getColor() -> Color {
+        Color.colorSelection[self.color % Color.colorSelection.count]
+    }
+    
+}
+
+
+// MARK: - Code to make Course Codable -- neded for sharing
+
+//extension CodingUserInfoKey {
+//  static let managedObjectContext = CodingUserInfoKey(rawValue: "managedObjectContext")!
+//}
+//
+//enum DecoderConfigurationError: Error {
+//  case missingManagedObjectContext
+//}
+
+
+
+//    enum CodingKeys: CodingKey {
+//       case name, workload, enrollment, qscore, spring, fall, notes, color
+//     }
+//
+//     required convenience public init(from decoder: Decoder) throws {
+//
+//        guard let context = decoder.userInfo[CodingUserInfoKey.managedObjectContext] as? NSManagedObjectContext else {
+//          throw DecoderConfigurationError.missingManagedObjectContext
+//        }
+//
+//        self.init(context: context)
+//
+//        let container = try decoder.container(keyedBy: CodingKeys.self)
+//        self.name = try container.decode(String.self, forKey: .name)
+//        self.workload = try container.decode(Double.self, forKey: .workload)
+//        self.enrollment = try container.decode(Int.self, forKey: .enrollment)
+//        self.qscore = try container.decode(Double.self, forKey: .qscore)
+//        self.spring = try container.decode(Bool.self, forKey: .spring)
+//        self.fall = try container.decode(Bool.self, forKey: .fall)
+//        self.notes = try container.decode(String.self, forKey: .notes)
+//        self.color = try container.decode(Int.self, forKey: .color)
+//
+//    }
+//
+//
+//    public func encode(to encoder: Encoder) throws {
+//        var container = encoder.container(keyedBy: CodingKeys.self)
+//        try container.encode(name, forKey: .name)
+//        try container.encode(workload, forKey: .workload)
+//        try container.encode(enrollment, forKey: .enrollment)
+//        try container.encode(qscore, forKey: .qscore)
+//        try container.encode(spring, forKey: .spring)
+//        try container.encode(fall, forKey: .fall)
+//        try container.encode(notes, forKey: .notes)
+//        try container.encode(color, forKey: .color)
+//    }
+
+//    static func withName(_ name: String, context: NSManagedObjectContext) -> Course {
+//         // lookup name in Core Data
+//        let request = NSFetchRequest<Course>(entityName: "Course")
+//        request.predicate = NSPredicate(format: "name_ == %@", name)
+//        request.sortDescriptors = [NSSortDescriptor(key: "position_", ascending: true)]
+//        let courses = (try? context.fetch(request)) ?? []
+//        if courses.count > 1 { print("More than one course with the name found") }
+//        if let course = courses.first {
+//            try? context.save()
+//            return course
+//        } else {
+//            let course = Course(context: context)
+//            course.name_ = name
+//            try? context.save()
+//            return course
+//        }
+//    }
+
+
+//    func moveInSemester(to position: Int) {
+//        if let context = managedObjectContext {
+//            let request = Course.fetchRequest(NSPredicate(format: "semester_ == %@", argumentArray: [self.semester]))
+//            let courses = (try? context.fetch(request)) ?? []
+//            if (self.position < position) {
+//                for index in (self.position + 1)...position {
+//                    courses[index].position = index - 1
+//                }
+//            }
+//            else if (self.position > position) {
+//                for index in position..<(self.position) {
+//                    courses[index].position = index + 1
+//                }
+//            }
+//            self.position = position
+//            try? context.save()
+//        }
+//    }
+
+
+
 //    static func createFrom(_ info: CourseInfo, in context: NSManagedObjectContext, at position: Int) {
 //        if info.name != "" {
 //            let course = self.withName(info.name, context: context)
@@ -131,8 +199,8 @@ extension Course {
 //            try? context.save()
 //        }
 //    }
-    
-    // MARK: - Moving functions
+
+// MARK: - Moving functions
 //
 //    func moveInSemester(to position: Int) {
 //        if self.position == position { return }
@@ -178,79 +246,26 @@ extension Course {
 //            try? context.save()
 //        }
 //    }
-    
-    func delete() {
-        if let context = self.managedObjectContext {
-            context.delete(self)
-            try? context.save()
-        }
-    }
-    
-//    func moveInSemester(to position: Int) {
-//        if let context = managedObjectContext {
-//            let request = Course.fetchRequest(NSPredicate(format: "semester_ == %@", argumentArray: [self.semester]))
-//            let courses = (try? context.fetch(request)) ?? []
-//            if (self.position < position) {
-//                for index in (self.position + 1)...position {
-//                    courses[index].position = index - 1
-//                }
-//            }
-//            else if (self.position > position) {
-//                for index in position..<(self.position) {
-//                    courses[index].position = index + 1
-//                }
-//            }
-//            self.position = position
-//            try? context.save()
-//        }
+
+//    static func createEmpty(in semester: Int, at position: Int, in context: NSManagedObjectContext){
+//        let course = Course(context: context)
+//        course.name = ""
+//        course.fall = false
+//        course.spring = false
+////        print(course)
+//        try? context.save()
 //    }
-    
-    var isEmpty: Bool {
-        self.notes == "" && self.workload == 0 && self.enrollment == 0 && self.qscore == 0 && self.color == 0
-    }
-    
-    // MARK: - Property access
 
-    // Removing nil values
-    var name: String {
-        get { self.name_ ?? ""}
-        set { self.name_ = newValue }
-    }
-    
-    var notes: String {
-        get { self.notes_ ?? ""}
-        set { self.notes_ = newValue }
-    }
-    
-    // Type Changing
-    var position: Int {
-        get { Int(self.position_) }
-        set { self.position_ = Int32(newValue) }
-    }
-    
-    var semester: Int {
-        get { Int(self.semester_) }
-        set { self.semester_ = Int16(newValue) }
-    }
-    
-    var workload: Double {
-        get { self.workload_ }
-        set { self.workload_ = newValue }
-    }
-    
-    var enrollment: Int {
-        get { Int(self.enrollment_) }
-        set { self.enrollment_ = Int16(newValue) }
-    }
-    
-    var color: Int {
-        get { Int(self.color_) }
-        set { self.color_ = Int16(newValue) }
-    }
-    
-}
-
-
+// Type Changing
+//    var position: Int {
+//        get { Int(self.position_) }
+//        set { self.position_ = Int32(newValue) }
+//    }
+//
+//    var semester: Int {
+//        get { Int(self.semester_) }
+//        set { self.semester_ = Int16(newValue) }
+//    }
 
 //extension Course: UTType {
 //

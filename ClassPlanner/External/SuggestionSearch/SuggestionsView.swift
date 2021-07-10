@@ -3,6 +3,7 @@
 //  SuggestionsDemo
 //
 //  Created by Stephan Michels on 12.12.20.
+//  See LICENSE for this sample’s licensing information.
 //
 
 import SwiftUI
@@ -52,7 +53,6 @@ struct SuggestionView<V: Equatable>: View {
             .onTapGesture {
                 model.confirmSuggestion(suggestion)
             }
-//            .onAppear { print("View appeared") }
     }
 }
 
@@ -82,7 +82,6 @@ struct SuggestionGroupView<V: Equatable>: View {
                 }
             }
         }
-//        .onAppear { print("Group apperared") }
     }
 }
 

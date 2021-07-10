@@ -12,28 +12,32 @@ import SwiftUI
 class AppDelegate: NSObject, NSApplicationDelegate {
 
     var window: NSWindow!
-
+    
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Create the SwiftUI view and set the context as the value for the managedObjectContext environment keyPath.
         // Add `@Environment(\.managedObjectContext)` in the views that will need the context.
         
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        print(url)
+        let context = persistentContainer.viewContext
         
-        let panel = PanelVM(context: persistentContainer.viewContext)
-        let scheduleStore = ScheduleStore(directory: url, context: persistentContainer.viewContext, panel: panel)
-        let concentrationVM = ConcentrationVM(panel: panel, scheduleStore: scheduleStore)
+        let shared = SharedVM()
         
-        let courseStore = CourseStore(context: persistentContainer.viewContext, panel: panel)
+        let concentrationVM = ConcentrationVM()
+
+        let courseSuggestionVM = CourseSuggestionVM(context: context, shared: shared)
+        let categorySuggestionVM = CategorySuggestionVM(context: context, shared: shared)
+                
+        let courseStore = CourseStore(context: context)
         
-        let contentView = ContentView(scheduleStore: scheduleStore, courseStore: courseStore, concentrationVM: concentrationVM)
-            .environment(\.managedObjectContext, persistentContainer.viewContext)
-            .environmentObject(panel)
+        let scheduleStore = ScheduleStore(directory: url, context: context, shared: shared)
         
-//        let contentView = ContentView(context: persistentContainer.viewContext)
-//            .environment(\.managedObjectContext, persistentContainer.viewContext)
-        
-//        let contentView = ScheduleView(viewModel: ClassPlannerVM(request: Course.fetchRequest(.all), in: persistentContainer.viewContext)).environment(\.managedObjectContext, persistentContainer.viewContext)
+        let contentView = ContentView(scheduleStore: scheduleStore,
+                                      courseStore: courseStore,
+                                      concentrationVM: concentrationVM,
+                                      courseSuggestionVM: courseSuggestionVM,
+                                      categorySuggestionVM: categorySuggestionVM)
+            .environment(\.managedObjectContext, context)
+            .environmentObject(shared)
 
         // Create the window and set the content view.
         window = NSWindow(
@@ -44,11 +48,24 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.setFrameAutosaveName("Main Window")
         window.contentView = NSHostingView(rootView: contentView)
         window.makeKeyAndOrderFront(nil)
-//        
-//        courseVM.mouseLocation = { self.window.convertPoint(fromScreen: NSEvent.mouseLocation) }
-    
+        window.isReleasedWhenClosed = false
     }
-
+    
+    @IBAction func openFromWindowMenu(_ sender: Any) {
+        window.makeKeyAndOrderFront(nil)
+    }
+    
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag{
+            window.makeKeyAndOrderFront(nil)
+        }
+        return true
+    }
+    
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return false
+    }
+    
     func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
     }

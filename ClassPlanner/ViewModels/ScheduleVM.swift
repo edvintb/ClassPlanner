@@ -11,12 +11,30 @@ import CoreData
 import Combine
 
 class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
-        
-    @Published var name: String
     
+    var id: UUID
+    @Published var name: String
     @Published private var model: ScheduleModel
     
     private let context: NSManagedObjectContext
+    
+    var url: URL? { didSet { save() }}
+    
+    private var cancellables = Set<AnyCancellable>()
+    
+    init(url: URL, context: NSManagedObjectContext) {
+        self.context = context
+        self.name = url.lastPathComponent
+        self.id = UUID()
+        self.url = url
+        self.model = ScheduleModel(decoder: JSONDecoder(), json: try? Data(contentsOf: url)) ?? ScheduleModel()
+        
+        // Autosave cancellable
+        $model.sink { [unowned self] _ in
+            self.save()
+        }
+        .store(in: &cancellables)
+    }
     
     // MARK: - Access to Model
     
@@ -40,108 +58,86 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         }
     }
     
+    var gradeAverage: Double {
+        var passedCourses = 0
+        return
+            courseURLs.reduce(into: 0) { acc, url in
+                if let course = Course.fromURI(uri: url, context: context) as? Course {
+                    if course.enumGrade == .Pass { passedCourses += 1 }
+                    acc += Grade.gradeNumber[course.enumGrade] ?? 0
+                }
+            } / Double(max(courseURLs.count - passedCourses, 1))
+    }
+    
     func getPosition(course: Course) -> CoursePosition? {
-        let id = course.objectID.uriRepresentation()
-        let pos = model.getPositionInSchedule(id: id) // ?? Position(semester: 0, index: 0)
-        return pos
+        model.getPositionInSchedule(for: course)
     }
     
     func courses(for semester: Int) -> [Course] {
-        model.schedule[semester, default: []].map {
-            Course.fromURI(uri: $0, context: context) ?? nil
+        model.schedule[semester, default: []].reduce(into: []) { acc, uri in
+            if let course = Course.fromCourseURI(uri: uri, context: context) {
+                acc.append(course)
+            }
         }
-        .compactMap { $0 }
     }
     
-
+    
     
     // MARK: - Intents
 
-    func moveCourse(_ course: Course, to semester: Int, index: Int) {
-        // Position earlier??
-        let newPosition = CoursePosition(semester: semester, index: index)
-        model.moveCourse(course, to: newPosition)
+    func moveCourse(_ course: Course, to newPos: CoursePosition) {
+        model.moveCourse(course, to: newPos)
     }
 
-    func deleteCourse(_ course: Course) {
-        model.deleteCourse(course)
+    func removeCourse(_ course: Course) {
+        model.removeCourse(course)
     }
     
-    func replaceCourse(old: Course, with new: Course) {
-        model.replaceCourse(old: old, with: new)
+    func replaceCourse(old: Course, with newCourse: Course) {
+        model.replaceCourse(oldCourse: old, with: newCourse)
         save()
     }
     
-    func addCourse(_ course: Course, semester: Int, index: Int) {
-        // Make it into a position??
-        try? context.save() // Why is this here??
-        model.addCourse(course, semester: semester, index: index)
-        
-    }
-    
-    func addEmptyCourse(to semester: Int, context: NSManagedObjectContext) {
-        let index = model.schedule[semester]?.count ?? 0
-        let course = Course(context: context)
-        print("is temporary: \(course.objectID.isTemporaryID)")
-        try? context.save()
-        print("is temporary: \(course.objectID.isTemporaryID)")
-        model.addCourse(course, semester: semester, index: index)
+    func addCourse(_ course: Course, at newPos: CoursePosition) {
+        model.moveCourse(course, to: newPos)
         save()
-//        print(getPosition(course: course))
-//        print(courses(for: semester))
-//        objectWillChange.send() // Do I need this?
-//        save(model)
     }
     
     func setColor(to index: Int) {
         model.color = index
     }
     
-
-    
-
-    
-    
-    // MARK: - Init
-    
-    private var cancellables = Set<AnyCancellable>()
-
-    var url: URL? { didSet { save() }}
-    
-    init(context: NSManagedObjectContext, url: URL, panel: PanelVM) {
-        self.name = url.lastPathComponent
-        self.context = context
-        self.panel = panel
-        self.id = UUID()
-        self.url = url
-        let decoder = JSONDecoder()
-        decoder.userInfo[CodingUserInfoKey.managedObjectContext] = context
-        self.model = ScheduleModel(decoder: decoder, json: try? Data(contentsOf: url)) ?? ScheduleModel()
-        
-        $model.sink { scheduleModel in
-            self.save()
+    func addEmptyCourse(to semester: Int, context: NSManagedObjectContext) {
+        let index = model.schedule[semester]?.count ?? 0
+        let course = Course(context: context)
+        let newPos = CoursePosition(semester: semester, index: index)
+        do {
+            try context.save()
+            model.moveCourse(course, to: newPos)
+            save()
+            
+        } catch {
+            print("Error saving new course: \(error.localizedDescription)")
         }
-        .store(in: &cancellables)
     }
     
+
+    
+    //        print("is temporary: \(course.objectID.isTemporaryID)")
+    //        print("is temporary: \(course.objectID.isTemporaryID)")
+    //        print(getPosition(course: course))
+    //        print(courses(for: semester))
+    //        objectWillChange.send() // Do I need this?
+    //        save(model)
+
+    
+    // MARK: - Supporting functionality
+
     private func save() {
         if url != nil {
             try? self.model.json?.write(to: url!)
-            print("Saved")
         }
     }
-    
-    // MARK: - Editing
-    
-    // Should this be related to the Course View somehow?
-    // Only used there to open editor
-    private var panel: PanelVM
-    
-    func setEditCourse(_ course: Course) {
-        panel.setEditSelection(to: .course(course: course))
-    }
-    
-    var id: UUID
     
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
@@ -158,9 +154,10 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
 //    func deleteCategory(_ category: Category) { category.delete() }
 //
 //    func deleteConcentration(_ concentration: Concentration) { concentration.delete() }
+  
     
-    
-    
+    //MARK: - Needed if we want to decode entire courses
+//    decoder.userInfo[CodingUserInfoKey.managedObjectContext] = context
     
     
 //    func addEmptyCourse(to semester: Int, context: NSManagedObjectContext) {

@@ -7,11 +7,18 @@
 
 import Foundation
 import CoreData
+import SwiftUI
 
 extension Category {
     
     // MARK: - Static functions
     
+    static func fetchRequest(_ predicate: NSPredicate) -> NSFetchRequest<Category> {
+        let request = NSFetchRequest<Category>(entityName: "Category")
+        request.sortDescriptors = [NSSortDescriptor(key: "index_", ascending: true)]
+        request.predicate = predicate
+        return request
+    }
     
     // MARK: - Instance functions
     
@@ -32,18 +39,41 @@ extension Category {
 
     }
     
-    func move(to index: Int) {
-        if self.index == index { return }
-        if let context = managedObjectContext, let concentration = self.concentration {
+    func move(to index: Int, concentration: Concentration) {
+        // Move depending on concentration
+        if self.concentration == concentration { moveInConcentration(to: index) }
+        else { moveToConcentration(concentration, and: index) }
+        
+        self.concentration?.objectWillChange.send()
+    }
+    
+
+    private func moveInConcentration(to index: Int) {
+        if let context = managedObjectContext {
+            if index == self.index { return }
             let topIndex = max(self.index, index)
             let bottomIndex = min(self.index, index)
-            let predicate = NSPredicate(format: "concentration == %@ AND index_ <= %@ AND index_ >= %@ AND SELF != %@",
-                                        argumentArray: [concentration, topIndex, bottomIndex, self])
+            let predicate = NSPredicate(format:
+                "concentration == %@ AND index_ <= %@ AND index_ >= %@ AND SELF != %@",
+                argumentArray: [self.concentration!, topIndex, bottomIndex, self])
             let request = Category.fetchRequest(predicate)
             let otherCategories = (try? context.fetch(request)) ?? []
             let down = self.index < index
             otherCategories.forEach(down ? { $0.index -= 1 } : { $0.index += 1 })
             self.index = index
+            try? context.save()
+        }
+    }
+    
+    private func moveToConcentration(_ concentration: Concentration, and index: Int) {
+        if let context = managedObjectContext {
+            let requestForNew = Category.fetchRequest(NSPredicate(format: "concentration == %@ AND index_ >= %@", argumentArray: [concentration, index]))
+            let newCategories = (try? context.fetch(requestForNew)) ?? []
+            newCategories.forEach { category in category.index += 1 }
+            if let categoryCopy = self.copy() {
+                categoryCopy.concentration = concentration
+                categoryCopy.index = index
+            }
             try? context.save()
         }
     }
@@ -58,6 +88,19 @@ extension Category {
             }
             try? context.save()
         }
+    }
+    
+    private func copy() -> Category? {
+        if let context = managedObjectContext {
+            let newCategory = Category(context: context)
+            newCategory.name = self.name
+            newCategory.notes = self.notes
+            newCategory.courses = self.courses
+            newCategory.color = self.color
+            newCategory.numberOfRequired = self.numberOfRequired
+            return newCategory
+        }
+        return nil
     }
     
     
@@ -105,25 +148,35 @@ extension Category {
         set { self.courses_ = newValue as NSSet}
     }
     
-    var color: Int {
-        get { Int(self.color_) }
-        set { self.color_ = Int16(newValue) }
-    }
-    
     var notes: String {
         get { self.notes_ ?? ""}
         set { self.notes_ = newValue }
     }
     
-
+    var color: Int {
+        get { Int(self.color_) }
+        set { self.color_ = Int16(newValue) }
+    }
     
-    static func fetchRequest(_ predicate: NSPredicate) -> NSFetchRequest<Category> {
-        let request = NSFetchRequest<Category>(entityName: "Category")
-        request.sortDescriptors = [NSSortDescriptor(key: "index_", ascending: true)]
-        request.predicate = predicate
-        return request
+    func getColor() -> Color {
+        Color.colorSelection[self.color % Color.colorSelection.count]
     }
 }
+
+
+//        if let context = managedObjectContext, let concentration = self.concentration {
+//            let topIndex = max(self.index, index)
+//            let bottomIndex = min(self.index, index)
+//            let predicate = NSPredicate(format: "concentration == %@ AND index_ <= %@ AND index_ >= %@ AND SELF != %@",
+//                                        argumentArray: [concentration, topIndex, bottomIndex, self])
+//            let request = Category.fetchRequest(predicate)
+//            let otherCategories = (try? context.fetch(request)) ?? []
+//            let down = self.index < index
+//            otherCategories.forEach(down ? { $0.index -= 1 } : { $0.index += 1 })
+//            self.index = index
+//            try? context.save()
+//        }
+
 
 //    static func requestForConcentration(_ concentration: Concentration) -> NSFetchRequest<Category> {
 //        Category.fetchRequest(NSPredicate(format: "ANY concentration_.index_ == %@", argumentArray: [concentration.index_]))

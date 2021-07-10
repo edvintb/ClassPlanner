@@ -1,11 +1,6 @@
-//
-//  BorderlessWindow.swift
-//  SMChemSketchSwiftCore
-//
-//  Created by Stephan Michels on 03.07.20.
-//  Copyright © 2020 Stephan Michels. All rights reserved.
-//
 
+// See LICENSE for this sample’s licensing information.
+ 
 import SwiftUI
 import Combine
 

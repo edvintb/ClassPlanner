@@ -3,6 +3,7 @@
 //  SuggestionsDemo
 //
 //  Created by Stephan Michels on 12.12.20.
+//  See LICENSE for this sample’s licensing information.
 //
 
 import Foundation
@@ -19,7 +20,6 @@ internal final class SuggestionsModel<V: Equatable>: ObservableObject {
     
     @Published var width: CGFloat = 100
     
-    // Publish the cancel somehow and listen to it in other places
     let suggestionsCancelled = PassthroughSubject<Void, Never>()
     
     var textBinding: Binding<String>?
@@ -37,7 +37,6 @@ internal final class SuggestionsModel<V: Equatable>: ObservableObject {
         self.suggestionConfirmed = false
         self.suggestionsVisible = false
         self.selectedSuggestion = nil
-        print("Cancel called")
     }
     
     private var suggestions: [Suggestion<V>] {

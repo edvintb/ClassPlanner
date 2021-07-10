@@ -24,7 +24,8 @@ struct ScheduleModel: Codable, Hashable, Equatable {
         return try? JSONEncoder().encode(self)
     }
     
-    func getPositionInSchedule(id: URL) -> CoursePosition? {
+    func getPositionInSchedule(for course: Course) -> CoursePosition? {
+        let id = course.urlID
         if let (semester, courses) = schedule.first(where: { $1.contains(id) }) {
             let index = courses.firstIndex(of: id)!
             return CoursePosition(semester: semester, index: index)
@@ -32,52 +33,61 @@ struct ScheduleModel: Codable, Hashable, Equatable {
         return nil
     }
     
-    mutating func moveCourse(_ course: Course, to newPosition: CoursePosition) {
-        let id = course.objectID.uriRepresentation()
-        if let oldPos = getPositionInSchedule(id: id) {
-            moveFrom(oldPos: oldPos, to: newPosition)
+    mutating func moveCourse(_ course: Course, to newPos: CoursePosition) {
+        // If we can get the position we have to remove it from there
+        if let oldPos = getPositionInSchedule(for: course) {
+            remove(at: oldPos)
         }
+        // Otherwise we only insert it
+        insert(course, at: newPos)
     }
     
-    private mutating func moveFrom(oldPos: CoursePosition, to newPos: CoursePosition) {
-        // Copy of schedule to avoid mutating state?
-        let id = schedule[oldPos.semester]!.remove(at: oldPos.index)
-        schedule[newPos.semester, default: []].insert(id, at: newPos.index)
+    mutating func replaceCourse(oldCourse: Course, with newCourse: Course) {
+        // If the new course is already in the schedule we will remove it
+        if let currentPos = getPositionInSchedule(for: newCourse) {
+            remove(at: currentPos)
+        }
         
-        print("Removing from: \(oldPos.semester), \(oldPos.index)")
-        print("Adding to: \(newPos.semester), \(newPos.index)")
-        print("Moved course")
-    }
-
-    
-    mutating func addCourse(_ course: Course, semester: Int, index: Int) {
-        let id = course.objectID.uriRepresentation()
-        schedule[semester, default: []].insert(id, at: index)
-    }
-    
-
-    
-    mutating func replaceCourse(old: Course, with new: Course) {
-        let oldID = old.objectID.uriRepresentation()
-        let newID = new.objectID.uriRepresentation()
-        if let pos = getPositionInSchedule(id: oldID) {
-            schedule[pos.semester]![pos.index] = newID
-            if old.isEmpty { old.delete() }
+        // Update at the position of the old course
+        if let pos = getPositionInSchedule(for: oldCourse) {
+            update(to: newCourse, at: pos)
+            // If we just replaced an empty course we will delete it
+            if oldCourse.isEmpty { oldCourse.delete() }
         }
     }
     
-    mutating func deleteCourse(_ course: Course) {
-        let id = course.objectID.uriRepresentation()
-        if let pos = getPositionInSchedule(id: id) {
-            schedule[pos.semester]!.remove(at: pos.index)
+    mutating func removeCourse(_ course: Course) {
+        if let pos = getPositionInSchedule(for: course) {
+            remove(at: pos)
         }
+        // Removing empty courses results in deleting
+        if course.isEmpty { course.delete() }
     }
+    
+    private mutating func insert(_ course: Course, at pos: CoursePosition) {
+        let id = course.urlID
+        schedule[pos.semester, default: []].insert(id, at: pos.index)
+    }
+    
+    private mutating func remove(at pos: CoursePosition) {
+        schedule[pos.semester, default: []].remove(at: pos.index)
+    }
+    
+    private mutating func update(to course: Course, at pos: CoursePosition) {
+        let id = course.urlID
+        schedule[pos.semester]![pos.index] = id
+    }
+    
+    
+    
+    // MARK: - Initializing
     
     init() {
         self.color = 0
         self.notes = ""
         [0, 1 ,2, 3, 4, 5, 6, 7].forEach { semester in
             schedule[semester] = []
+            schedule[semester]?.reserveCapacity(6)
         }
     }
     

@@ -9,37 +9,81 @@ import SwiftUI
 
 struct ConcentrationContainerView: View {
     
+    @EnvironmentObject var shared: SharedVM
+    
+    @ObservedObject var schedule: ScheduleVM
+    
     @ObservedObject var concentrationVM: ConcentrationVM
     
-    // Needed if I want to color concentrations
-    @Environment(\.colorScheme) var colorScheme
-    @FetchRequest private var concentrations: FetchedResults<Concentration>
-
-    init(concentrationVM: ConcentrationVM) {
-        self.concentrationVM = concentrationVM
-        let request = Concentration.fetchRequest(.all)
-        _concentrations = FetchRequest(fetchRequest: request)
+    @Environment(\.managedObjectContext) var context
+    
+    private var concentrations: [Concentration] {
+        concentrationVM.currentConcentrations.compactMap { uri in
+            NSManagedObject.fromURI(uri: uri, context: context) as? Concentration
+        }
     }
+    
+    @State var isDropping: Bool = false
+    
+    @State var isShowingContent: Bool = false
     
     var body: some View {
         GeometryReader { geo in
-            ScrollView([.vertical]) {
-                concentrationViews
-                    .frame(minHeight: geo.size.height, alignment: .topLeading)
-
+            ScrollView([.vertical, .horizontal]) {
+//            List {
+                concentrationViews(size: geo.size)
             }
         }
+        
+        //        GeometryReader { geo in
+        //            List {
+        //                ScrollView ([.horizontal]) {
+        //                    concentrationViews(size: geo.size)
+        //                }// ScrollView([.vertical, .horizontal]) {
+        //            }
+        //        }
     }
     
-    var concentrationViews: some View {
-        VStack(alignment: .leading) {
-            Spacer(minLength: 4)
-            ForEach (concentrations) { concentration in
-                ConcentrationView(concentration: concentration, concentrationVM: concentrationVM)
+    func concentrationViews(size: CGSize) -> some View {
+        let stableConcentrations = concentrations
+        return
+            VStack (alignment: .leading, spacing: 4) {
+                Spacer(minLength: 4)
+                ForEach (stableConcentrations) { concentration in
+                    ConcentrationView(categoryViews: categoryViews, concentration: concentration, concentrationVM: concentrationVM)
+                        
+                }
+                EmptyConcentrationView(concentrationVM: concentrationVM)
+                    .frame(width: size.width - 40)
             }
-            EmptyConcentrationView()
+            .padding(.horizontal, 10)
+        
+    }
+    
+    func categoryViews(concentration: Concentration) -> some View {
+        CategoryContainer(concentration: concentration, schedule: schedule)
+    }
+    
+    func drop(providers: [NSItemProvider], at newConcentration: Concentration) -> Bool {
+        let found = providers.loadFirstObject(ofType: String.self) { id in
+            if let newIndex = concentrationVM.currentConcentrations.firstIndex(of: newConcentration.urlID) {
+                if let droppedConcentration = getDroppedConcentration(id: id) {
+                    withAnimation {
+                        concentrationVM.moveInsertConcentration(droppedConcentration, at: newIndex)
+                    }
+                }
+            }
+  
         }
-        .padding(.horizontal, 5)
+        return found
+    }
+    
+    private func getDroppedConcentration(id: String) -> Concentration? {
+        if let uri = URL(string: id) {
+            let object = NSManagedObject.fromURI(uri: uri, context: context)
+            return object as? Concentration
+        }
+        return nil
     }
 }
 
