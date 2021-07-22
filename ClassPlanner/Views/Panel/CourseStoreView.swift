@@ -42,12 +42,11 @@ struct CourseStoreView: View {
                 }
             }
         }
-        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
     }
     
     
     var coursesView: some View {
-        Columns(matchingCourses, numberOfColumns: 2, moreView: moreView) { course in
+        Columns(matchingCourses, moreView: moreView) { course in
             CourseView(course: course)
                 .onDrag { NSItemProvider(object: course.stringID as NSString) }
                 .scaleEffect(isDropping ? hoverScaleFactor : 1)
@@ -63,8 +62,10 @@ struct CourseStoreView: View {
     }
     
     func addCourse() {
-        let course = Course(context: context)
-        shared.setEditSelection(to: .course(course: course))
+        let course = Course.create(context: context)
+        withAnimation {
+            shared.setEditSelection(to: .course(course: course))
+        }
     }
     
     func drop(providers: [NSItemProvider]) -> Bool {

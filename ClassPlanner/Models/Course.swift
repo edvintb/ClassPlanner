@@ -21,6 +21,12 @@ extension Course {
     
     // MARK: - Static functions
     
+    static func create(context: NSManagedObjectContext) -> Course {
+        let course = Course(context: context)
+        course.grade = Grade.Pass.rawValue
+        return course
+    }
+    
     static func fetchRequest(_ predicate: NSPredicate) -> NSFetchRequest<Course> {
         let request = NSFetchRequest<Course>(entityName: "Course")
         request.sortDescriptors = [NSSortDescriptor(key: "name_", ascending: true)]
@@ -46,6 +52,20 @@ extension Course {
     func delete() {
         if let context = self.managedObjectContext {
             context.delete(self)
+            try? context.save()
+        }
+    }
+    
+    func insertPrereq(prereq: Course) {
+        if let context = self.managedObjectContext {
+            self.prereqs.insert(prereq)
+            try? context.save()
+        }
+    }
+    
+    func removePrereq(prereq: Course) {
+        if let context = self.managedObjectContext {
+            self.prereqs.remove(prereq)
             try? context.save()
         }
     }
@@ -91,9 +111,28 @@ extension Course {
         set { self.color_ = Int16(newValue) }
     }
     
+    var prereqs: Set<Course> {
+        get { (self.prereqs_ as? Set<Course>) ?? [] }
+        set { self.prereqs_ = newValue as NSSet}
+    }
+    
+    var nameSortedPrereqs: Array<Course> {
+        self.prereqs.sorted(by: {$0.name < $1.name})
+    }
+    
+    var concentrations: Set<Concentration> {
+        get { (self.concentrations_ as? Set<Concentration> ?? [])}
+        set { self.concentrations_ = newValue as NSSet}
+    }
+    
+    var nameSortedConcentrations: Array<Concentration> {
+        self.concentrations.sorted(by: {$0.name < $1.name})
+    }
+    
     func getColor() -> Color {
         Color.colorSelection[self.color % Color.colorSelection.count]
     }
+    
     
 }
 

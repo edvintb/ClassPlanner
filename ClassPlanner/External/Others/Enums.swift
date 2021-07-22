@@ -11,8 +11,8 @@ import SwiftUI
 enum PanelOption: Equatable, Hashable, CaseIterable {
     
     case schedules
-    case concentrations
     case courses
+    case concentrations
     case editor
     
 //    static var symbols: [PanelOption:String] {
@@ -25,7 +25,7 @@ enum PanelOption: Equatable, Hashable, CaseIterable {
     static var symbols: [PanelOption:String] {
          [.schedules : "Schedules",
           .concentrations : "Majors",
-          .courses : "Classes",
+          .courses : "Courses",
           .editor : "Editor"]
     }
 }

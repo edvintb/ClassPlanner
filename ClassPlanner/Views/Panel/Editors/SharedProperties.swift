@@ -12,7 +12,7 @@ struct EditorTitleView: View {
     let title: String
     
     var body: some View {
-        Text(title.isEmpty ? "Name" : title)
+        Text(title.isEmpty ? "" : title)
             .font(.system(size: 20))
             .lineLimit(2)
             .fixedSize(horizontal: false, vertical: true)
@@ -27,13 +27,40 @@ struct EditorNotes: View {
     var empty: Bool { notes.isEmpty }
     
     var body: some View {
-         Text(empty ? "Notes..." : notes)
-            .font(.system(size: 12))
-            .opacity(empty ? 0.2 : 0.5)
-            .lineLimit(nil)
-            .fixedSize(horizontal: false, vertical: false)
-            .padding([.horizontal], 10)
+        ScrollView(showsIndicators: false) {
+            Text(notes)
+               .font(.system(size: 13))
+               .opacity(empty ? 0.2 : 0.5)
+//               .lineLimit(nil)
+               .fixedSize(horizontal: false, vertical: false)
+               .padding([.horizontal], 10)
+        }.frame(height: CGFloat(min((notes.count / 3 + 20), 130)))
+//        GeometryReader { geo in
+//            if geo.size.height < 200 {
+//                Text(notes + "\(geo.size.height)")
+//                   .font(.system(size: 13))
+//                   .opacity(empty ? 0.2 : 0.5)
+//                   .lineLimit(15)
+//                   .fixedSize(horizontal: false, vertical: false)
+//                   .padding([.horizontal], 10)
+//            }
+//            else {
+//                ScrollView {
+//                    Text(notes)
+//                       .font(.system(size: 13))
+//                       .opacity(empty ? 0.2 : 0.5)
+//                       .lineLimit(15)
+//                       .fixedSize(horizontal: false, vertical: false)
+//                       .padding([.horizontal], 10)
+//                }.frame(height: 200)
+//            }
+//        }.fixedSize()
     }
+
+            
+//       }
+//    }
+
 }
 
 struct EditorColorGrid: View {
@@ -48,8 +75,9 @@ struct EditorColorGrid: View {
             gridRow([1, 2, 3])
             gridRow([4, 5 ,6])
             gridRow([7, 8, 9])
+            gridRow([10, 11, 12])
         }
-        .frame(height: editorColorGridHeight)
+        .frame(minHeight: editorColorGridHeight / 2, maxHeight: editorColorGridHeight)
     }
     
     private func gridRow(_ indices: [Int]) -> some View {
@@ -67,6 +95,24 @@ struct EditorColorGrid: View {
             .padding(3)
     }
     
+}
+
+struct CourseRowView: View {
+    
+    let containCondition: Bool
+    @ObservedObject var course: Course
+    
+    var body: some View {
+        HStack {
+            Text(course.name == "" ? "No name" : course.name)
+                .foregroundColor(course.getColor())
+            Spacer()
+            if containCondition {
+                Text(courseContainedSymbol)
+                    .foregroundColor(checkMarkColor)
+            }
+        }
+    }
 }
 
 struct NoteEditor: View {
@@ -123,16 +169,15 @@ struct EditorHeader: View {
 
 struct EditorButtons: View {
     
+    @State private var isDeleting: Bool = false
+    
     let deleteAction: () -> ()
     let closeAction: () -> ()
     
     var body: some View {
         HStack {
-            Button("Delete") {
-                withAnimation {
-                    deleteAction()
-                }
-            }
+            Button(action: { isDeleting.toggle() },
+                   label: { Text("Delete").foregroundColor(.red) })
             Spacer()
             Button("Close") {
                 withAnimation {
@@ -140,6 +185,14 @@ struct EditorButtons: View {
                 }
             }
         }
+        .alert(isPresented: $isDeleting, content: {
+            Alert(title: Text("Are you sure?"),
+                  message: Text(
+                    "Deleting will remove the object completely. To keep it in the store, use 'Remove' instead"),       
+                  primaryButton:
+                    .cancel({ self.isDeleting = false }),
+                  secondaryButton: .destructive(Text("OK"), action: withAnimation { deleteAction })
+        )})
     }
 }
 

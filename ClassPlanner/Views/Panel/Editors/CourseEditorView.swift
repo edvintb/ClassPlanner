@@ -31,6 +31,36 @@ import Combine
 //        spring = false
 //    }
 //}
+//
+//struct KeyEventHandling: NSViewRepresentable {
+//
+//    let course: Course
+//    let schedule: ScheduleVM?
+//
+//    class KeyView: NSView {
+//
+//        override var acceptsFirstResponder: Bool { true }
+//        override func keyDown(with event: NSEvent) {
+////            super.keyDown(with: event)
+//            print(event)
+//            print(">> key \(event.charactersIgnoringModifiers ?? "")")
+//            if event.keyCode == 51 {
+//                print("Deleting...")
+//            }
+//        }
+//    }
+//
+//    func makeNSView(context: Context) -> NSView {
+//        let view = KeyView()
+//        DispatchQueue.main.async { // wait till next event cycle
+//            view.window?.makeFirstResponder(view)
+//        }
+//        return view
+//    }
+//
+//    func updateNSView(_ nsView: NSView, context: Context) {
+//    }
+//}
 
 
 // Create separate viewModel for this view??
@@ -42,22 +72,30 @@ struct CourseEditorView: View {
     
     // Needed to stop editing
     @EnvironmentObject var shared: SharedVM
+    
     @ObservedObject var course: Course
     
     // Storing course name subscription
     private var cancellables = Set<AnyCancellable>()
     
     @ObservedObject var courseSuggestionVM: CourseSuggestionVM
-
-    // Okay to create here bc this view does not get redrawn
+    @ObservedObject var prereqSuggestionVM: PrereqSuggestionVM
     @ObservedObject var searchModel: SearchModel
+    @ObservedObject var prereqSearchModel: SearchModel
     
-    init(course: Course, courseSuggestionVM: CourseSuggestionVM, context: NSManagedObjectContext) {
+    init(course: Course,
+         courseSuggestionVM: CourseSuggestionVM,
+         prereqSuggestionVM: PrereqSuggestionVM,
+         context: NSManagedObjectContext) {
+        
         self.courseSuggestionVM = courseSuggestionVM
+        self.prereqSuggestionVM = prereqSuggestionVM
         self.course = course
         
         // Okay to create search model here
         self.searchModel = SearchModel(startingText: course.name, context: context, avoid: course.objectID)
+        
+        self.prereqSearchModel = SearchModel(startingText: "", context: context, avoid: course.objectID)
 
         // Updating the name of the course as we type it in
         searchModel.$currentText
@@ -71,25 +109,26 @@ struct CourseEditorView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             EditorHeader(title: course.name, notes: course.notes, color: course.getColor())
-            // Add professor & prereqs & Grade
-            // Suggestions as typed for prereq and professor
-            // Multiline textfields for the others
-            // Add concentrations it is part of
-            // Ability to add to categories?? Search and click concentrations to expand
-            // Adding grades into it
+            // Add professor?
             Form {
                 NameEditor(entryView: nameField)
                 semesterSelector
-                workloadEntry
-                qscoreEntry
-                enrollmentEntry
+                dataEntryFields
                 NoteEditor(text: $course.notes) { course.save() }
                 gradeSelector
+                Section(header: sectionHeader){
+                    HStack {
+                        prereqView
+                        concentrationView
+                    }
+                }
                 EditorColorGrid { course.color = $0; course.save() }
                 bottomButtons
+                
             }
             .padding(editorPadding)
         }
+//        .background(KeyEventHandling(course: self.course, schedule: shared.currentSchedule))
         
     }
     
@@ -97,7 +136,7 @@ struct CourseEditorView: View {
         SuggestionInput(text: $searchModel.currentText,
                         suggestionGroups: searchModel.suggestionGroups,
                         suggestionModel: courseSuggestionVM.suggestionModel)
-
+            .focusable()
     }
     
     var semesterSelector: some View {
@@ -110,14 +149,41 @@ struct CourseEditorView: View {
         }
     }
 
-    //            Button(action: { course.fall.toggle(); save() }, label: {
-    //                Text("🍁")
-    //                    .shadow(color: course.fall ? .green : .black, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
-    //            })
-    //            Button(action: { course.spring.toggle(); save() }, label: {
-    //                Text("🌱")
-    //                    .shadow(color: course.spring ? .green : .black, radius: /*@START_MENU_TOKEN@*/10/*@END_MENU_TOKEN@*/)
-    //            })
+    var dataEntryFields: some View {
+        Form {
+            workloadEntry
+            qscoreEntry
+            enrollmentEntry
+        }
+        .cornerRadius(textFieldCornerRadius)
+    }
+    
+    var workloadEntry: some View {
+        HStack {
+            Text(" \(workloadSymbol)")
+            DoubleTextField("Workload", double: $course.workload, onCommit: { save() })
+                .cornerRadius(textFieldCornerRadius)
+                .focusable()
+        }
+    }
+    
+    var qscoreEntry: some View {
+        HStack {
+            Text("  \(qscoreSymbol) ").foregroundColor(.red).font(.system(size: 14.5))
+            DoubleTextField("QScore", double: $course.qscore, onCommit: { save() })
+                .cornerRadius(textFieldCornerRadius)
+                .focusable()
+        }
+    }
+    
+    var enrollmentEntry: some View {
+        HStack {
+            Text(" \(enrollmentSymbol)")
+            IntTextField("Enrollment", integer: $course.enrollment, onCommit: { save() })
+                .cornerRadius(textFieldCornerRadius)
+                .focusable()
+        }
+    }
     
     var gradeSelector: some View {
         Picker("", selection: $course.grade) {
@@ -129,36 +195,71 @@ struct CourseEditorView: View {
         }.pickerStyle(SegmentedPickerStyle())
     }
     
+    var sectionHeader: some View {
+        Spacer()
+        .opacity(grayTextOpacity)
+    }
     
-    var workloadEntry: some View {
-        HStack {
-            Text(" \(workloadSymbol)")
-            DoubleTextField("Workload", double: $course.workload, onCommit: { save() })
-                .cornerRadius(textFieldCornerRadius)
-//                .focusable()
+    var prereqView: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Prerequisites")
+                .opacity(grayTextOpacity)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Spacer().frame(height: 8)
+            SuggestionInput(text: $prereqSearchModel.currentText,
+                            suggestionGroups: prereqSearchModel.suggestionGroups,
+                            suggestionModel: prereqSuggestionVM.suggestionModel)
+                .focusable()
+            Divider()
+                .padding(.vertical, 5)
+            ScrollView {
+                ForEach(course.nameSortedPrereqs, id: \.self) { prereq in
+                    HStack {
+                        Text(prereq.name == "" ? "No name" : prereq.name)
+                            .foregroundColor(prereq.getColor())
+                        Spacer()
+                        if shared.currentSchedule?.courseURLs.contains(prereq.urlID) ?? false {
+                            Text(courseContainedSymbol)
+                                .foregroundColor(checkMarkColor)
+                        }
+                    }
+                    .padding(.bottom, 3)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        withAnimation {
+                            course.removePrereq(prereq: prereq)
+                        }
+                    }
+                }
+            }
+            Spacer()
         }
     }
     
-    var qscoreEntry: some View {
+    var concentrationView: some View {
         HStack {
-            Text("  \(qscoreSymbol) ").foregroundColor(.red).font(.system(size: 14.5))
-            DoubleTextField("QScore", double: $course.qscore, onCommit: { save() })
-                .cornerRadius(textFieldCornerRadius)
-//                .focusable()
+            Divider()
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Majors")
+                    .opacity(grayTextOpacity)
+                    .padding(.bottom, 3)
+                Divider()
+                    .padding(.vertical, 3)
+                ScrollView {
+                    ForEach(course.nameSortedConcentrations, id: \.self) { concentration in
+                        Text(concentration.name.isEmpty ? "Unknown" : concentration.name)
+                            .foregroundColor(concentration.getColor())
+                            .padding(.bottom, 3)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                Spacer()
+            }
+            Spacer()
         }
     }
     
-    var enrollmentEntry: some View {
-        HStack {
-            Text(" \(enrollmentSymbol)")
-            IntTextField("Enrollment", integer: $course.enrollment, onCommit: { save() })
-                .cornerRadius(textFieldCornerRadius)
-//                .focusable()
-        }
-    }
-    
-    
-    
+
     var bottomButtons: some View {
         HStack {
             EditorButtons(deleteAction: deleteAction, closeAction: closeAction)

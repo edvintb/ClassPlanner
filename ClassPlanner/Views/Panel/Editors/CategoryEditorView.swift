@@ -78,14 +78,15 @@ struct CategoryEditorView: View {
     }
     
     var nameField: some View {
-        TextField("Name", text: $category.name, onCommit: { category.save() }).cornerRadius(textFieldCornerRadius)
+        TextField("Name...", text: $category.name, onCommit: { category.save() }).cornerRadius(textFieldCornerRadius)
     }
     
     var requiredField: some View {
         HStack {
             Text(numberRequiredSymbol).font(.system(size: 17.5, weight: .thin, design: .default)).foregroundColor(.yellow)
-            IntTextField("# Required", integer: $category.numberOfRequired, onCommit: { category.save() })
+            IntTextField("Number of required courses", integer: $category.numberOfRequired, onCommit: { category.save() })
                 .cornerRadius(textFieldCornerRadius)
+                .focusable()
         }
     }
     
@@ -105,26 +106,24 @@ struct CategoryEditorView: View {
         SuggestionInput(text: $searchModel.currentText,
                         suggestionGroups: searchModel.suggestionGroups,
                         suggestionModel: categorySuggestionVM.suggestionModel)
+            .focusable()
     }
 
     
     var coursesView: some View {
-        GeometryReader { geo in
-            Columns(courses, numberOfColumns: 2, moreView: EmptyView()) { course in
+        ScrollView(showsIndicators: false) {
+            Columns(courses, moreView: EmptyView()) { course in
                 HStack {
                     Text(course.name == "" ? "No name" : course.name)
                         .foregroundColor(course.getColor())
                     Spacer()
-                    if let schedule = shared.currentSchedule {
-                        if schedule.courseURLs.contains(course.urlID) {
-                            Text("􀁢")
-                                .foregroundColor(checkMarkColor)
-                        }
+                    if shared.currentSchedule?.courseURLs.contains(course.urlID) ?? false {
+                        Text(courseContainedSymbol)
+                            .foregroundColor(checkMarkColor)
                     }
                 }
                 .padding(.vertical, 7)
                 .padding(.horizontal, 10)
-                .frame(width: geo.size.width/2, alignment: .leading)
                 .contentShape(Rectangle())
                 .onTapGesture {
                     withAnimation {
@@ -134,7 +133,6 @@ struct CategoryEditorView: View {
             }
         }
     }
-    
     
     func deleteAction() {
         shared.stopEdit()

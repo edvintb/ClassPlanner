@@ -12,12 +12,14 @@
 		5C04D615263F41E5008F20DA /* CategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C04D614263F41E5008F20DA /* CategoryView.swift */; };
 		5C04D61B263F4711008F20DA /* EmptyCategoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C04D61A263F4711008F20DA /* EmptyCategoryView.swift */; };
 		5C0B8337266642B5004049E1 /* ScheduleEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C0B8336266642B5004049E1 /* ScheduleEditor.swift */; };
+		5C0F9CCC26A76A750029DFDB /* HarvardGeneralRequirements.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C0F9CCB26A76A750029DFDB /* HarvardGeneralRequirements.swift */; };
 		5C13FB9F2668F3EF003313ED /* CourseSuggestionVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C13FB9E2668F3EF003313ED /* CourseSuggestionVM.swift */; };
 		5C13FBA22669030C003313ED /* SharedVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C13FBA12669030C003313ED /* SharedVM.swift */; };
 		5C13FBA7266921D8003313ED /* ConcentrationStoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C13FBA6266921D8003313ED /* ConcentrationStoreView.swift */; };
 		5C16AC3D264E92AE0075727A /* DoubleTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C16AC3C264E92AE0075727A /* DoubleTextField.swift */; };
 		5C172DF72653BDC500BC0A87 /* ScheduleStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C172DF62653BDC500BC0A87 /* ScheduleStore.swift */; };
 		5C246186262F434600A8E079 /* OldCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C246185262F434600A8E079 /* OldCode.swift */; };
+		5C353862269F82A800011993 /* PrereqSuggestionVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C353861269F82A800011993 /* PrereqSuggestionVM.swift */; };
 		5C528B64263F398F00891BE9 /* EmptyConcentrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C528B63263F398F00891BE9 /* EmptyConcentrationView.swift */; };
 		5C5574E42606331C001C1037 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C5574E32606331C001C1037 /* AppDelegate.swift */; };
 		5C5574E62606331C001C1037 /* CourseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C5574E52606331C001C1037 /* CourseView.swift */; };
@@ -39,8 +41,6 @@
 		5C8E5CF92652CCFF00FC3CAC /* SharedProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8E5CF82652CCFF00FC3CAC /* SharedProperties.swift */; };
 		5C9340A22632D508006AF281 /* EmptyCourseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C9340A12632D507006AF281 /* EmptyCourseView.swift */; };
 		5C9340A526332592006AF281 /* ConcentrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C9340A426332592006AF281 /* ConcentrationView.swift */; };
-		5C9BA97F260FA2F200DC2D53 /* OldModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C9BA97E260FA2F200DC2D53 /* OldModifiers.swift */; };
-		5C9BA98326122BEB00DC2D53 /* CDPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C9BA98226122BEA00DC2D53 /* CDPublisher.swift */; };
 		5CA168E6267BD80300E254F9 /* VisualEffectBlur.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CA168E5267BD80300E254F9 /* VisualEffectBlur.swift */; };
 		5CAA1EA4266A961700E7F0D8 /* ConcentrationEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CAA1EA3266A961700E7F0D8 /* ConcentrationEditorView.swift */; };
 		5CAAFCA5266A880200A1FC9E /* CategorySuggestionVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CAAFCA4266A880200A1FC9E /* CategorySuggestionVM.swift */; };
@@ -49,11 +49,8 @@
 		5CB1F0FF266A6D2B0095EA9D /* ConditionalScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CB1F0FE266A6D2B0095EA9D /* ConditionalScrollView.swift */; };
 		5CB1F106266A78410095EA9D /* ScheduleCourseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CB1F105266A78410095EA9D /* ScheduleCourseView.swift */; };
 		5CB9A33D265E338000DFB021 /* CustomTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CB9A33C265E338000DFB021 /* CustomTabView.swift */; };
-		5CC35F85264580AF005A9CAB /* GridLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC35F83264580AF005A9CAB /* GridLayout.swift */; };
-		5CC35F86264580AF005A9CAB /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC35F84264580AF005A9CAB /* Grid.swift */; };
 		5CC8F7A726543FAD00EDE501 /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC8F7A626543FAD00EDE501 /* ScheduleView.swift */; };
 		5CC8F7AA2654404D00EDE501 /* ConcentrationVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC8F7A92654404D00EDE501 /* ConcentrationVM.swift */; };
-		5CC8F7AE26553D9500EDE501 /* EditableText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC8F7AD26553D9500EDE501 /* EditableText.swift */; };
 		5CC8F7BE2657CC2900EDE501 /* SuggestionInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC8F7B82657CC2800EDE501 /* SuggestionInput.swift */; };
 		5CC8F7BF2657CC2900EDE501 /* SuggestionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC8F7B92657CC2800EDE501 /* SuggestionsView.swift */; };
 		5CC8F7C12657CC2900EDE501 /* SuggestionTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CC8F7BB2657CC2900EDE501 /* SuggestionTextField.swift */; };
@@ -67,6 +64,7 @@
 		5CE73937264FC4A500221D81 /* PanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE73936264FC4A500221D81 /* PanelView.swift */; };
 		5CE7393D264FD2A300221D81 /* CourseStoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CE7393C264FD2A300221D81 /* CourseStoreView.swift */; };
 		5CEC81CA264C1A1800B2B03E /* NetworkSearch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CEC81C9264C1A1800B2B03E /* NetworkSearch.swift */; };
+		5CEF027F26A4BF850086A044 /* ScheduleOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CEF027E26A4BF850086A044 /* ScheduleOnboardingView.swift */; };
 		5CEFD291264045010087A77E /* ConcentrationContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CEFD290264045010087A77E /* ConcentrationContainerView.swift */; };
 		5CF96E4126480BB200314288 /* CategoryEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CF96E4026480BB200314288 /* CategoryEditorView.swift */; };
 /* End PBXBuildFile section */
@@ -77,12 +75,14 @@
 		5C04D614263F41E5008F20DA /* CategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryView.swift; sourceTree = "<group>"; };
 		5C04D61A263F4711008F20DA /* EmptyCategoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyCategoryView.swift; sourceTree = "<group>"; };
 		5C0B8336266642B5004049E1 /* ScheduleEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleEditor.swift; sourceTree = "<group>"; };
+		5C0F9CCB26A76A750029DFDB /* HarvardGeneralRequirements.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HarvardGeneralRequirements.swift; sourceTree = "<group>"; };
 		5C13FB9E2668F3EF003313ED /* CourseSuggestionVM.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CourseSuggestionVM.swift; sourceTree = "<group>"; };
 		5C13FBA12669030C003313ED /* SharedVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedVM.swift; sourceTree = "<group>"; };
 		5C13FBA6266921D8003313ED /* ConcentrationStoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrationStoreView.swift; sourceTree = "<group>"; };
 		5C16AC3C264E92AE0075727A /* DoubleTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoubleTextField.swift; sourceTree = "<group>"; };
 		5C172DF62653BDC500BC0A87 /* ScheduleStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleStore.swift; sourceTree = "<group>"; };
 		5C246185262F434600A8E079 /* OldCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldCode.swift; sourceTree = "<group>"; };
+		5C353861269F82A800011993 /* PrereqSuggestionVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrereqSuggestionVM.swift; sourceTree = "<group>"; };
 		5C528B63263F398F00891BE9 /* EmptyConcentrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyConcentrationView.swift; sourceTree = "<group>"; };
 		5C5574E02606331C001C1037 /* ClassPlanner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClassPlanner.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5C5574E32606331C001C1037 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -107,8 +107,6 @@
 		5C8E5CF82652CCFF00FC3CAC /* SharedProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedProperties.swift; sourceTree = "<group>"; };
 		5C9340A12632D507006AF281 /* EmptyCourseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyCourseView.swift; sourceTree = "<group>"; };
 		5C9340A426332592006AF281 /* ConcentrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrationView.swift; sourceTree = "<group>"; };
-		5C9BA97E260FA2F200DC2D53 /* OldModifiers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OldModifiers.swift; sourceTree = "<group>"; };
-		5C9BA98226122BEA00DC2D53 /* CDPublisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CDPublisher.swift; sourceTree = "<group>"; };
 		5CA168E5267BD80300E254F9 /* VisualEffectBlur.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VisualEffectBlur.swift; sourceTree = "<group>"; };
 		5CAA1EA3266A961700E7F0D8 /* ConcentrationEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrationEditorView.swift; sourceTree = "<group>"; };
 		5CAAFCA4266A880200A1FC9E /* CategorySuggestionVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategorySuggestionVM.swift; sourceTree = "<group>"; };
@@ -117,11 +115,8 @@
 		5CB1F0FE266A6D2B0095EA9D /* ConditionalScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConditionalScrollView.swift; sourceTree = "<group>"; };
 		5CB1F105266A78410095EA9D /* ScheduleCourseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleCourseView.swift; sourceTree = "<group>"; };
 		5CB9A33C265E338000DFB021 /* CustomTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTabView.swift; sourceTree = "<group>"; };
-		5CC35F83264580AF005A9CAB /* GridLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GridLayout.swift; sourceTree = "<group>"; };
-		5CC35F84264580AF005A9CAB /* Grid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Grid.swift; sourceTree = "<group>"; };
 		5CC8F7A626543FAD00EDE501 /* ScheduleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleView.swift; sourceTree = "<group>"; };
 		5CC8F7A92654404D00EDE501 /* ConcentrationVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrationVM.swift; sourceTree = "<group>"; };
-		5CC8F7AD26553D9500EDE501 /* EditableText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditableText.swift; sourceTree = "<group>"; };
 		5CC8F7B82657CC2800EDE501 /* SuggestionInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuggestionInput.swift; sourceTree = "<group>"; };
 		5CC8F7B92657CC2800EDE501 /* SuggestionsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuggestionsView.swift; sourceTree = "<group>"; };
 		5CC8F7BB2657CC2900EDE501 /* SuggestionTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SuggestionTextField.swift; sourceTree = "<group>"; };
@@ -135,6 +130,7 @@
 		5CE73936264FC4A500221D81 /* PanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelView.swift; sourceTree = "<group>"; };
 		5CE7393C264FD2A300221D81 /* CourseStoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseStoreView.swift; sourceTree = "<group>"; };
 		5CEC81C9264C1A1800B2B03E /* NetworkSearch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkSearch.swift; sourceTree = "<group>"; };
+		5CEF027E26A4BF850086A044 /* ScheduleOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleOnboardingView.swift; sourceTree = "<group>"; };
 		5CEFD290264045010087A77E /* ConcentrationContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrationContainerView.swift; sourceTree = "<group>"; };
 		5CF96E4026480BB200314288 /* CategoryEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryEditorView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -150,6 +146,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5C0F9CCA26A76A2A0029DFDB /* Majors */ = {
+			isa = PBXGroup;
+			children = (
+				5C0F9CCB26A76A750029DFDB /* HarvardGeneralRequirements.swift */,
+			);
+			path = Majors;
+			sourceTree = "<group>";
+		};
 		5C528B66263F399600891BE9 /* Schedule */ = {
 			isa = PBXGroup;
 			children = (
@@ -158,6 +162,7 @@
 				5CB1F105266A78410095EA9D /* ScheduleCourseView.swift */,
 				5C5574E52606331C001C1037 /* CourseView.swift */,
 				5C9340A12632D507006AF281 /* EmptyCourseView.swift */,
+				5CEF027E26A4BF850086A044 /* ScheduleOnboardingView.swift */,
 			);
 			path = Schedule;
 			sourceTree = "<group>";
@@ -191,6 +196,7 @@
 		5C5574E22606331C001C1037 /* ClassPlanner */ = {
 			isa = PBXGroup;
 			children = (
+				5C0F9CCA26A76A2A0029DFDB /* Majors */,
 				5C5574E32606331C001C1037 /* AppDelegate.swift */,
 				5C04D60D263F3B0E008F20DA /* DrawingConstants.swift */,
 				5C8D51EE260BE3C200CDEAB5 /* Views */,
@@ -225,6 +231,7 @@
 				5CC8F7A92654404D00EDE501 /* ConcentrationVM.swift */,
 				5C13FB9E2668F3EF003313ED /* CourseSuggestionVM.swift */,
 				5CAAFCA4266A880200A1FC9E /* CategorySuggestionVM.swift */,
+				5C353861269F82A800011993 /* PrereqSuggestionVM.swift */,
 				5CC8F7C52657D9BD00EDE501 /* SearchModel.swift */,
 			);
 			path = ViewModels;
@@ -252,11 +259,8 @@
 				5CE73932264EF40200221D81 /* IntTextField.swift */,
 				5C246185262F434600A8E079 /* OldCode.swift */,
 				5C8D51DB260797ED00CDEAB5 /* FoundationExtensions.swift */,
-				5C9BA97E260FA2F200DC2D53 /* OldModifiers.swift */,
-				5C9BA98226122BEA00DC2D53 /* CDPublisher.swift */,
 				5CEC81C9264C1A1800B2B03E /* NetworkSearch.swift */,
 				5C671359264C259200491C1C /* SearchTextField.swift */,
-				5CC8F7AD26553D9500EDE501 /* EditableText.swift */,
 				5CB9A33C265E338000DFB021 /* CustomTabView.swift */,
 				5CE46F542651379200350D7C /* DragVM.swift */,
 			);
@@ -278,8 +282,6 @@
 			children = (
 				5CC8F7B72657CC0500EDE501 /* SuggestionSearch */,
 				5CAAFCA7266A888F00A1FC9E /* Others */,
-				5CC35F84264580AF005A9CAB /* Grid.swift */,
-				5CC35F83264580AF005A9CAB /* GridLayout.swift */,
 			);
 			path = External;
 			sourceTree = "<group>";
@@ -403,7 +405,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5CC8F7AE26553D9500EDE501 /* EditableText.swift in Sources */,
+				5C0F9CCC26A76A750029DFDB /* HarvardGeneralRequirements.swift in Sources */,
 				5C528B64263F398F00891BE9 /* EmptyConcentrationView.swift in Sources */,
 				5CE46F552651379200350D7C /* DragVM.swift in Sources */,
 				5C5574FE26063D6E001C1037 /* Course.swift in Sources */,
@@ -413,6 +415,7 @@
 				5CE7393D264FD2A300221D81 /* CourseStoreView.swift in Sources */,
 				5CEC81CA264C1A1800B2B03E /* NetworkSearch.swift in Sources */,
 				5C04D60E263F3B0E008F20DA /* DrawingConstants.swift in Sources */,
+				5C353862269F82A800011993 /* PrereqSuggestionVM.swift in Sources */,
 				5CAF0966266CEA3C00BCCB99 /* CategoryContainer.swift in Sources */,
 				5CF96E4126480BB200314288 /* CategoryEditorView.swift in Sources */,
 				5CA168E6267BD80300E254F9 /* VisualEffectBlur.swift in Sources */,
@@ -438,18 +441,16 @@
 				5C8B4CB92653D01500E877D8 /* ScheduleStoreView.swift in Sources */,
 				5C0B8337266642B5004049E1 /* ScheduleEditor.swift in Sources */,
 				5CB9A33D265E338000DFB021 /* CustomTabView.swift in Sources */,
+				5CEF027F26A4BF850086A044 /* ScheduleOnboardingView.swift in Sources */,
 				5C04D612263F3E5C008F20DA /* Category.swift in Sources */,
-				5CC35F85264580AF005A9CAB /* GridLayout.swift in Sources */,
 				5CC8F7C32657CC2900EDE501 /* BorderlessWindow.swift in Sources */,
 				5CB1F106266A78410095EA9D /* ScheduleCourseView.swift in Sources */,
 				5CC8F7BF2657CC2900EDE501 /* SuggestionsView.swift in Sources */,
 				5CE46F4B264FDF2800350D7C /* Enums.swift in Sources */,
 				5CE73937264FC4A500221D81 /* PanelView.swift in Sources */,
-				5C9BA97F260FA2F200DC2D53 /* OldModifiers.swift in Sources */,
 				5CAF096C266D47FE00BCCB99 /* SharedPanel.swift in Sources */,
 				5C13FBA22669030C003313ED /* SharedVM.swift in Sources */,
 				5C246186262F434600A8E079 /* OldCode.swift in Sources */,
-				5CC35F86264580AF005A9CAB /* Grid.swift in Sources */,
 				5CC8F7C12657CC2900EDE501 /* SuggestionTextField.swift in Sources */,
 				5CB1F0FF266A6D2B0095EA9D /* ConditionalScrollView.swift in Sources */,
 				5C8D51EC260907C400CDEAB5 /* CourseEditorView.swift in Sources */,
@@ -458,7 +459,6 @@
 				5C67135A264C259200491C1C /* SearchTextField.swift in Sources */,
 				5C13FB9F2668F3EF003313ED /* CourseSuggestionVM.swift in Sources */,
 				5C6C2D9226342D28000C8644 /* Concentration.swift in Sources */,
-				5C9BA98326122BEB00DC2D53 /* CDPublisher.swift in Sources */,
 				5C8D51E92608D26F00CDEAB5 /* ScheduleVM.swift in Sources */,
 				5C8D51E52608D1FF00CDEAB5 /* ScheduleModel.swift in Sources */,
 				5CC8F7BE2657CC2900EDE501 /* SuggestionInput.swift in Sources */,

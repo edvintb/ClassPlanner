@@ -55,6 +55,19 @@ extension Concentration {
         }
     }
     
+//    func addEmptyCategory() -> Category? {
+//        if let context = managedObjectContext {
+//            let category = Category(context: context)
+//            category.name = "DönerKebab"
+//            category.index = self.categories.count - 1
+//            try? context.save()
+//            return category
+//        }
+//        return nil
+//    }
+    
+    
+    
     // MARK: - Property Access
     
     var name: String {

@@ -13,31 +13,45 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     var window: NSWindow!
     
+    
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Create the SwiftUI view and set the context as the value for the managedObjectContext environment keyPath.
         // Add `@Environment(\.managedObjectContext)` in the views that will need the context.
         
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        
+        let scheduleURL = url.appendingPathExtension("/Schedules")
+        
+        print(url)
+        print(scheduleURL)
+        
         let context = persistentContainer.viewContext
+        
+        createGeneralRequirements(context: context)
         
         let shared = SharedVM()
         
         let concentrationVM = ConcentrationVM()
 
         let courseSuggestionVM = CourseSuggestionVM(context: context, shared: shared)
+        let prereqSuggestionVM = PrereqSuggestionVM(shared: shared)
         let categorySuggestionVM = CategorySuggestionVM(context: context, shared: shared)
                 
         let courseStore = CourseStore(context: context)
         
         let scheduleStore = ScheduleStore(directory: url, context: context, shared: shared)
         
-        let contentView = ContentView(scheduleStore: scheduleStore,
-                                      courseStore: courseStore,
-                                      concentrationVM: concentrationVM,
-                                      courseSuggestionVM: courseSuggestionVM,
-                                      categorySuggestionVM: categorySuggestionVM)
+        let contentView = ContentView(
+            scheduleStore: scheduleStore,
+            courseStore: courseStore,
+            concentrationVM: concentrationVM,
+            courseSuggestionVM: courseSuggestionVM,
+            categorySuggestionVM: categorySuggestionVM,
+            prereqSuggestionVM: prereqSuggestionVM
+        )
             .environment(\.managedObjectContext, context)
             .environmentObject(shared)
+            
 
         // Create the window and set the content view.
         window = NSWindow(

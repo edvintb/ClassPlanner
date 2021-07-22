@@ -14,14 +14,29 @@ struct EmptyCourseView: View {
     @State private var isDropping: Bool = false
     @State private var isOverCourse: Bool = false
     
+    private var plusOpacity: Bool {
+        if let schedule = shared.currentSchedule {
+            return schedule.courses(for: semester).count == 0 || isOverCourse
+        }
+        return false
+    }
+    
+    
     var body: some View {
-        RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
-            .opacity((isOverCourse || isDropping) ? emptyHoverOpacity : 0)
-            .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
-            .frame(height: courseHeight)
-            .onTapGesture { tapped() }
-            .onHover { isOverCourse = $0 }
-            .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
+        ZStack {
+            Text("+")
+                .font(.system(size: 20))
+                .multilineTextAlignment(.center)
+                .opacity(plusOpacity ? transparentTextOpacity : 0)
+            RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
+                .opacity((isOverCourse || isDropping) ? emptyHoverOpacity : 0)
+                .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
+                .frame(height: courseHeight)
+                .onTapGesture { tapped() }
+                .onHover { isOverCourse = $0 }
+                .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
+        }
+
     }
     
     func tapped() {

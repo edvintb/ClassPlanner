@@ -26,14 +26,15 @@ extension Category {
         if course.name == "" { return }
         if let context = managedObjectContext {
             self.courses.insert(course)
+            self.concentration?.courses.insert(course)
             try? context.save()
         }
-
     }
     
     func removeCourse(_ course: Course) {
         if let context = managedObjectContext {
             self.courses.remove(course)
+            self.concentration?.courses.remove(course)
             try? context.save()
         }
 

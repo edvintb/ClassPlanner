@@ -48,19 +48,6 @@ struct ScheduleStoreView: View {
             shared.setEditSelection(to: .schedule(schedule: schedule))
         }
     }
-    
-    
-    var buttons: some View {
-        HStack {
-            Button(action: { store.addSchedule() }, label: {
-                Text("􀅼")
-            })
-            Spacer()
-        }
-        .padding(.horizontal, 5)
-        .padding(.bottom, 2)
-
-    }
 }
 
 

@@ -16,7 +16,8 @@ struct ContentView: View {
     @ObservedObject var concentrationVM: ConcentrationVM
     @ObservedObject var courseSuggestionVM: CourseSuggestionVM
     @ObservedObject var categorySuggestionVM: CategorySuggestionVM
-
+    @ObservedObject var prereqSuggestionVM: PrereqSuggestionVM
+    
     var body: some View {
         HSplitView {
             PanelView(scheduleStore: scheduleStore,
@@ -24,6 +25,7 @@ struct ContentView: View {
                       courseSuggestionVM: courseSuggestionVM,
                       categorySuggestionVM: categorySuggestionVM,
                       concentrationVM: concentrationVM,
+                      prereqSuggestionVM: prereqSuggestionVM,
                       schedule: schedule)
                 .frame(minWidth: editorWidth*1.1, maxWidth: 500, alignment: .top)
                 VSplitView {

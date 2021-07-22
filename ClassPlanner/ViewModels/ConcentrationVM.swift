@@ -48,7 +48,6 @@ class ConcentrationVM: ObservableObject {
         $currentConcentrations.sink { concentrations in
             let stringURL = concentrations.map { $0.absoluteString }
             UserDefaults.standard.setValue(stringURL, forKey: concentrationKey)
-            print("Saved current concentrations")
         }
         .store(in: &cancellables)
     }

@@ -15,7 +15,7 @@ let iconSize: CGFloat = 14
 //let topSpace: CGFloat = 7
 let semesterPadding: CGFloat = 5
 let courseHeight: CGFloat = 100
-let courseWidth: CGFloat = 128
+let courseWidth: CGFloat = 135
 let courseIdealWidth: CGFloat = 70
 let hoverScaleFactor: CGFloat = 1.03
 let hoverShadowRadius: CGFloat = 3
@@ -28,6 +28,7 @@ let emptyHoverOpacity: Double = 0.2
 
 let emptyOpacity: Double = 0.2
 let grayTextOpacity: Double = 0.4
+let transparentTextOpacity: Double = 0.2
 
 let concentrationHeight: CGFloat = 1.4*courseHeight
 let concentrationsMinHeight: CGFloat = 150
@@ -66,4 +67,4 @@ let panelScheduleHeight: CGFloat = 50
 let myRed: Color = Color(.sRGB, red: 200, green: 40, blue: 40, opacity: 1)
 
 let editorPadding: CGFloat = 7
-let editorColorGridHeight: CGFloat = 250
+let editorColorGridHeight: CGFloat = 300

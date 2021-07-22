@@ -10,40 +10,28 @@ import CoreData
 import Foundation
 import Combine
 
-class CategorySuggestionVM: ObservableObject {
+class PrereqSuggestionVM: ObservableObject {
     
-    private let shared: SharedVM
+    @ObservedObject var shared: SharedVM
     
     let suggestionModel = SuggestionsModel<Course>()
     
     private var cancellables = Set<AnyCancellable>()
     
-    init(context: NSManagedObjectContext, shared: SharedVM) {
+    init(shared: SharedVM) {
         self.shared = shared
         
         suggestionModel.$suggestionConfirmed
             .sink { [unowned self] confirmed in
                 if confirmed,
-                let newCourse = self.suggestionModel.selectedSuggestion?.value,
-                case let .category(currentCategory) = shared.currentEditSelection {
-                    currentCategory.addCourse(newCourse)
+                let selectedCourse = self.suggestionModel.selectedSuggestion?.value,
+                case let .course(currentCourse) = shared.currentEditSelection {
+                    withAnimation {
+                        currentCourse.insertPrereq(prereq: selectedCourse)
+                    }
                 }
             }
             .store(in: &cancellables)
-        
-//        suggestionModel.suggestionsCancelled
-//            .sink { [unowned self] _ in
-//                let predicate = NSPredicate(format: "name_ =[c] %@", argumentArray: [self.suggestionModel.textBinding?.wrappedValue ?? ""])
-//                let request = Course.fetchRequest(predicate)
-//                let courses = (try? context.fetch(request)) ?? []
-//                if let newCourse = courses.first,
-//                   let schedule = shared.currentSchedule,
-//                   case let .course(oldCourse) = shared.currentEditSelection {
-//                        schedule.replaceCourse(old: oldCourse, with: newCourse)
-//                        shared.setEditSelection(to: .course(course: newCourse))
-//                }
-//            }
-//            .store(in: &cancellables)
     }
     
     //        suggestionModel.$suggestionConfirmed

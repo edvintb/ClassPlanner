@@ -33,7 +33,7 @@ struct SuggestionView<V: Equatable>: View {
                 Text(suggestion.text)
                     .foregroundColor(model.selectedSuggestion == suggestion && color == .blue ? .white : color)
                 Spacer()
-                Text("􀅇 to select")
+                Text("⮐ to select")
                     .foregroundColor(model.selectedSuggestion == suggestion ? .white : .secondary)
             }
             .id(suggestion.text)

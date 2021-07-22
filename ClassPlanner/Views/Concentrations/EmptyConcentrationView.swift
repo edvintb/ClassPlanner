@@ -17,13 +17,20 @@ struct EmptyConcentrationView: View {
     @State private var isDropping: Bool = false
     
     var body: some View {
-        RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
-            .frame(minHeight: concentrationHeight)
-            .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
-            .opacity((isTargeted || isDropping) ? emptyHoverOpacity : 0)
-            .onHover { isTargeted = $0 }
-            .onTapGesture { concentrationVM.addConcentration(context: context) }
-            .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
+        ZStack {
+            Text("+")
+                .font(.system(size: 30))
+                .multilineTextAlignment(.center)
+                .opacity(transparentTextOpacity)
+            RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
+                .frame(minHeight: concentrationHeight)
+                .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
+                .opacity((isTargeted || isDropping) ? emptyHoverOpacity : 0)
+                .onHover { isTargeted = $0 }
+                .onTapGesture { concentrationVM.addConcentration(context: context) }
+                .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
+        }
+
     }
     
     func drop(providers: [NSItemProvider]) -> Bool {

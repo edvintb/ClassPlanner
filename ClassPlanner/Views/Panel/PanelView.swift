@@ -16,9 +16,12 @@ struct PanelView: View {
     @ObservedObject var courseSuggestionVM: CourseSuggestionVM
     @ObservedObject var categorySuggestionVM: CategorySuggestionVM
     @ObservedObject var concentrationVM: ConcentrationVM
+    @ObservedObject var prereqSuggestionVM: PrereqSuggestionVM
     @ObservedObject var schedule: ScheduleVM
     
     @Environment(\.managedObjectContext) var context
+    
+    @State private var isDropping: Bool = false
     
     var body: some View {
         VStack(spacing: 7) {
@@ -27,6 +30,7 @@ struct PanelView: View {
             Divider()
             getPanelContent(shared.currentPanelSelection)
         }
+        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
     }
     
     
@@ -65,7 +69,11 @@ struct PanelView: View {
         case .course(let course):
             VStack(spacing: 0) {
                 Text("Course").font(.system(size: 15)).opacity(grayTextOpacity)
-                CourseEditorView(course: course, courseSuggestionVM: courseSuggestionVM, context: context)
+                CourseEditorView(
+                    course: course,
+                    courseSuggestionVM: courseSuggestionVM,
+                    prereqSuggestionVM: prereqSuggestionVM,
+                    context: context)
             }
             
         case .category(let category):
@@ -100,8 +108,26 @@ struct PanelView: View {
             }
             
         }
-        
-        
+    }
+    
+    func drop(providers: [NSItemProvider]) -> Bool {
+        let found = providers.loadFirstObject(ofType: String.self) { id in
+            if let droppedCourse = getDroppedCourse(id: id) {
+                if let schedule = shared.currentSchedule {
+                    withAnimation {
+                        schedule.removeCourse(droppedCourse)
+                    }
+                }
+            }
+        }
+        return found
+    }
+    
+    private func getDroppedCourse(id: String) -> Course? {
+        if let uri = URL(string: id) {
+            return Course.fromCourseURI(uri: uri, context: context)
+        }
+        return nil
     }
 }
 

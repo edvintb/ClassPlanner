@@ -31,7 +31,7 @@ struct ConcentrationContainerView: View {
         GeometryReader { geo in
             ScrollView([.vertical, .horizontal]) {
 //            List {
-                concentrationViews(size: geo.size)
+                concentrationViews(width: geo.size.width)
             }
         }
         
@@ -44,7 +44,7 @@ struct ConcentrationContainerView: View {
         //        }
     }
     
-    func concentrationViews(size: CGSize) -> some View {
+    func concentrationViews(width: CGFloat) -> some View {
         let stableConcentrations = concentrations
         return
             VStack (alignment: .leading, spacing: 4) {
@@ -54,7 +54,7 @@ struct ConcentrationContainerView: View {
                         
                 }
                 EmptyConcentrationView(concentrationVM: concentrationVM)
-                    .frame(width: size.width - 40)
+                    .frame(width: width - 40)
             }
             .padding(.horizontal, 10)
         

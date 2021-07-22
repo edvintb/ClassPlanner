@@ -34,10 +34,15 @@ struct SemesterView: View {
     }
     
     var topView: some View {
-        HStack {
+        HStack(spacing: 0) {
             Text(String(format: "\(workloadSymbol) %.1f", totalWorkload))
             Spacer()
             Text(semester % 2 == 0 ? fallSymbol : springSymbol)
+//            ZStack {
+//                Circle().stroke()
+//                    .frame(height: 15)
+//                Text("\(semester + 1)")
+//            }
         }
     }
     

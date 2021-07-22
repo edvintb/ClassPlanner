@@ -18,26 +18,29 @@ struct SearchTextField: View {
             .fill(Color.clear)
             .frame(width: 200, height: 22)
             HStack {
-                Text("􀊫")  // .resizable().aspectRatio(contentMode: .fill)
-                    .frame(width:12, height: 12)
+                Text("🔎")  // .resizable().aspectRatio(contentMode: .fill)
+                    .frame(width:20, height: 12)
                     .padding(.leading, 5)
                     .opacity(0.8)
                 TextField(placeholder, text: $query)
                     .textFieldStyle(PlainTextFieldStyle())
                 if query != "" {
-                    Button(action: {
-                            self.query = ""
-                    }) {
-                        Text("􀁠")
-//                            .resizable()
-//                            .aspectRatio(contentMode: .fit)
-                            .frame(width:14, height: 14)
-                            .padding(.trailing, 3)
-                            .opacity(0.5)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-//                    .opacity(self.query == "" ? 0 : 0.5)
-                    .opacity(0.5)
+                    EmptyView()
+//                    Button(action: {
+//                            self.query = ""
+//                    }) {
+//                        Text("⨯")
+////                            .resizable()
+////                            .aspectRatio(contentMode: .fit)
+//                            .contentShape(Rectangle())
+//                            .scaleEffect(2.5)
+//                            .frame(width:14, height: 14, alignment: .top)
+//                            .padding(.trailing, 3)
+//                            .opacity(0.5)
+//                    }
+//                    .buttonStyle(PlainButtonStyle())
+////                    .opacity(self.query == "" ? 0 : 0.5)
+//                    .opacity(0.5)
                 }
             }
 

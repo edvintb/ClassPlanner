@@ -24,15 +24,6 @@ struct ScheduleModel: Codable, Hashable, Equatable {
         return try? JSONEncoder().encode(self)
     }
     
-    func getPositionInSchedule(for course: Course) -> CoursePosition? {
-        let id = course.urlID
-        if let (semester, courses) = schedule.first(where: { $1.contains(id) }) {
-            let index = courses.firstIndex(of: id)!
-            return CoursePosition(semester: semester, index: index)
-        }
-        return nil
-    }
-    
     mutating func moveCourse(_ course: Course, to newPos: CoursePosition) {
         // If we can get the position we have to remove it from there
         if let oldPos = getPositionInSchedule(for: course) {
@@ -64,6 +55,16 @@ struct ScheduleModel: Codable, Hashable, Equatable {
         if course.isEmpty { course.delete() }
     }
     
+    
+    func getPositionInSchedule(for course: Course) -> CoursePosition? {
+        let id = course.urlID
+        if let (semester, courses) = schedule.first(where: { $1.contains(id) }) {
+            let index = courses.firstIndex(of: id)!
+            return CoursePosition(semester: semester, index: index)
+        }
+        return nil
+    }
+    
     private mutating func insert(_ course: Course, at pos: CoursePosition) {
         let id = course.urlID
         schedule[pos.semester, default: []].insert(id, at: pos.index)
@@ -78,6 +79,14 @@ struct ScheduleModel: Codable, Hashable, Equatable {
         schedule[pos.semester]![pos.index] = id
     }
     
+    
+    mutating func addSemester() {
+        var semester = 0
+        while (schedule.keys.contains(semester)) {
+            semester += 1
+        }
+        schedule[semester] = []
+    }
     
     
     // MARK: - Initializing

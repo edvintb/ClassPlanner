@@ -15,6 +15,7 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     var id: UUID
     @Published var name: String
     @Published private var model: ScheduleModel
+    @Published var isCourseFrontUp: Bool = true
     
     private let context: NSManagedObjectContext
     
@@ -52,21 +53,23 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     }
     
     var courseURLs: Set<URL> {
-        model.schedule.reduce(into: Set<URL>()) { acc, schedule in
-            let (_, courses) = schedule
-            acc = acc.union(Set(courses))
+        model.schedule.reduce(into: Set<URL>()) { acc, semester in
+            let (_, courseList) = semester
+            acc = acc.union(Set(courseList))
         }
     }
     
     var gradeAverage: Double {
-        var passedCourses = 0
-        return
-            courseURLs.reduce(into: 0) { acc, url in
+        var coursesWithGrade = 0
+        let totalGrade = courseURLs.reduce(into: 0.0) { acc, url in
                 if let course = Course.fromURI(uri: url, context: context) as? Course {
-                    if course.enumGrade == .Pass { passedCourses += 1 }
+                    if course.enumGrade == .Pass { return }
                     acc += Grade.gradeNumber[course.enumGrade] ?? 0
+                    coursesWithGrade += 1
                 }
-            } / Double(max(courseURLs.count - passedCourses, 1))
+            }
+        let averageGrade = totalGrade / Double(max(coursesWithGrade, 1))
+        return averageGrade
     }
     
     func getPosition(course: Course) -> CoursePosition? {
@@ -109,7 +112,7 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     
     func addEmptyCourse(to semester: Int, context: NSManagedObjectContext) {
         let index = model.schedule[semester]?.count ?? 0
-        let course = Course(context: context)
+        let course = Course.create(context: context)
         let newPos = CoursePosition(semester: semester, index: index)
         do {
             try context.save()
@@ -121,7 +124,13 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         }
     }
     
-
+    func addSemester() {
+        model.addSemester()
+    }
+    
+    func turnCourseViews() {
+        self.isCourseFrontUp.toggle()
+    }
     
     //        print("is temporary: \(course.objectID.isTemporaryID)")
     //        print("is temporary: \(course.objectID.isTemporaryID)")

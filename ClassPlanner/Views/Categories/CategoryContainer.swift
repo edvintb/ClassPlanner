@@ -23,6 +23,7 @@ struct CategoryContainer: View {
             HStack {
                 ForEach(stableCategories) { category in
                     CategoryView(category: category, schedule: schedule)
+                        .frame(width: categoryWidth)
                 }
                 EmptyCategoryView(concentration: concentration)
             }

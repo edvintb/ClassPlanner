@@ -26,8 +26,14 @@ extension NumberFormatter {
 }
 
 extension Color {
+    
+    static var lightBlue = Color.init(red: 0.2, green: 0.3, blue: 0.8)
+    static var brown = Color.init(red: 0.8, green: 0.6, blue: 0.6)
+    static var pink = Color.init(red: 1, green: 0.7, blue: 0.8)
+    static var teal = Color.init(NSColor.systemTeal)
+    
     static var colorSelection: [Color] {
-        [.primary, .black, .white, .red, .blue, .yellow, .green, .orange, .purple, .gray]
+        [.primary, .black, .white, teal, .red, lightBlue, .yellow, .green, .orange, .purple, .gray, pink, brown]
     }
 }
 

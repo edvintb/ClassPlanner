@@ -42,34 +42,53 @@ struct ConcentrationEditorView: View {
         HStack {
             Text("Categories")
             Spacer()
-            Text("Click to Remove")
+//            Text("Click to Remove")
         }
         .opacity(grayTextOpacity)
     }
     
     var categoriesView: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: frameCornerRadius).stroke().opacity(emptyOpacity)
-            GeometryReader { geo in
-                ScrollView {
-                    Columns(categories, numberOfColumns: 2, moreView: EmptyCategoryView(concentration: concentration)) { category in
-                        categoryView(category)
+        let maxIndex = (categories.count + 1)/2
+        print(maxIndex)
+        return
+            ZStack(alignment: .topLeading) {
+                RoundedRectangle(cornerRadius: frameCornerRadius).stroke().opacity(emptyOpacity)
+                GeometryReader{ geo in
+                    ScrollView {
+//                        VStack {
+//                            ForEach(0..<maxIndex, id: \.self) { index in
+//                                HStack(alignment: .top) {
+//                                    categoryView(categories[2*index])
+//                                    if (index == (maxIndex - 1) && categories.count % 2 == 1) {
+//                                        Spacer()
+//                                    }
+//                                    else {
+//                                        categoryView(categories[2*index + 1]).frame(alignment: .topLeading)
+//                                    }
+//                                }
+//                            }
+//                        }
+                        Columns(categories, moreView: EmptyView()) { category in
+                            categoryView(category)
+                                .frame(minHeight: 100)
+                        }
+                        EmptyCategoryView(concentration: concentration)
+                        Spacer().frame(height: 20)
                     }
-                    .frame(width: geo.size.width)
-                }.cornerRadius(frameCornerRadius)
+                    .cornerRadius(frameCornerRadius)
+                }
             }
-        }
     }
     
     func categoryView(_ category: Category) -> some View {
         CategoryView(category: category, schedule: schedule)
         .padding(10)
         .contentShape(Rectangle())
-        .onTapGesture {
-            withAnimation {
-                category.delete()
-            }
-        }
+//        .onTapGesture {
+//            withAnimation {
+//                category.delete()
+//            }
+//        }
     }
     
     func deleteAction() {

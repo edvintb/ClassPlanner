@@ -71,7 +71,7 @@ struct CategoryView: View {
                     Spacer(minLength: 4)
                     Text("Drop\nCourse\nto add")
                         .frame(maxWidth: .infinity, alignment: .center)
-                        .opacity(grayTextOpacity - 0.15)
+                        .opacity(transparentTextOpacity)
                         .multilineTextAlignment(.center)
                 }
 
@@ -82,7 +82,7 @@ struct CategoryView: View {
         .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
         .onDrag({ NSItemProvider(object: category.stringID as NSString) })
-        .frame(width: categoryWidth)
+       
     }
 
     var title: some View {

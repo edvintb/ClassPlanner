@@ -21,8 +21,12 @@ struct PanelHeaderView<V>: View where V: View{
                 SearchTextField(query: _searchQuery)
                 Spacer()
                 Button(action: { addAction() }, label: {
-//                    Text("􀅼")
-                    Text("+").font(.system(size: 17))
+                    if #available(macOS 11.0, *) {
+                        Image.init(systemName: "plus")
+                    }
+                    else {
+                        Text("+").font(.system(size: 17))
+                    }
                 })
                
             }

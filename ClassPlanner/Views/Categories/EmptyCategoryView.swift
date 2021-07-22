@@ -17,18 +17,26 @@ struct EmptyCategoryView: View {
     @Environment(\.managedObjectContext) var context
     
     var body: some View {
-        ZStack(alignment: .leading) {
+        ZStack {
+            Text("+")
+                .font(.system(size: 20))
+                .multilineTextAlignment(.center)
+                .opacity(transparentTextOpacity)
             RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
                 .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
                 .opacity((isTargeted || isDropping) ? emptyHoverOpacity : 0)
                 .onHover { isTargeted = $0 }
-                .onTapGesture { _ = concentration.addCategory() }
+                .onTapGesture { addCategory() }
                 .frame(width: categoryWidth)
                 .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
-            RoundedRectangle(cornerRadius: frameCornerRadius).opacity(0.001)
-                .frame(maxHeight: categoryHeight, alignment: .center)
         }
 
+    }
+    
+    func addCategory() {
+        withAnimation {
+            _ = concentration.addCategory()
+        }
     }
     
     func drop(providers: [NSItemProvider]) -> Bool {

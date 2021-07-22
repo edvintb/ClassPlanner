@@ -39,6 +39,11 @@ struct CourseView: View {
         .onDrag { NSItemProvider(object: course.stringID as NSString) }
         .gesture(tapGesture)
         .frame(height: courseHeight, alignment: .center)
+        .onReceive(shared.currentSchedule!.$isCourseFrontUp, perform: { isFrontUp in
+            withAnimation {
+                self.isFrontUp = isFrontUp
+            }
+        })
     }
     
     var container: some View {
