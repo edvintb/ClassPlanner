@@ -20,10 +20,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         
-        let scheduleURL = url.appendingPathExtension("/Schedules")
-        
-        print(url)
-        print(scheduleURL)
+//        let scheduleURL = url.appendingPathExtension("/Schedules")
+//
+//        print(url)
+//        print(scheduleURL)
         
         let context = persistentContainer.viewContext
         
