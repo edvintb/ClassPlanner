@@ -9,14 +9,8 @@ import SwiftUI
 
 struct ScheduleOnboardingView: View {
     
-    let scheduleOnboardingKey = "scheduleOnboardingKey"
-    @State private var isHidingOnboarding: Bool
-    
-    init() {
-        let boolFromUserDefaults = UserDefaults.standard.bool(forKey: scheduleOnboardingKey)
-        print(boolFromUserDefaults)
-        self.isHidingOnboarding = boolFromUserDefaults
-    }
+    static let scheduleOnboardingKey = "scheduleOnboardingKey"
+    @State private var isHidingOnboarding: Bool = UserDefaults.standard.bool(forKey: scheduleOnboardingKey)
     
     var body: some View {
         if isHidingOnboarding {
@@ -46,7 +40,7 @@ struct ScheduleOnboardingView: View {
         Button(action: {
             withAnimation {
                 self.isHidingOnboarding = hide
-                UserDefaults.standard.setValue(hide, forKey: scheduleOnboardingKey)
+                UserDefaults.standard.setValue(hide, forKey: ScheduleOnboardingView.scheduleOnboardingKey)
             }
         }, label: {
             Text(text).font(.headline)

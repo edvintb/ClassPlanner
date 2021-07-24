@@ -13,6 +13,8 @@ struct ScheduleView: View {
     @ObservedObject var store: ScheduleStore
     @ObservedObject var schedule: ScheduleVM
     
+    @State private var isShowingContent: Bool = false
+    
     private var maxNumberCoursesInSemester: CGFloat {
         CGFloat(schedule.semesters.map { schedule.courses(for: $0).count }.max() ?? 0)
     }
@@ -20,15 +22,15 @@ struct ScheduleView: View {
     var body: some View {
         GeometryReader { geo in
             ScrollView([.vertical, .horizontal]) {
+//            List {
                 VStack(alignment: .leading, spacing: 7) {
-                    scheduleTop(schedule: schedule)
+                    scheduleName(schedule: schedule)
                     Divider().padding(.bottom, 3)
                     semesters
                     Spacer().frame(height: geo.size.height - 215)
                 }
-                .overlay(ScheduleOnboardingView())
                 .frame(minWidth: geo.size.width - 15, alignment: .topLeading)
-
+                .onAppear { print(maxNumberCoursesInSemester) }
 //            }
 //            ScrollView([.vertical, .horizontal]) {
 //                if isShowingContent {
@@ -52,18 +54,16 @@ struct ScheduleView: View {
 //        }
 //    }
     
-    func scheduleTop(schedule: ScheduleVM) -> some View {
+    func scheduleName(schedule: ScheduleVM) -> some View {
         HStack(spacing: 20) {
             Text(schedule.name)
                 .font(.system(size: 20))
                 .foregroundColor(schedule.color)
-            Text(String(format: "\(gradeSymbol) %.2f", schedule.gradeAverage))
+            Spacer()
+            Text(String(format: "\(gradeSymbol) %.1f", schedule.gradeAverage))
                 .font(.system(size: 17))
-            Button(
-                action: { schedule.turnCourseViews() },
-                label: { Text("⟳") }
-            )
         }
+        
         .contentShape(Rectangle())
         .onTapGesture { shared.setEditSelection(to: .schedule(schedule: schedule)) }
         .padding([.horizontal, .top], 8)
@@ -77,41 +77,20 @@ struct ScheduleView: View {
                 ForEach (semesters, id: \.self) { semester in
                     SemesterView(semester: semester, schedule: schedule)
                         .padding(.horizontal, courseHorizontalSpacing)
-                    if semester % 2 == 1 {
-                        Divider()
-//                        yearDividerview(semester: semester)
-                    }
                 }
                 Spacer().frame(width: 5)
-                VStack {
-                    Button(action: schedule.addSemester, label: {
-                        Text("Add Semester")
-                    })
-                    Spacer()
-                }
-                Spacer().frame(width: 5)
-
             }
     }
-    
-    func yearDividerview(semester: Int) -> some View {
-        Divider()
-//            .foregroundColor(.red)
-//            .padding(.top, 20)
-//            .shadow(radius: 100)
-//            .shadow(color: selectedDivider == semester ? .blue : .primary,
-//                    radius: selectedDivider == semester ? 10 : 0)
-////            .foregroundColor(selectedDivider == semester ? .blue : .primary)
-//            .contentShape(Rectangle())
-//            .onTapGesture {
-//                withAnimation {
-//                    print("Tapped")
-//                    self.selectedDivider = semester
-//            }
-//    }
 }
-    
 
+
+struct CurrentScheduleView: View {
+    
+    @ObservedObject var schedule: ScheduleVM
+    
+    var body: some View {
+        Text("Hello")
+    }
     
 //    var nameEditor: some View {
 //        VStack {
