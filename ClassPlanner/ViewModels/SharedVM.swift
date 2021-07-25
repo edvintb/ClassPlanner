@@ -10,7 +10,12 @@ import Combine
 
 class SharedVM: ObservableObject {
     
-    private var cancellables = Set<AnyCancellable>()
+    // Onboarding toggle
+    @Published private (set) var isShowingOnboarding: Bool = false
+    
+    func toggleOnboarding() {
+        self.isShowingOnboarding = !self.isShowingOnboarding
+    }
     
     // MARK: - Managing Current Schedule
     
@@ -19,8 +24,6 @@ class SharedVM: ObservableObject {
     func setCurrentSchedule(to schedule: ScheduleVM?) {
         self.currentSchedule = schedule
     }
-    
-
     
     
     // MARK: - Edit Functionality

@@ -8,12 +8,12 @@
 import SwiftUI
 
 extension Columns where Item: Identifiable , ID == Item.ID{
-    init(_ items: [Item], maxNumberRows: Int = 15,
+    init(_ items: [Item], startNumberOfRows: Int = 15,
          moreView: MoreView, viewForItem: @escaping (Item) -> ItemView) {
         self.items = items
         self.id = \Item.id
         self.viewForItem = viewForItem
-        self.maxNumberRows = maxNumberRows
+        self.startNumberOfRows = startNumberOfRows
         self.moreView = moreView
     }
 }
@@ -24,29 +24,29 @@ struct Columns<Item, ItemView, ID, MoreView>: View where ItemView: View, ID: Has
     var viewForItem : (Item) -> ItemView
     var moreView: MoreView
     var id: KeyPath<Item, ID>
-    var maxNumberRows: Int
+    var startNumberOfRows: Int
     let numberOfColumns = 2
     
-    init (_ items : [Item], id: KeyPath<Item, ID>, maxNumberRows: Int = 15,
+    init (_ items : [Item], id: KeyPath<Item, ID>, startNumberOfRows: Int = 15,
           moreView: MoreView, viewForItem : @escaping (Item) -> ItemView) {
         self.items = items
         self.id = id
         self.viewForItem = viewForItem
-        self.maxNumberRows = maxNumberRows
+        self.startNumberOfRows = startNumberOfRows
         self.moreView = moreView
     }
     
-    @State private var startIndex: Int = 0
+    @State private var numberOfAddedRows: Int = 0
     
     var addView: some View {
         moreView.onTapGesture {
             withAnimation {
-                startIndex += maxNumberRows
+                numberOfAddedRows += startNumberOfRows
             }
         }
     }
     
-    var maxIndex: Int { min(((items.count + 1)/2), maxNumberRows + startIndex)}
+    var maxIndex: Int { min(((items.count + 1)/2), startNumberOfRows + numberOfAddedRows) }
     
     var body: some View {
         VStack {
@@ -54,11 +54,11 @@ struct Columns<Item, ItemView, ID, MoreView>: View where ItemView: View, ID: Has
                 HStack(alignment: .top) {
                     viewForItem(items[numberOfColumns*index])
                     if (index == (maxIndex - 1)) {
-                        if items.count % numberOfColumns == 1 {
-                            viewForItem(items[numberOfColumns*index]).opacity(0)
-                        }
-                        else if (maxIndex < (items.count + 1)/2) {
+                        if (maxIndex < (items.count + 1)/2) {
                             addView
+                        }
+                        else if items.count % numberOfColumns == 1 {
+                            viewForItem(items[numberOfColumns*index]).opacity(0)
                         }
                         else {
                             viewForItem(items[numberOfColumns*index + 1]).frame(alignment: .topLeading)
@@ -70,6 +70,7 @@ struct Columns<Item, ItemView, ID, MoreView>: View where ItemView: View, ID: Has
                 }
             }
         }
+        .onAppear { print(maxIndex) }
     }
     
 //    var body: some View {

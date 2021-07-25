@@ -52,7 +52,7 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         set { model.notes = newValue }
     }
     
-    var courseURLs: Set<URL> {
+    var courseUrlSet: Set<URL> {
         model.schedule.reduce(into: Set<URL>()) { acc, semester in
             let (_, courseList) = semester
             acc = acc.union(Set(courseList))
@@ -61,7 +61,7 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     
     var gradeAverage: Double {
         var coursesWithGrade = 0
-        let totalGrade = courseURLs.reduce(into: 0.0) { acc, url in
+        let totalGrade = courseUrlSet.reduce(into: 0.0) { acc, url in
                 if let course = Course.fromURI(uri: url, context: context) as? Course {
                     if course.enumGrade == .Pass { return }
                     acc += Grade.gradeNumber[course.enumGrade] ?? 0
@@ -77,13 +77,22 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     }
     
     func courses(for semester: Int) -> [Course] {
-        model.schedule[semester, default: []].reduce(into: []) { acc, uri in
-            if let course = Course.fromCourseURI(uri: uri, context: context) {
-                acc.append(course)
-            }
+        model.schedule[semester, default: []].compactMap{ uri in
+            return Course.fromCourseURI(uri: uri, context: context)
         }
     }
     
+    func containsPrereqs(for course: Course) -> Text {
+        if course.prereqs.isEmpty { return Text("-") }
+        if let coursePos = model.getPositionInSchedule(for: course) {
+            let prereqPosSet = course.prereqs.compactMap { model.getPositionInSchedule(for: $0) }
+            for prereqPos in prereqPosSet {
+                if prereqPos.isAfter(coursePos) { return Text("X").foregroundColor(.red) }
+            }
+            return Text(courseContainedSymbol).foregroundColor(.green)
+        }
+        return Text("-")
+    }
     
     
     // MARK: - Intents

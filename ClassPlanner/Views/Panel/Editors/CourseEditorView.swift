@@ -9,60 +9,6 @@ import SwiftUI
 import CoreData
 import Combine
 
-//struct CourseInfo {
-//
-//    var name: String
-//    var workload: String
-//    var enrollment: String
-//    var semester: Int
-//    var score: String
-//    var notes: String
-//    var fall: Bool
-//    var spring: Bool
-//
-//    init(_ semester: Int) {
-//        name = ""
-//        workload = ""
-//        enrollment = ""
-//        self.semester = semester
-//        score = ""
-//        notes = ""
-//        fall = false
-//        spring = false
-//    }
-//}
-//
-//struct KeyEventHandling: NSViewRepresentable {
-//
-//    let course: Course
-//    let schedule: ScheduleVM?
-//
-//    class KeyView: NSView {
-//
-//        override var acceptsFirstResponder: Bool { true }
-//        override func keyDown(with event: NSEvent) {
-////            super.keyDown(with: event)
-//            print(event)
-//            print(">> key \(event.charactersIgnoringModifiers ?? "")")
-//            if event.keyCode == 51 {
-//                print("Deleting...")
-//            }
-//        }
-//    }
-//
-//    func makeNSView(context: Context) -> NSView {
-//        let view = KeyView()
-//        DispatchQueue.main.async { // wait till next event cycle
-//            view.window?.makeFirstResponder(view)
-//        }
-//        return view
-//    }
-//
-//    func updateNSView(_ nsView: NSView, context: Context) {
-//    }
-//}
-
-
 // Create separate viewModel for this view??
 
 
@@ -82,6 +28,15 @@ struct CourseEditorView: View {
     @ObservedObject var prereqSuggestionVM: PrereqSuggestionVM
     @ObservedObject var searchModel: SearchModel
     @ObservedObject var prereqSearchModel: SearchModel
+    
+    // For onboarding
+    @State private var isShowingOnboarding: Bool = !UserDefaults.standard.bool(forKey: courseEditorOnboardingKey)
+    private func setCourseEditorOnboarding(show: Bool) {
+        withAnimation {
+            self.isShowingOnboarding = show
+            UserDefaults.standard.setValue(!show, forKey: courseEditorOnboardingKey)
+        }
+    }
     
     init(course: Course,
          courseSuggestionVM: CourseSuggestionVM,
@@ -103,8 +58,6 @@ struct CourseEditorView: View {
             .assign(to: \.course.name, on: self)
             .store(in: &cancellables)
     }
-
-    private var color: Color { course.getColor() }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -116,17 +69,18 @@ struct CourseEditorView: View {
                 dataEntryFields
                 NoteEditor(text: $course.notes) { course.save() }
                 gradeSelector
-                Section(header: sectionHeader){
-                    HStack {
-                        prereqView
-                        concentrationView
-                    }
+                HStack {
+                    prereqView
+                    concentrationView
                 }
                 EditorColorGrid { course.color = $0; course.save() }
                 bottomButtons
-                
             }
             .padding(editorPadding)
+//            .overlay(CourseEditorOnboarding(isHidingOnboarding: $isHidingOnboarding, setCourseEditorOnboarding: setCourseEditorOnboarding))
+            .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
+                setCourseEditorOnboarding(show: show)
+            }
         }
 //        .background(KeyEventHandling(course: self.course, schedule: shared.currentSchedule))
         
@@ -137,6 +91,9 @@ struct CourseEditorView: View {
                         suggestionGroups: searchModel.suggestionGroups,
                         suggestionModel: courseSuggestionVM.suggestionModel)
             .focusable()
+            .popover(isPresented: $isShowingOnboarding, content: {
+                CourseEditorOnboarding(isShowingOnboarding: $isShowingOnboarding, setCourseEditorOnboarding: setCourseEditorOnboarding)
+            })
     }
     
     var semesterSelector: some View {
@@ -195,30 +152,27 @@ struct CourseEditorView: View {
         }.pickerStyle(SegmentedPickerStyle())
     }
     
-    var sectionHeader: some View {
-        Spacer()
-        .opacity(grayTextOpacity)
-    }
-    
     var prereqView: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Prerequisites")
-                .opacity(grayTextOpacity)
-                .frame(maxWidth: .infinity, alignment: .leading)
+            HStack {
+                Text("Prerequisites")
+                    .opacity(grayTextOpacity)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                shared.currentSchedule?.containsPrereqs(for: course) ?? Text("-")
+            }
             Spacer().frame(height: 8)
             SuggestionInput(text: $prereqSearchModel.currentText,
                             suggestionGroups: prereqSearchModel.suggestionGroups,
                             suggestionModel: prereqSuggestionVM.suggestionModel)
                 .focusable()
-            Divider()
-                .padding(.vertical, 5)
-            ScrollView {
+                .padding(.bottom, 5)
+            ScrollView(showsIndicators: false) {
                 ForEach(course.nameSortedPrereqs, id: \.self) { prereq in
                     HStack {
-                        Text(prereq.name == "" ? "No name" : prereq.name)
+                        Text(prereq.name.isEmpty ? "No name" : prereq.name)
                             .foregroundColor(prereq.getColor())
                         Spacer()
-                        if shared.currentSchedule?.courseURLs.contains(prereq.urlID) ?? false {
+                        if shared.currentSchedule?.courseUrlSet.contains(prereq.urlID) ?? false {
                             Text(courseContainedSymbol)
                                 .foregroundColor(checkMarkColor)
                         }
@@ -288,7 +242,7 @@ struct CourseEditorView: View {
     
     
     func addRemoveButton(schedule: ScheduleVM) -> some View {
-        if schedule.courseURLs.contains(course.urlID) {
+        if schedule.courseUrlSet.contains(course.urlID) {
             return
                 Button("Remove from current") {
                     withAnimation {
@@ -313,12 +267,62 @@ struct CourseEditorView: View {
         }
     }
     
-    
-    
     func save() {
         course.save()
     }
     
+    //struct CourseInfo {
+    //
+    //    var name: String
+    //    var workload: String
+    //    var enrollment: String
+    //    var semester: Int
+    //    var score: String
+    //    var notes: String
+    //    var fall: Bool
+    //    var spring: Bool
+    //
+    //    init(_ semester: Int) {
+    //        name = ""
+    //        workload = ""
+    //        enrollment = ""
+    //        self.semester = semester
+    //        score = ""
+    //        notes = ""
+    //        fall = false
+    //        spring = false
+    //    }
+    //}
+    //
+    //struct KeyEventHandling: NSViewRepresentable {
+    //
+    //    let course: Course
+    //    let schedule: ScheduleVM?
+    //
+    //    class KeyView: NSView {
+    //
+    //        override var acceptsFirstResponder: Bool { true }
+    //        override func keyDown(with event: NSEvent) {
+    ////            super.keyDown(with: event)
+    //            print(event)
+    //            print(">> key \(event.charactersIgnoringModifiers ?? "")")
+    //            if event.keyCode == 51 {
+    //                print("Deleting...")
+    //            }
+    //        }
+    //    }
+    //
+    //    func makeNSView(context: Context) -> NSView {
+    //        let view = KeyView()
+    //        DispatchQueue.main.async { // wait till next event cycle
+    //            view.window?.makeFirstResponder(view)
+    //        }
+    //        return view
+    //    }
+    //
+    //    func updateNSView(_ nsView: NSView, context: Context) {
+    //    }
+    //}
     
     //    var icons: some View {
     //        VStack {

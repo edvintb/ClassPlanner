@@ -31,42 +31,15 @@ struct EditorNotes: View {
             Text(notes)
                .font(.system(size: 13))
                .opacity(empty ? 0.2 : 0.5)
-//               .lineLimit(nil)
                .fixedSize(horizontal: false, vertical: false)
                .padding([.horizontal], 10)
         }.frame(height: CGFloat(min((notes.count / 3 + 20), 130)))
-//        GeometryReader { geo in
-//            if geo.size.height < 200 {
-//                Text(notes + "\(geo.size.height)")
-//                   .font(.system(size: 13))
-//                   .opacity(empty ? 0.2 : 0.5)
-//                   .lineLimit(15)
-//                   .fixedSize(horizontal: false, vertical: false)
-//                   .padding([.horizontal], 10)
-//            }
-//            else {
-//                ScrollView {
-//                    Text(notes)
-//                       .font(.system(size: 13))
-//                       .opacity(empty ? 0.2 : 0.5)
-//                       .lineLimit(15)
-//                       .fixedSize(horizontal: false, vertical: false)
-//                       .padding([.horizontal], 10)
-//                }.frame(height: 200)
-//            }
-//        }.fixedSize()
     }
-
-            
-//       }
-//    }
-
 }
 
 struct EditorColorGrid: View {
     
     // Make them all colorpickers for Big Sur
-    
     let tapAction: (Int) -> ()
     
     var body: some View {

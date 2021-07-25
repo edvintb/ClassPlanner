@@ -9,48 +9,61 @@ import SwiftUI
 
 struct ScheduleView: View {
     
+    let leftEdgePadding: CGFloat = 8
     @EnvironmentObject var shared: SharedVM
     @ObservedObject var store: ScheduleStore
     @ObservedObject var schedule: ScheduleVM
     
-    private var maxNumberCoursesInSemester: CGFloat {
-        CGFloat(schedule.semesters.map { schedule.courses(for: $0).count }.max() ?? 0)
+    // For onboarding
+    @State private var isShowingOnboarding: Bool = !UserDefaults.standard.bool(forKey: scheduleOnboardingKey)
+    private func setScheduleOnboarding(show: Bool) {
+        withAnimation {
+            self.isShowingOnboarding = show
+            UserDefaults.standard.setValue(!show, forKey: scheduleOnboardingKey)
+        }
     }
     
+//    private var maxNumberCoursesInSemester: CGFloat {
+//        CGFloat(schedule.semesters.map { schedule.courses(for: $0).count }.max() ?? 0)
+//    }
+    
+    // Adopt the frame to scroll less
     var body: some View {
         GeometryReader { geo in
-            ScrollView([.vertical, .horizontal]) {
+            ScrollView([.vertical, .horizontal], showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 7) {
                     scheduleTop(schedule: schedule)
                     Divider().padding(.bottom, 3)
                     semesters
                     Spacer().frame(height: geo.size.height - 215)
                 }
-                .overlay(ScheduleOnboardingView())
+                .overlay(ScheduleOnboardingView(isShowingOnboarding: $isShowingOnboarding, setScheduleOnboarding: self.setScheduleOnboarding))
                 .frame(minWidth: geo.size.width - 15, alignment: .topLeading)
-
-//            }
-//            ScrollView([.vertical, .horizontal]) {
-//                if isShowingContent {
-//                    scrollViewContent
-//                        .frame(minWidth: geo.size.width, alignment: .topLeading)
-//                }
-//            }
-//            .onAppear { isShowingContent = true }
+                .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
+                    setScheduleOnboarding(show: show)
+                }
+                //            }
+                //            ScrollView([.vertical, .horizontal]) {
+                //                if isShowingContent {
+                //                    scrollViewContent
+                //                        .frame(minWidth: geo.size.width, alignment: .topLeading)
+                //                }
+                //            }
+                //            .onAppear { isShowingContent = true }
             }
         }
         
     }
     
-//    var scrollViewContent: some View {
-//        VStack(alignment: .leading, spacing: 2) {
-//            scheduleName(schedule: schedule)
-//            Divider().padding([.leading, .bottom], 3)
-//                .frame(width: (courseWidth + 8)*CGFloat(schedule.semesters.count))
-//            semesters
-////            Spacer().frame(height: geo.size.height)
-//        }
-//    }
+    //    var scrollViewContent: some View {
+    //        VStack(alignment: .leading, spacing: 2) {
+    //            scheduleName(schedule: schedule)
+    //            Divider().padding([.leading, .bottom], 3)
+    //                .frame(width: (courseWidth + 8)*CGFloat(schedule.semesters.count))
+    //            semesters
+    ////            Spacer().frame(height: geo.size.height)
+    //        }
+    //    }
     
     func scheduleTop(schedule: ScheduleVM) -> some View {
         HStack(spacing: 20) {
@@ -63,10 +76,16 @@ struct ScheduleView: View {
                 action: { schedule.turnCourseViews() },
                 label: { Text("⟳") }
             )
+            Spacer()
+            helpButton
         }
         .contentShape(Rectangle())
         .onTapGesture { shared.setEditSelection(to: .schedule(schedule: schedule)) }
-        .padding([.horizontal, .top], 8)
+        .padding([.horizontal, .top], leftEdgePadding)
+    }
+    
+    var helpButton: some View {
+        Button(shared.isShowingOnboarding ? "Hide Help" : "Show Help", action: shared.toggleOnboarding)
     }
     
     var semesters: some View {
@@ -79,7 +98,7 @@ struct ScheduleView: View {
                         .padding(.horizontal, courseHorizontalSpacing)
                     if semester % 2 == 1 {
                         Divider()
-//                        yearDividerview(semester: semester)
+                        //                        yearDividerview(semester: semester)
                     }
                 }
                 Spacer().frame(width: 5)
@@ -89,45 +108,44 @@ struct ScheduleView: View {
                     })
                     Spacer()
                 }
-                Spacer().frame(width: 5)
-
+                .padding(.trailing, leftEdgePadding)
             }
     }
     
     func yearDividerview(semester: Int) -> some View {
         Divider()
-//            .foregroundColor(.red)
-//            .padding(.top, 20)
-//            .shadow(radius: 100)
-//            .shadow(color: selectedDivider == semester ? .blue : .primary,
-//                    radius: selectedDivider == semester ? 10 : 0)
-////            .foregroundColor(selectedDivider == semester ? .blue : .primary)
-//            .contentShape(Rectangle())
-//            .onTapGesture {
-//                withAnimation {
-//                    print("Tapped")
-//                    self.selectedDivider = semester
-//            }
-//    }
-}
+        //            .foregroundColor(.red)
+        //            .padding(.top, 20)
+        //            .shadow(radius: 100)
+        //            .shadow(color: selectedDivider == semester ? .blue : .primary,
+        //                    radius: selectedDivider == semester ? 10 : 0)
+        ////            .foregroundColor(selectedDivider == semester ? .blue : .primary)
+        //            .contentShape(Rectangle())
+        //            .onTapGesture {
+        //                withAnimation {
+        //                    print("Tapped")
+        //                    self.selectedDivider = semester
+        //            }
+        //    }
+    }
     
-
     
-//    var nameEditor: some View {
-//        VStack {
-//            TextField("Name", text: $concentration.name, onCommit: {
-//                isEditingName = false
-//            })
-//            
-//        }
-//    }
-//    
-//    func titleText(name: String) -> some View {
-//        Text(name)
-//            .font(.system(size: 20))
-//            .onTapGesture { isEditingName.toggle() }
-//            .popover(isPresented: $isEditingName, content: { nameEditor.padding(5) })
-//    }
+    
+    //    var nameEditor: some View {
+    //        VStack {
+    //            TextField("Name", text: $concentration.name, onCommit: {
+    //                isEditingName = false
+    //            })
+    //
+    //        }
+    //    }
+    //
+    //    func titleText(name: String) -> some View {
+    //        Text(name)
+    //            .font(.system(size: 20))
+    //            .onTapGesture { isEditingName.toggle() }
+    //            .popover(isPresented: $isEditingName, content: { nameEditor.padding(5) })
+    //    }
 }
 //                GeometryReader{ geo in
 //                if viewModel.draggedPanelToSchedule {

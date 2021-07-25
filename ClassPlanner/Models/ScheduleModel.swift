@@ -11,6 +11,10 @@ import CoreData
 struct CoursePosition: Codable, Hashable, Equatable {
     var semester: Int
     var index: Int
+    
+    func isAfter(_ position: CoursePosition) -> Bool {
+        self.semester > position.semester
+    }
 }
 
 struct ScheduleModel: Codable, Hashable, Equatable {

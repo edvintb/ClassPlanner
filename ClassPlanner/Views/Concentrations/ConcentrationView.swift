@@ -7,79 +7,6 @@
 
 import SwiftUI
 
-//struct ConcentrationWithCategories: View {
-//    
-//    
-//    @EnvironmentObject var shared: SharedVM
-//    @ObservedObject var concentration: Concentration
-//    @Environment(\.managedObjectContext) var context
-//    
-//    private var categories: [Category] {
-//        concentration.categories.sorted(by: {$0.index < $1.index })
-//    }
-//    
-//    @State private var isDropping: Bool = false
-//
-//    // Needs to tell categories to change with schedule
-//    @ObservedObject var schedule: ScheduleVM
-//
-//    var body: some View {
-//        ConcentrationView(concentration: concentration, schedule: schedule)
-//            .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
-//    }
-    
-//    func testCategories() -> some View {
-//        HStack {
-//            ForEach (categories) { category in
-//                    CategoryView(category: category, schedule: schedule)
-//            }
-//            EmptyCategoryView(concentration: concentration)
-//        }
-//        .padding([.horizontal], 7)
-//    }
-    
-    
-//    func categoryViews(size: CGSize) -> some View {
-//        let categories = self.categories
-//        return
-//            HStack {
-//                ForEach (categories) { category in
-////                    ConditionalScrollView(wanted: CGFloat(category.courses.count + 1) * categoryCourseFontSize*1.5, given: size.height) {
-//                        CategoryView(category: category, schedule: schedule)
-////                    }
-//                }
-//                EmptyCategoryView(concentration: concentration)
-//            }
-//            .padding([.horizontal], 7)
-////            .frame(height: size.height, alignment: .topLeading)
-//    }
-//    
-//    func drop(providers: [NSItemProvider]) -> Bool {
-//        let found = providers.loadFirstObject(ofType: String.self) { id in
-//            if let droppedConcentration = getDroppedConcentration(id: id) {
-//                withAnimation {
-//                    shared.insertConcentration(droppedConcentration)
-//                    // Fix moving to correct place 
-//                }
-//            }
-//        }
-//        return found
-//    }
-//    
-//    private func getDroppedConcentration(id: String) -> Concentration? {
-//        if let uri = URL(string: id) {
-//            let object = NSManagedObject.fromURI(uri: uri, context: context)
-//            return object as? Concentration
-//        }
-//        return nil
-//    }
-//}
-
-
-
-
-
-
 struct ConcentrationView<V>: View  where V: View{
     
     let categoryViews: (Concentration) -> V
@@ -92,20 +19,22 @@ struct ConcentrationView<V>: View  where V: View{
     
     @FetchRequest private var categories: FetchedResults<Category>
     
+    @State private var isDropping: Bool = false
+    
     private var isEditingConcentration: Bool {
         if case let .concentration(editingConcentration) = shared.currentEditSelection {
-            if editingConcentration == self.concentration { return true }
+            return editingConcentration == self.concentration
         }
         return false
     }
     
-    init(categoryViews: @escaping (Concentration) -> V, concentration: Concentration, concentrationVM: ConcentrationVM) {
-        self.categoryViews = categoryViews
-        self.concentration = concentration
-        self.concentrationVM = concentrationVM
-        let predicate = NSPredicate(format: "concentration == %@", argumentArray: [concentration])
-        let request = Category.fetchRequest(predicate)
-        _categories = FetchRequest(fetchRequest: request)
+    @Binding var isShowingConcentrationOnboarding: Bool
+    @State private var isShowingOnboarding: Bool = !UserDefaults.standard.bool(forKey: categoryOnboardingKey)
+    private func setCategoryOnboarding(show: Bool) {
+        withAnimation {
+            self.isShowingOnboarding = show
+            UserDefaults.standard.setValue(!show, forKey: categoryOnboardingKey)
+        }
     }
     
     private var requiredCourses: Int {
@@ -115,21 +44,20 @@ struct ConcentrationView<V>: View  where V: View{
     }
     
     private var coursesContained: Int {
-        if let schedule = shared.currentSchedule {
-            let courses = schedule.courseURLs
-            return categories.reduce(into: 0) { acc, category in
-                acc += category.courses.reduce(into: 0) { acc, course in
-                    acc += Int(courses.contains(course.urlID))
-                }
-            }
+        categories.reduce(into: 0) { acc, category in
+            acc += category.numberOfContainedCourses(schedule: shared.currentSchedule)
         }
-        return 0
     }
     
-    @State private var isDropping: Bool = false
-    
-    private var empty: Bool {
-        concentration.name == ""
+    // The fetch request makes for better updating?? Should we use this in other places too, like GPA?
+    init(categoryViews: @escaping (Concentration) -> V, concentration: Concentration, concentrationVM: ConcentrationVM, isShowingConcentrationOnboarding: Binding<Bool>) {
+        self.categoryViews = categoryViews
+        self.concentration = concentration
+        self.concentrationVM = concentrationVM
+        let predicate = NSPredicate(format: "concentration == %@", argumentArray: [concentration])
+        let request = Category.fetchRequest(predicate)
+        _categories = FetchRequest(fetchRequest: request)
+        self._isShowingConcentrationOnboarding = isShowingConcentrationOnboarding
     }
     
     var body: some View {
@@ -144,6 +72,17 @@ struct ConcentrationView<V>: View  where V: View{
         .scaleEffect(isDropping ? 1.01 : 1)
         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0, at: concentration) }
         .onDrag({ NSItemProvider(object: concentration.stringID as NSString) })
+        .overlay(overlayView())
+        .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
+            setCategoryOnboarding(show: show)
+        }
+    }
+    
+    @ViewBuilder
+    func overlayView() -> some View {
+        if !isShowingConcentrationOnboarding && isShowingOnboarding {
+            CategoryOnboardingView(isShowingOnboarding: $isShowingOnboarding, setCategoryOnboarding: setCategoryOnboarding).onAppear { print(isShowingConcentrationOnboarding) }
+        }
     }
     
     var container: some View {
@@ -169,31 +108,23 @@ struct ConcentrationView<V>: View  where V: View{
         }
     }
     
-
-    
     var titleText: some View {
-        Text(empty ? "Name" : concentration.name)
+        Text(concentration.name.isEmpty ? "Major" : concentration.name)
             .font(.system(size: 20))
-            .opacity(empty ? 0.4 : 1)
+            .opacity(concentration.name.isEmpty ? 0.4 : 1)
             .onTapGesture { shared.setEditSelection(to: .concentration(concentration: concentration)) } // Open Concentration Editor
     }
-    
-    var deleteGesture: some Gesture {
-        TapGesture()
-            .onEnded { concentration.delete() }
-    }
-    
     
     func drop(providers: [NSItemProvider], at newConcentration: Concentration) -> Bool {
         let found = providers.loadFirstObject(ofType: String.self) { id in
             if let newIndex = concentrationVM.currentConcentrations.firstIndex(of: newConcentration.urlID) {
                 if let droppedConcentration = getDroppedConcentration(id: id) {
                     withAnimation {
-                        concentrationVM.moveInsertConcentration(droppedConcentration, at: newIndex)
+                        concentrationVM.moveInsertCurrentConcentration(droppedConcentration, at: newIndex)
                     }
                 }
             }
-  
+            
         }
         return found
     }
@@ -205,13 +136,75 @@ struct ConcentrationView<V>: View  where V: View{
         }
         return nil
     }
-    
-    
-//
-    
-    
 }
 
+//struct ConcentrationWithCategories: View {
+//
+//
+//    @EnvironmentObject var shared: SharedVM
+//    @ObservedObject var concentration: Concentration
+//    @Environment(\.managedObjectContext) var context
+//
+//    private var categories: [Category] {
+//        concentration.categories.sorted(by: {$0.index < $1.index })
+//    }
+//
+//    @State private var isDropping: Bool = false
+//
+//    // Needs to tell categories to change with schedule
+//    @ObservedObject var schedule: ScheduleVM
+//
+//    var body: some View {
+//        ConcentrationView(concentration: concentration, schedule: schedule)
+//            .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
+//    }
+
+//    func testCategories() -> some View {
+//        HStack {
+//            ForEach (categories) { category in
+//                    CategoryView(category: category, schedule: schedule)
+//            }
+//            EmptyCategoryView(concentration: concentration)
+//        }
+//        .padding([.horizontal], 7)
+//    }
+
+
+//    func categoryViews(size: CGSize) -> some View {
+//        let categories = self.categories
+//        return
+//            HStack {
+//                ForEach (categories) { category in
+////                    ConditionalScrollView(wanted: CGFloat(category.courses.count + 1) * categoryCourseFontSize*1.5, given: size.height) {
+//                        CategoryView(category: category, schedule: schedule)
+////                    }
+//                }
+//                EmptyCategoryView(concentration: concentration)
+//            }
+//            .padding([.horizontal], 7)
+////            .frame(height: size.height, alignment: .topLeading)
+//    }
+//
+//    func drop(providers: [NSItemProvider]) -> Bool {
+//        let found = providers.loadFirstObject(ofType: String.self) { id in
+//            if let droppedConcentration = getDroppedConcentration(id: id) {
+//                withAnimation {
+//                    shared.insertConcentration(droppedConcentration)
+//                    // Fix moving to correct place
+//                }
+//            }
+//        }
+//        return found
+//    }
+//
+//    private func getDroppedConcentration(id: String) -> Concentration? {
+//        if let uri = URL(string: id) {
+//            let object = NSManagedObject.fromURI(uri: uri, context: context)
+//            return object as? Concentration
+//        }
+//        return nil
+//    }
+//}
 //
 //func delete(category: Category) -> some View {
 //        context.delete(category)

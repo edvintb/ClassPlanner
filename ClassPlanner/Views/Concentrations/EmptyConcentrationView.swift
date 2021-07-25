@@ -39,7 +39,7 @@ struct EmptyConcentrationView: View {
                 let containAdjustment = Int(concentrationVM.currentConcentrations.contains(droppedConcentration.urlID))
                 let insertPos = concentrationVM.currentConcentrations.count - containAdjustment
                 withAnimation {
-                    concentrationVM.moveInsertConcentration(droppedConcentration, at: insertPos)
+                    concentrationVM.moveInsertCurrentConcentration(droppedConcentration, at: insertPos)
                 }
             }
         }

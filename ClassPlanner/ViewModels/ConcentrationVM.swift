@@ -18,14 +18,14 @@ class ConcentrationVM: ObservableObject {
 
     @Published private (set) var currentConcentrations: [URL]
     
-    func moveInsertConcentration(_ concentration: Concentration, at newIndex: Int) {
+    func moveInsertCurrentConcentration(_ concentration: Concentration, at newIndex: Int) {
         if let currentIndex = currentConcentrations.firstIndex(of: concentration.urlID) {
             currentConcentrations.remove(at: currentIndex)
         }
         currentConcentrations.insert(concentration.urlID, at: newIndex)
     }
     
-    func removeConcentration(_ concentration: Concentration) {
+    func removeFromCurrentConcentrations(_ concentration: Concentration) {
         if let removeIndex = currentConcentrations.firstIndex(of: concentration.urlID) {
             currentConcentrations.remove(at: removeIndex)
         }
@@ -33,14 +33,12 @@ class ConcentrationVM: ObservableObject {
     
     func addConcentration(context: NSManagedObjectContext) {
         let new = Concentration.createEmpty(in: context)
-        moveInsertConcentration(new, at: currentConcentrations.count)
+        moveInsertCurrentConcentration(new, at: currentConcentrations.count)
     }
     
     // Needed to automatically save & load with User Defaults
     init() {
-        
         let concentrationKey = "CurrentConcentrations"
-        
         let stringArray = (UserDefaults.standard.stringArray(forKey: concentrationKey))
         let urlIDs = stringArray?.compactMap { URL(string: $0) }
         self.currentConcentrations = urlIDs ?? []

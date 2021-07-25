@@ -10,12 +10,11 @@ import SwiftUI
 struct ConcentrationContainerView: View {
     
     @EnvironmentObject var shared: SharedVM
-    
     @ObservedObject var schedule: ScheduleVM
-    
     @ObservedObject var concentrationVM: ConcentrationVM
     
     @Environment(\.managedObjectContext) var context
+    @State var isDropping: Bool = false
     
     private var concentrations: [Concentration] {
         concentrationVM.currentConcentrations.compactMap { uri in
@@ -23,41 +22,34 @@ struct ConcentrationContainerView: View {
         }
     }
     
-    @State var isDropping: Bool = false
-    
-    @State var isShowingContent: Bool = false
-    
-    var body: some View {
-        GeometryReader { geo in
-            ScrollView([.vertical, .horizontal]) {
-//            List {
-                concentrationViews(width: geo.size.width)
-            }
+    // For onboarding
+    @State private var isShowingOnboarding: Bool = !UserDefaults.standard.bool(forKey: concentrationOnboardingKey)
+    private func setConcentrationOnboarding(show: Bool) {
+        withAnimation {
+            self.isShowingOnboarding = show
+            UserDefaults.standard.setValue(!show, forKey: concentrationOnboardingKey)
         }
-        
-        //        GeometryReader { geo in
-        //            List {
-        //                ScrollView ([.horizontal]) {
-        //                    concentrationViews(size: geo.size)
-        //                }// ScrollView([.vertical, .horizontal]) {
-        //            }
-        //        }
     }
     
-    func concentrationViews(width: CGFloat) -> some View {
+    var body: some View {
         let stableConcentrations = concentrations
-        return
-            VStack (alignment: .leading, spacing: 4) {
-                Spacer(minLength: 4)
-                ForEach (stableConcentrations) { concentration in
-                    ConcentrationView(categoryViews: categoryViews, concentration: concentration, concentrationVM: concentrationVM)
-                        
+        GeometryReader { geo in
+            ScrollView([.vertical, .horizontal]) {
+                VStack (alignment: .leading, spacing: 4) {
+                    Spacer(minLength: 4)
+                    ForEach (stableConcentrations) { concentration in
+                        ConcentrationView(categoryViews: categoryViews, concentration: concentration, concentrationVM: concentrationVM, isShowingConcentrationOnboarding: $isShowingOnboarding)
+                    }
+                    EmptyConcentrationView(concentrationVM: concentrationVM)
+                        .frame(minWidth: geo.size.width - 40)
                 }
-                EmptyConcentrationView(concentrationVM: concentrationVM)
-                    .frame(width: width - 40)
+                .padding(.horizontal, 10)
             }
-            .padding(.horizontal, 10)
-        
+            .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
+                setConcentrationOnboarding(show: show)
+            }
+        }
+        .overlay(ConcentrationOnboardingView(isShowingOnboarding: $isShowingOnboarding, setConcentrationOnboarding: setConcentrationOnboarding))
     }
     
     func categoryViews(concentration: Concentration) -> some View {
@@ -69,7 +61,7 @@ struct ConcentrationContainerView: View {
             if let newIndex = concentrationVM.currentConcentrations.firstIndex(of: newConcentration.urlID) {
                 if let droppedConcentration = getDroppedConcentration(id: id) {
                     withAnimation {
-                        concentrationVM.moveInsertConcentration(droppedConcentration, at: newIndex)
+                        concentrationVM.moveInsertCurrentConcentration(droppedConcentration, at: newIndex)
                     }
                 }
             }

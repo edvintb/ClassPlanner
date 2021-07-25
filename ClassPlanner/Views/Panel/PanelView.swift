@@ -52,14 +52,14 @@ struct PanelView: View {
     @ViewBuilder
     func getPanelContent(_ selection: PanelOption) -> some View {
         switch selection {
-            case .editor:
-                getEditor(shared.currentEditSelection)
-            case .courses:
-                CourseStoreView()
-            case .concentrations:
-                ConcentrationStoreView(concentrationVM: concentrationVM)
-            case .schedules:
-                ScheduleStoreView(store: scheduleStore)
+        case .editor:
+            getEditor(shared.currentEditSelection)
+        case .courses:
+            CourseStoreView()
+        case .concentrations:
+            ConcentrationStoreView(concentrationVM: concentrationVM)
+        case .schedules:
+            ScheduleStoreView(store: scheduleStore)
         }
     }
     
@@ -81,7 +81,7 @@ struct PanelView: View {
                 Text("Category").font(.system(size: 15)).opacity(grayTextOpacity)
                 CategoryEditorView(category: category, categorySuggestionVM: categorySuggestionVM, context: context)
             }
-
+            
         case .concentration(let concentration):
             VStack(spacing: 0) {
                 Text("Major").font(.system(size: 15)).opacity(grayTextOpacity)
@@ -97,37 +97,39 @@ struct PanelView: View {
                               dismissButton: .default(Text("OK")))
                     }
             }
-                .onDisappear { scheduleStore.setName(schedule.name, for: schedule) }
+            .onDisappear { scheduleStore.setName(schedule.name, for: schedule) }
         case .none:
-            VStack {
-                Spacer()
-                Text("No Selection")
-                    .font(.system(size: 15))
-                    .opacity(grayTextOpacity)
-                Spacer()
-            }
-            
+            Text("No Selection")
+                .font(.system(size: 15))
+                .opacity(grayTextOpacity)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
     }
     
     func drop(providers: [NSItemProvider]) -> Bool {
-        let found = providers.loadFirstObject(ofType: String.self) { id in
-            if let droppedCourse = getDroppedCourse(id: id) {
+        let found = providers.loadFirstObject(ofType: String.self) { location in
+            if let uri = URL(string: location) {
                 if let schedule = shared.currentSchedule {
-                    withAnimation {
-                        schedule.removeCourse(droppedCourse)
+                    if let droppedObject = NSManagedObject.fromURI(uri: uri, context: context) {
+                        withAnimation {
+                            if let course = droppedObject as? Course {
+                                schedule.removeCourse(course)
+                                return
+                            }
+                            if let concentration = droppedObject as? Concentration {
+                                concentrationVM.removeFromCurrentConcentrations(concentration)
+                                return
+                            }
+                            if let category = droppedObject as? Category {
+                                category.delete()
+                                return
+                            }
+                        }
                     }
                 }
             }
         }
         return found
-    }
-    
-    private func getDroppedCourse(id: String) -> Course? {
-        if let uri = URL(string: id) {
-            return Course.fromCourseURI(uri: uri, context: context)
-        }
-        return nil
     }
 }
 

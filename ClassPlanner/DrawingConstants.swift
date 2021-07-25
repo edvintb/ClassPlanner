@@ -23,7 +23,6 @@ let hoverShadowRadius: CGFloat = 3
 let courseVerticalSpacing: CGFloat = 7
 let courseHorizontalSpacing: CGFloat = 6
 
-
 let emptyHoverOpacity: Double = 0.2
 
 let emptyOpacity: Double = 0.2
@@ -64,7 +63,10 @@ let textFieldCornerRadius: CGFloat = 3.5
 
 let panelScheduleHeight: CGFloat = 50
 
-let myRed: Color = Color(.sRGB, red: 200, green: 40, blue: 40, opacity: 1)
-
 let editorPadding: CGFloat = 7
 let editorColorGridHeight: CGFloat = 300
+
+let courseEditorOnboardingKey = "courseEditorOnboardingKey"
+let concentrationOnboardingKey = "concentrationOnboardingKey"
+let categoryOnboardingKey = "categoryOnboardingKey"
+let scheduleOnboardingKey = "scheduleOnboardingKey"

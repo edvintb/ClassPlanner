@@ -93,7 +93,7 @@ struct ConcentrationEditorView: View {
     
     func deleteAction() {
         shared.stopEdit()
-        concentrationVM.removeConcentration(concentration)
+        concentrationVM.removeFromCurrentConcentrations(concentration)
         concentration.delete()
         concentration.save()
         shared.setPanelSelection(to: .concentrations)
@@ -117,7 +117,7 @@ struct ConcentrationEditorView: View {
             return
                 Button("Remove from current") {
                     withAnimation {
-                        concentrationVM.removeConcentration(concentration)
+                        concentrationVM.removeFromCurrentConcentrations(concentration)
                         // concentration.save()
                     }
                 }
@@ -126,7 +126,7 @@ struct ConcentrationEditorView: View {
             return
                 Button("Add to current") {
                     withAnimation {
-                        concentrationVM.moveInsertConcentration(concentration, at: 0)
+                        concentrationVM.moveInsertCurrentConcentration(concentration, at: 0)
                     }
                 }
         }

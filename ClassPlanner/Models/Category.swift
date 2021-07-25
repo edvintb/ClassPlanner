@@ -37,7 +37,7 @@ extension Category {
             self.concentration?.courses.remove(course)
             try? context.save()
         }
-
+        
     }
     
     func move(to index: Int, concentration: Concentration) {
@@ -48,15 +48,15 @@ extension Category {
         self.concentration?.objectWillChange.send()
     }
     
-
+    
     private func moveInConcentration(to index: Int) {
         if let context = managedObjectContext {
             if index == self.index { return }
             let topIndex = max(self.index, index)
             let bottomIndex = min(self.index, index)
             let predicate = NSPredicate(format:
-                "concentration == %@ AND index_ <= %@ AND index_ >= %@ AND SELF != %@",
-                argumentArray: [self.concentration!, topIndex, bottomIndex, self])
+                                            "concentration == %@ AND index_ <= %@ AND index_ >= %@ AND SELF != %@",
+                                        argumentArray: [self.concentration!, topIndex, bottomIndex, self])
             let request = Category.fetchRequest(predicate)
             let otherCategories = (try? context.fetch(request)) ?? []
             let down = self.index < index
@@ -105,11 +105,9 @@ extension Category {
     }
     
     
-    
-    // MARK: - Property Access
-    
-    func coursesSortedBySchedule(schedule: ScheduleVM) -> [Course] {
-        let urls = schedule.courseURLs
+    func coursesSortedBySchedule(schedule: ScheduleVM?) -> [Course] {
+        if schedule == nil { return self.courses.sorted(by: { $0.name < $1.name }) }
+        let urls = schedule!.courseUrlSet
         let sorted = self.courses.sorted(by: {
             let firstURL = $0.objectID.uriRepresentation()
             let secondURL = $1.objectID.uriRepresentation()
@@ -124,9 +122,16 @@ extension Category {
         return sorted
     }
     
-    func coursesSorted() -> [Course] {
-        self.courses.sorted(by: { $0.name < $1.name })
+    func numberOfContainedCourses(schedule: ScheduleVM?) -> Int {
+        if schedule == nil { return 0 }
+        let courseUrlSet = schedule!.courseUrlSet
+        let containedCourses = self.courses.reduce(into: 0) { acc, course in
+            acc += Int(courseUrlSet.contains(course.urlID))
+        }
+        return containedCourses
     }
+    
+    // MARK: - Property Access
     
     
     var index: Int {

@@ -24,16 +24,8 @@ struct CategoryEditorView: View {
     
 
     // Sort courses depending on current schedule
-    private var courses: [Course] {
-        if let schedule = shared.currentSchedule {
-            return category.coursesSortedBySchedule(schedule: schedule)
-        }
-        else {
-            return category.coursesSorted()
-        }
-    }
+    private var courses: [Course] { category.coursesSortedBySchedule(schedule: shared.currentSchedule) }
     
-    private var cancellables = Set<AnyCancellable>()
     private var color: Color { category.getColor() }
     
     init(category: Category, categorySuggestionVM: CategorySuggestionVM, context: NSManagedObjectContext) {
@@ -68,17 +60,15 @@ struct CategoryEditorView: View {
     }
     
     var concentrationName: some View {
-        HStack {
-            Spacer()
             Text(category.concentration?.name ?? "No concentration")
                 .opacity(0.4)
                 .font(.footnote)
-            Spacer()
-        }
+                .frame(maxWidth: .infinity, alignment: .center)
     }
     
     var nameField: some View {
-        TextField("Name...", text: $category.name, onCommit: { category.save() }).cornerRadius(textFieldCornerRadius)
+        TextField("Name...", text: $category.name, onCommit: { category.save() })
+            .cornerRadius(textFieldCornerRadius)
     }
     
     var requiredField: some View {
@@ -117,7 +107,7 @@ struct CategoryEditorView: View {
                     Text(course.name == "" ? "No name" : course.name)
                         .foregroundColor(course.getColor())
                     Spacer()
-                    if shared.currentSchedule?.courseURLs.contains(course.urlID) ?? false {
+                    if shared.currentSchedule?.courseUrlSet.contains(course.urlID) ?? false {
                         Text(courseContainedSymbol)
                             .foregroundColor(checkMarkColor)
                     }

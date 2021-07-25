@@ -22,36 +22,16 @@ struct CategoryView: View {
     
     private var isEditingCategory: Bool {
         if case let .category(editingCategory) = shared.currentEditSelection {
-            if editingCategory == self.category { return true }
+            return editingCategory == self.category
         }
         return false
     }
-
-    // Sort courses depending on current schedule
-    private var courses: [Course] {
-        if let schedule = shared.currentSchedule {
-            return category.coursesSortedBySchedule(schedule: schedule)
-        }
-        else {
-            return category.coursesSorted()
-        }
-    }
     
-    private var numberOfContainedCourses: Int {
-        if let schedule = shared.currentSchedule {
-            return
-                category.courses.reduce(into: 0) { acc, course in
-                    acc += Int(schedule.courseURLs.contains(course.urlID))
-                }
-        }
-        else {
-            return 0
-        }
-    }
+    private var courses: [Course] { category.coursesSortedBySchedule(schedule: shared.currentSchedule) }
     
     private var moreContainedThanRequired: Bool {
         if category.numberOfRequired == 0 { return false }
-        return numberOfContainedCourses >= category.numberOfRequired
+        return category.numberOfContainedCourses(schedule: schedule) >= category.numberOfRequired
     }
     
     var body: some View {
@@ -74,7 +54,6 @@ struct CategoryView: View {
                         .opacity(transparentTextOpacity)
                         .multilineTextAlignment(.center)
                 }
-
                 Spacer(minLength: 4)
             }.padding([.top, .leading], isEditingCategory ? 3 : 0)
         }
@@ -87,13 +66,11 @@ struct CategoryView: View {
 
     var title: some View {
         HStack(spacing: 0) {
-            Text(category.name == "" ? "Name" : category.name)
+            Text(category.name == "" ? "Category" : category.name)
                 .opacity(category.name == "" ? grayTextOpacity : 1)
                 .foregroundColor(color)
             Spacer()
-//            Text("\(category.index)")
-//            Spacer()
-            Text("\(numberOfContainedCourses)")
+            Text("\(category.numberOfContainedCourses(schedule: schedule))")
                 .opacity(moreContainedThanRequired ? 1 : grayTextOpacity)
                 .foregroundColor(moreContainedThanRequired ? .green : .primary)
             Text("/\(category.numberOfRequired)")
@@ -115,7 +92,7 @@ struct CategoryView: View {
                 .foregroundColor(course.getColor())
             Spacer()
             if let schedule = shared.currentSchedule {
-                if schedule.courseURLs.contains(course.urlID) {
+                if schedule.courseUrlSet.contains(course.urlID) {
                     Text(courseContainedSymbol)
                         .foregroundColor(checkMarkColor)
                 }

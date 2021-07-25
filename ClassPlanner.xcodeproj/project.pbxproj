@@ -31,6 +31,9 @@
 		5C67135A264C259200491C1C /* SearchTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C671359264C259200491C1C /* SearchTextField.swift */; };
 		5C6C2D9226342D28000C8644 /* Concentration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6C2D9126342D28000C8644 /* Concentration.swift */; };
 		5C6C2D9626343100000C8644 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6C2D9526343100000C8644 /* ContentView.swift */; };
+		5C75EC5A26AD6BEB0030C225 /* ConcentrationOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C75EC5926AD6BEB0030C225 /* ConcentrationOnboardingView.swift */; };
+		5C75EC5D26AD9B6C0030C225 /* CourseEditorOnboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C75EC5C26AD9B6C0030C225 /* CourseEditorOnboarding.swift */; };
+		5C75EC5F26ADF46A0030C225 /* CategoryOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C75EC5E26ADF46A0030C225 /* CategoryOnboardingView.swift */; };
 		5C8B4CB92653D01500E877D8 /* ScheduleStoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8B4CB82653D01500E877D8 /* ScheduleStoreView.swift */; };
 		5C8B4CBC2653D37B00E877D8 /* CourseStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8B4CBB2653D37B00E877D8 /* CourseStore.swift */; };
 		5C8D51DC260797ED00CDEAB5 /* FoundationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8D51DB260797ED00CDEAB5 /* FoundationExtensions.swift */; };
@@ -97,6 +100,9 @@
 		5C671359264C259200491C1C /* SearchTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTextField.swift; sourceTree = "<group>"; };
 		5C6C2D9126342D28000C8644 /* Concentration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Concentration.swift; sourceTree = "<group>"; };
 		5C6C2D9526343100000C8644 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		5C75EC5926AD6BEB0030C225 /* ConcentrationOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrationOnboardingView.swift; sourceTree = "<group>"; };
+		5C75EC5C26AD9B6C0030C225 /* CourseEditorOnboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseEditorOnboarding.swift; sourceTree = "<group>"; };
+		5C75EC5E26ADF46A0030C225 /* CategoryOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryOnboardingView.swift; sourceTree = "<group>"; };
 		5C8B4CB82653D01500E877D8 /* ScheduleStoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleStoreView.swift; sourceTree = "<group>"; };
 		5C8B4CBB2653D37B00E877D8 /* CourseStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseStore.swift; sourceTree = "<group>"; };
 		5C8D51DB260797ED00CDEAB5 /* FoundationExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationExtensions.swift; sourceTree = "<group>"; };
@@ -162,7 +168,6 @@
 				5CB1F105266A78410095EA9D /* ScheduleCourseView.swift */,
 				5C5574E52606331C001C1037 /* CourseView.swift */,
 				5C9340A12632D507006AF281 /* EmptyCourseView.swift */,
-				5CEF027E26A4BF850086A044 /* ScheduleOnboardingView.swift */,
 			);
 			path = Schedule;
 			sourceTree = "<group>";
@@ -237,6 +242,17 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		5C75EC5B26AD9B500030C225 /* Onboarding */ = {
+			isa = PBXGroup;
+			children = (
+				5C75EC5C26AD9B6C0030C225 /* CourseEditorOnboarding.swift */,
+				5CEF027E26A4BF850086A044 /* ScheduleOnboardingView.swift */,
+				5C75EC5926AD6BEB0030C225 /* ConcentrationOnboardingView.swift */,
+				5C75EC5E26ADF46A0030C225 /* CategoryOnboardingView.swift */,
+			);
+			path = Onboarding;
+			sourceTree = "<group>";
+		};
 		5C8D51EE260BE3C200CDEAB5 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -244,6 +260,7 @@
 				5CE7393A264FD20E00221D81 /* Panel */,
 				5C528B66263F399600891BE9 /* Schedule */,
 				5C528B67263F39AD00891BE9 /* Concentrations */,
+				5C75EC5B26AD9B500030C225 /* Onboarding */,
 				5CAF0964266CEA0F00BCCB99 /* Categories */,
 			);
 			path = Views;
@@ -426,11 +443,13 @@
 				5C5574E92606331C001C1037 /* ClassPlanner.xcdatamodeld in Sources */,
 				5C16AC3D264E92AE0075727A /* DoubleTextField.swift in Sources */,
 				5CC8F7AA2654404D00EDE501 /* ConcentrationVM.swift in Sources */,
+				5C75EC5A26AD6BEB0030C225 /* ConcentrationOnboardingView.swift in Sources */,
 				5C8D51F0260BE3F100CDEAB5 /* SemesterView.swift in Sources */,
 				5CC8F7A726543FAD00EDE501 /* ScheduleView.swift in Sources */,
 				5CE73933264EF40200221D81 /* IntTextField.swift in Sources */,
 				5C5574E62606331C001C1037 /* CourseView.swift in Sources */,
 				5C04D615263F41E5008F20DA /* CategoryView.swift in Sources */,
+				5C75EC5F26ADF46A0030C225 /* CategoryOnboardingView.swift in Sources */,
 				5C9340A22632D508006AF281 /* EmptyCourseView.swift in Sources */,
 				5C04D61B263F4711008F20DA /* EmptyCategoryView.swift in Sources */,
 				5C13FBA7266921D8003313ED /* ConcentrationStoreView.swift in Sources */,
@@ -460,6 +479,7 @@
 				5C13FB9F2668F3EF003313ED /* CourseSuggestionVM.swift in Sources */,
 				5C6C2D9226342D28000C8644 /* Concentration.swift in Sources */,
 				5C8D51E92608D26F00CDEAB5 /* ScheduleVM.swift in Sources */,
+				5C75EC5D26AD9B6C0030C225 /* CourseEditorOnboarding.swift in Sources */,
 				5C8D51E52608D1FF00CDEAB5 /* ScheduleModel.swift in Sources */,
 				5CC8F7BE2657CC2900EDE501 /* SuggestionInput.swift in Sources */,
 			);
@@ -603,7 +623,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"ClassPlanner/Preview Content\"";
 				DEVELOPMENT_TEAM = 89D9G7SXB4;
 				ENABLE_PREVIEWS = YES;
@@ -629,7 +649,7 @@
 				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"ClassPlanner/Preview Content\"";
 				DEVELOPMENT_TEAM = 89D9G7SXB4;
 				ENABLE_PREVIEWS = YES;

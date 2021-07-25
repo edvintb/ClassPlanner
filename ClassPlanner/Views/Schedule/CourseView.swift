@@ -19,7 +19,7 @@ struct CourseView: View {
     
     private var isEditingCourse: Bool {
         if case let .course(editingCourse) = shared.currentEditSelection {
-            if editingCourse == self.course { return true }
+            return editingCourse == self.course
         }
         return false
     }
@@ -91,9 +91,6 @@ struct CourseView: View {
         .truncationMode(.tail)
     }
 
-
-    
-
     func leftProperties() -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(" \(workloadSymbol) \(NSNumber(value: course.workload), formatter: NumberFormatter.courseFormat)")
@@ -110,8 +107,7 @@ struct CourseView: View {
             Text(" \(gradeSymbol)").font(.system(size: gradeSymbolSize)) + Text(" \(grade)").foregroundColor(Grade.color[course.enumGrade])
             Text(" \(course.fall ? "\(fallSymbol)" : "  - ") \(course.spring ? "\(springSymbol)" : " -")")
 //            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
-            Text("   ")
-            
+            Text("  Pre:  ") + (shared.currentSchedule?.containsPrereqs(for: course) ?? Text("-"))
         }
         .font(.system(size: iconSize, weight: .regular, design: .default))
         .frame(maxWidth: .infinity, alignment: .leading)
