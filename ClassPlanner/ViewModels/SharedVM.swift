@@ -23,7 +23,10 @@ class SharedVM: ObservableObject {
     
     func setCurrentSchedule(to schedule: ScheduleVM?) {
         self.currentSchedule = schedule
+        
     }
+    
+
     
     
     // MARK: - Edit Functionality

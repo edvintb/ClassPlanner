@@ -55,7 +55,6 @@ class ScheduleStore: ObservableObject {
     
     func setName(_ newName: String, for schedule: ScheduleVM) {
         if approveName(newName, for: schedule) {
-            print("Approved name")
             // Deleting at the old url
             deleteSchedule(schedule)
             // Each time we set the url we are saving

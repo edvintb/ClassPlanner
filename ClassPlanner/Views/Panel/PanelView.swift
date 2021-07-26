@@ -23,14 +23,22 @@ struct PanelView: View {
     
     @State private var isDropping: Bool = false
     
+    // For onboarding
+    @State private var isShowingCourseEditorOnboarding: Bool =
+        !UserDefaults.standard.bool(forKey: courseEditorOnboardingKey)
+
+    
     var body: some View {
         VStack(spacing: 7) {
-            Spacer().frame(height: 5)
+            Spacer().frame(height: 6)
             symbolsView
             Divider()
             getPanelContent(shared.currentPanelSelection)
         }
         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
+        .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
+            isShowingCourseEditorOnboarding = show
+        }
     }
     
     
@@ -73,7 +81,8 @@ struct PanelView: View {
                     course: course,
                     courseSuggestionVM: courseSuggestionVM,
                     prereqSuggestionVM: prereqSuggestionVM,
-                    context: context)
+                    context: context,
+                    isShowingOnboarding: $isShowingCourseEditorOnboarding)
             }
             
         case .category(let category):

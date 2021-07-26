@@ -59,7 +59,7 @@ struct ConcentrationStoreView: View {
         let containedInCurrent = category.numberOfContainedCourses(schedule: shared.currentSchedule)
         return
             HStack(spacing: 0) {
-                Text(category.name == "" ? "Name" : category.name)
+                Text(category.name == "" ? "Category" : category.name)
                     .opacity(category.name == "" ? grayTextOpacity : 1)
                     .foregroundColor(category.getColor())
                 Spacer()

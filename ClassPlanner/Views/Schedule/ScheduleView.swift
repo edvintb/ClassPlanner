@@ -30,14 +30,19 @@ struct ScheduleView: View {
     // Adopt the frame to scroll less
     var body: some View {
         GeometryReader { geo in
-            ScrollView([.vertical, .horizontal], showsIndicators: false) {
+            ScrollView([.vertical, .horizontal]) {
                 VStack(alignment: .leading, spacing: 7) {
                     scheduleTop(schedule: schedule)
                     Divider().padding(.bottom, 3)
                     semesters
                     Spacer().frame(height: geo.size.height - 215)
                 }
-                .overlay(ScheduleOnboardingView(isShowingOnboarding: $isShowingOnboarding, setScheduleOnboarding: self.setScheduleOnboarding))
+                .overlay(
+                    ScheduleOnboardingView(
+                        isShowingOnboarding: $isShowingOnboarding,
+                        setScheduleOnboarding: self.setScheduleOnboarding
+                    )
+                )
                 .frame(minWidth: geo.size.width - 15, alignment: .topLeading)
                 .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
                     setScheduleOnboarding(show: show)
@@ -76,6 +81,8 @@ struct ScheduleView: View {
                 action: { schedule.turnCourseViews() },
                 label: { Text("⟳") }
             )
+            Text("\(schedule.courseUrlSet.count) Course\(schedule.courseUrlSet.count == 1 ? "" : "s")")
+                .font(.system(size: 17))
             Spacer()
             helpButton
         }

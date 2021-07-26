@@ -15,17 +15,19 @@ struct ConcentrationOnboardingView: View {
     
     var body: some View {
         if isShowingOnboarding {
-            ZStack {
-                VStack(alignment: .leading, spacing: 20) {
-                    Text("This is a list of majors, minors and other requirements.")
-                    Text("To create a major, click in this box or drag & drop from the major tab.")
-                    Text("To move & remove majors, use drag & drop.")
-                    onboardingButton(text: "Dismiss", show: false)
+            ScrollView([.horizontal, .vertical]) {
+                ZStack {
+                    VStack(alignment: .leading, spacing: 20) {
+                        Text("This is a list of majors, minors & other requirements.")
+                        Text("To add a major, click in this box or drag & drop from the major tab.")
+                        Text("To move & remove majors, use drag & drop.")
+                        onboardingButton(text: "Dismiss", show: false)
+                    }
+                    .font(.system(size: 23, weight: .light, design: .default))
+                    .frame(width: 800)
+                    .padding()
                 }
-                .font(.system(size: 25, weight: .light, design: .default))
-                .frame(width: 800)
-                Rectangle().foregroundColor(.green).opacity(0.2)
-            }
+            }.background(Rectangle().foregroundColor(.green).opacity(0.2))
         }
     }
     

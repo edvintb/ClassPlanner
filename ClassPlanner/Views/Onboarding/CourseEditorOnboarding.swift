@@ -28,7 +28,7 @@ struct CourseEditorOnboarding: View {
                 .padding()
 //                .frame(maxHeight: .infinity, alignment: .top)
                 Rectangle().foregroundColor(.orange).opacity(0.1)
-                    .onDisappear { setCourseEditorOnboarding(false) }
+                    .onDisappear { print("Popup disappeared"); setCourseEditorOnboarding(false) }
             }
         }
     }

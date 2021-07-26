@@ -29,8 +29,16 @@ struct CourseEditorView: View {
     @ObservedObject var searchModel: SearchModel
     @ObservedObject var prereqSearchModel: SearchModel
     
-    // For onboarding
-    @State private var isShowingOnboarding: Bool = !UserDefaults.standard.bool(forKey: courseEditorOnboardingKey)
+//    // For onboarding
+//    @State private var isShowingOnboarding: Bool = !UserDefaults.standard.bool(forKey: courseEditorOnboardingKey)
+//    private func setCourseEditorOnboarding(show: Bool) {
+//        withAnimation {
+//            self.isShowingOnboarding = show
+//            UserDefaults.standard.setValue(!show, forKey: courseEditorOnboardingKey)
+//        }
+//    }
+//
+    @Binding private var isShowingOnboarding: Bool
     private func setCourseEditorOnboarding(show: Bool) {
         withAnimation {
             self.isShowingOnboarding = show
@@ -41,12 +49,14 @@ struct CourseEditorView: View {
     init(course: Course,
          courseSuggestionVM: CourseSuggestionVM,
          prereqSuggestionVM: PrereqSuggestionVM,
-         context: NSManagedObjectContext) {
+         context: NSManagedObjectContext,
+         isShowingOnboarding: Binding<Bool>) {
         
         self.courseSuggestionVM = courseSuggestionVM
         self.prereqSuggestionVM = prereqSuggestionVM
         self.course = course
-        
+        self._isShowingOnboarding = isShowingOnboarding
+    
         // Okay to create search model here
         self.searchModel = SearchModel(startingText: course.name, context: context, avoid: course.objectID)
         
@@ -77,10 +87,6 @@ struct CourseEditorView: View {
                 bottomButtons
             }
             .padding(editorPadding)
-//            .overlay(CourseEditorOnboarding(isHidingOnboarding: $isHidingOnboarding, setCourseEditorOnboarding: setCourseEditorOnboarding))
-            .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
-                setCourseEditorOnboarding(show: show)
-            }
         }
 //        .background(KeyEventHandling(course: self.course, schedule: shared.currentSchedule))
         

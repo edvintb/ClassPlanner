@@ -13,7 +13,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     var window: NSWindow!
     
-    
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // Create the SwiftUI view and set the context as the value for the managedObjectContext environment keyPath.
         // Add `@Environment(\.managedObjectContext)` in the views that will need the context.
@@ -51,11 +50,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         )
             .environment(\.managedObjectContext, context)
             .environmentObject(shared)
-            
 
+        let mainScreenFrame = NSScreen.main?.visibleFrame
+        
         // Create the window and set the content view.
         window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
+            contentRect: NSRect(
+                x: 0,
+                y: 0,
+                width: mainScreenFrame?.width ?? 300,
+                height: mainScreenFrame?.height ?? 480
+            ),
             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
             backing: .buffered, defer: false)
         window.center()
