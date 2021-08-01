@@ -92,7 +92,6 @@ struct ConcentrationView<V>: View  where V: View{
         Text(concentration.name.isEmpty ? "Major" : concentration.name)
             .font(.system(size: 20))
             .opacity(concentration.name.isEmpty ? 0.4 : 1)
-            .onTapGesture { shared.setEditSelection(to: .concentration(concentration: concentration)) } // Open Concentration Editor
     }
     
     func drop(providers: [NSItemProvider], at newConcentration: Concentration) -> Bool {

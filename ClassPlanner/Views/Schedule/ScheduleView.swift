@@ -74,9 +74,6 @@ struct ScheduleView: View {
             Text(schedule.name)
                 .font(.system(size: 20))
                 .foregroundColor(schedule.color)
-                .onTapGesture {
-                    setScheduleOnboarding(show: !self.isShowingOnboarding)
-                }
             Text(String(format: "\(gradeSymbol) %.2f", schedule.gradeAverage))
                 .font(.system(size: 17))
             Text("\(schedule.courseUrlSet.count) Course\(schedule.courseUrlSet.count == 1 ? "" : "s")")
