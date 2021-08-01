@@ -69,6 +69,13 @@ extension Course {
             try? context.save()
         }
     }
+    
+    func isPrereqSatisfied(prereq: Course, schedule: ScheduleVM?) -> Bool {
+        if schedule == nil { return false }
+        guard let selfPos = schedule!.getPosition(course: self) else { return false }
+        guard let prereqPos = schedule!.getPosition(course: prereq) else { return false }
+        return selfPos.isAfterOrSameSemester(prereqPos)
+    }
 
     
     // MARK: - Property access

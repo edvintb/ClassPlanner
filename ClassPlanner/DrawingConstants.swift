@@ -68,6 +68,6 @@ let editorColorGridHeight: CGFloat = 300
 
 let courseEditorOnboardingKey = "courseEditorOnboardingKey"
 let concentrationOnboardingKey = "concentrationOnboardingKey"
-let categoryOnboardingKey = "categoryOnboardingKey"
+let concentrationEditorOnboardingKey = "categoryOnboardingKey"
 let scheduleOnboardingKey = "scheduleOnboardingKey"
 let currentScheduleKey = "currentScheduleKey"

@@ -30,7 +30,8 @@
         <attribute name="workload_" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <relationship name="categories_" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Category" inverseName="courses_" inverseEntity="Category"/>
         <relationship name="concentrations_" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Concentration" inverseName="courses_" inverseEntity="Concentration"/>
-        <relationship name="prereqs_" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Course" inverseName="prereqs_" inverseEntity="Course"/>
+        <relationship name="prereq_for_" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Course" inverseName="prereqs_" inverseEntity="Course"/>
+        <relationship name="prereqs_" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Course" inverseName="prereq_for_" inverseEntity="Course"/>
         <relationship name="professor" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Professor" inverseName="courses" inverseEntity="Professor"/>
     </entity>
     <entity name="Professor" representedClassName="Professor" syncable="YES" codeGenerationType="class">
@@ -40,7 +41,7 @@
     <elements>
         <element name="Category" positionX="-364.73828125" positionY="-12.85546875" width="128" height="148"/>
         <element name="Concentration" positionX="-65.42578125" positionY="228.24609375" width="128" height="133"/>
-        <element name="Course" positionX="224.1796875" positionY="-125.2109375" width="128" height="253"/>
+        <element name="Course" positionX="224.1796875" positionY="-125.2109375" width="128" height="254"/>
         <element name="Professor" positionX="473.53515625" positionY="205.5234375" width="128" height="58"/>
     </elements>
 </model>

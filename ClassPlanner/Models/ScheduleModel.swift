@@ -12,8 +12,12 @@ struct CoursePosition: Codable, Hashable, Equatable {
     var semester: Int
     var index: Int
     
-    func isAfter(_ position: CoursePosition) -> Bool {
+    func isStrictlyAfter(_ position: CoursePosition) -> Bool {
         self.semester > position.semester
+    }
+    
+    func isAfterOrSameSemester(_ position: CoursePosition) -> Bool {
+        self.semester >= position.semester
     }
 }
 

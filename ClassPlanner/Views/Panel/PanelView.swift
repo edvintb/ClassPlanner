@@ -24,8 +24,8 @@ struct PanelView: View {
     @State private var isDropping: Bool = false
     
     // For onboarding
-    @State private var isShowingCourseEditorOnboarding: Bool =
-        !UserDefaults.standard.bool(forKey: courseEditorOnboardingKey)
+    @State private var isShowingCourseEditorOnboarding: Bool = !UserDefaults.standard.bool(forKey: courseEditorOnboardingKey)
+    @State private var isShowingConcEditorOnboarding: Bool = !UserDefaults.standard.bool(forKey: concentrationEditorOnboardingKey)
 
     
     var body: some View {
@@ -38,6 +38,7 @@ struct PanelView: View {
         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
         .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
             isShowingCourseEditorOnboarding = show
+            isShowingConcEditorOnboarding = show
         }
     }
     
@@ -94,7 +95,12 @@ struct PanelView: View {
         case .concentration(let concentration):
             VStack(spacing: 0) {
                 Text("Major").font(.system(size: 15)).opacity(grayTextOpacity)
-                ConcentrationEditorView(concentration: concentration, concentrationVM: concentrationVM, schedule: schedule)
+                ConcentrationEditorView(
+                    concentration: concentration,
+                    concentrationVM: concentrationVM,
+                    schedule: schedule,
+                    isShowingOnboarding: $isShowingConcEditorOnboarding
+                )
             }
         case .schedule(let schedule):
             VStack(spacing: 0) {

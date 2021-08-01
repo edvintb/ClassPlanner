@@ -9,12 +9,22 @@ import SwiftUI
 
 struct EmptyCategoryView: View {
     
+    @EnvironmentObject var shared: SharedVM
     @ObservedObject var concentration: Concentration
     
     @State private var isTargeted: Bool = false
     @State private var isDropping: Bool = false
     
     @Environment(\.managedObjectContext) var context
+    
+    @State private var isShowingCategoryOnboarding: Bool = !UserDefaults.standard.bool(forKey: concentrationEditorOnboardingKey)
+    private func setCategoryOnboarding(show: Bool) {
+        withAnimation {
+            self.isShowingCategoryOnboarding = show
+            UserDefaults.standard.setValue(!show, forKey: concentrationEditorOnboardingKey)
+        }
+    }
+    
     
     var body: some View {
         ZStack {
@@ -30,7 +40,15 @@ struct EmptyCategoryView: View {
                 .frame(width: categoryWidth)
                 .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
         }
-
+//        .onReceive(shared.$isShowingOnboarding, perform: { show in
+//            self.setCategoryOnboarding(show: show)
+//        })
+//        .popover(isPresented: $isShowingCategoryOnboarding){
+//            CategoryOnboardingView(
+//                isShowingOnboarding: $isShowingCategoryOnboarding,
+//                setCategoryOnboarding: setCategoryOnboarding
+//            )
+//        }
     }
     
     func addCategory() {

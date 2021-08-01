@@ -178,7 +178,7 @@ struct CourseEditorView: View {
                         Text(prereq.name.isEmpty ? "No name" : prereq.name)
                             .foregroundColor(prereq.getColor())
                         Spacer()
-                        if shared.currentSchedule?.courseUrlSet.contains(prereq.urlID) ?? false {
+                        if course.isPrereqSatisfied(prereq: prereq, schedule: shared.currentSchedule) {
                             Text(courseContainedSymbol)
                                 .foregroundColor(checkMarkColor)
                         }

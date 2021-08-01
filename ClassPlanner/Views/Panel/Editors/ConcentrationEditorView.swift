@@ -14,6 +14,14 @@ struct ConcentrationEditorView: View {
     @ObservedObject var concentrationVM: ConcentrationVM
     @ObservedObject var schedule: ScheduleVM
     
+    @Binding var isShowingOnboarding: Bool
+    private func setConcEditorOnboarding(show: Bool) {
+        withAnimation {
+            self.isShowingOnboarding = show
+            UserDefaults.standard.setValue(!show, forKey: concentrationEditorOnboardingKey)
+        }
+    }
+    
     private var categories: [Category] { concentration.categories.sorted(by: { $0.index < $1.index }) }
     
     var body: some View {
@@ -48,47 +56,31 @@ struct ConcentrationEditorView: View {
     }
     
     var categoriesView: some View {
-        let maxIndex = (categories.count + 1)/2
-        print(maxIndex)
-        return
-            ZStack(alignment: .topLeading) {
-                RoundedRectangle(cornerRadius: frameCornerRadius).stroke().opacity(emptyOpacity)
-                GeometryReader{ geo in
-                    ScrollView {
-//                        VStack {
-//                            ForEach(0..<maxIndex, id: \.self) { index in
-//                                HStack(alignment: .top) {
-//                                    categoryView(categories[2*index])
-//                                    if (index == (maxIndex - 1) && categories.count % 2 == 1) {
-//                                        Spacer()
-//                                    }
-//                                    else {
-//                                        categoryView(categories[2*index + 1]).frame(alignment: .topLeading)
-//                                    }
-//                                }
-//                            }
-//                        }
-                        Columns(categories, moreView: EmptyView()) { category in
-                            categoryView(category)
-                                .frame(minHeight: 100)
-                        }
-                        EmptyCategoryView(concentration: concentration)
-                        Spacer().frame(height: 20)
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: frameCornerRadius).stroke().opacity(emptyOpacity)
+            GeometryReader{ geo in
+                ScrollView {
+                    Columns(categories, moreView: EmptyView()) { category in
+                        categoryView(category)
+                            .frame(minHeight: 100)
                     }
-                    .cornerRadius(frameCornerRadius)
+                    EmptyCategoryView(concentration: concentration)
+                    Spacer().frame(height: 20)
                 }
+                .cornerRadius(frameCornerRadius)
             }
+        }.popover(isPresented: $isShowingOnboarding) {
+            CategoryOnboardingView(
+                isShowingOnboarding: $isShowingOnboarding,
+                setCategoryOnboarding: setConcEditorOnboarding
+            )
+        }
     }
     
     func categoryView(_ category: Category) -> some View {
         CategoryView(category: category, schedule: schedule)
         .padding(10)
         .contentShape(Rectangle())
-//        .onTapGesture {
-//            withAnimation {
-//                category.delete()
-//            }
-//        }
     }
     
     func deleteAction() {
@@ -132,3 +124,18 @@ struct ConcentrationEditorView: View {
         }
     }
 }
+
+
+//                        VStack {
+//                            ForEach(0..<maxIndex, id: \.self) { index in
+//                                HStack(alignment: .top) {
+//                                    categoryView(categories[2*index])
+//                                    if (index == (maxIndex - 1) && categories.count % 2 == 1) {
+//                                        Spacer()
+//                                    }
+//                                    else {
+//                                        categoryView(categories[2*index + 1]).frame(alignment: .topLeading)
+//                                    }
+//                                }
+//                            }
+//                        }

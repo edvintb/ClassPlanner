@@ -37,12 +37,6 @@ struct ScheduleView: View {
                     semesters
                     Spacer().frame(height: geo.size.height - 215)
                 }
-                .overlay(
-                    ScheduleOnboardingView(
-                        isShowingOnboarding: $isShowingOnboarding,
-                        setScheduleOnboarding: self.setScheduleOnboarding
-                    )
-                )
                 .frame(minWidth: geo.size.width - 15, alignment: .topLeading)
                 .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
                     setScheduleOnboarding(show: show)
@@ -75,20 +69,29 @@ struct ScheduleView: View {
             Text(schedule.name)
                 .font(.system(size: 20))
                 .foregroundColor(schedule.color)
+                .onTapGesture {
+                    setScheduleOnboarding(show: !self.isShowingOnboarding)
+                }
             Text(String(format: "\(gradeSymbol) %.2f", schedule.gradeAverage))
+                .font(.system(size: 17))
+            Text("\(schedule.courseUrlSet.count) Course\(schedule.courseUrlSet.count == 1 ? "" : "s")")
                 .font(.system(size: 17))
             Button(
                 action: { schedule.turnCourseViews() },
                 label: { Text("⟳") }
             )
-            Text("\(schedule.courseUrlSet.count) Course\(schedule.courseUrlSet.count == 1 ? "" : "s")")
-                .font(.system(size: 17))
-            Spacer()
             helpButton
+            Spacer()
         }
         .contentShape(Rectangle())
         .onTapGesture { shared.setEditSelection(to: .schedule(schedule: schedule)) }
         .padding([.horizontal, .top], leftEdgePadding)
+        .popover(isPresented: $isShowingOnboarding) {
+            ScheduleOnboardingView(
+                isShowingOnboarding: $isShowingOnboarding,
+                setScheduleOnboarding: self.setScheduleOnboarding
+            )
+        }
     }
     
     var helpButton: some View {
@@ -105,7 +108,6 @@ struct ScheduleView: View {
                         .padding(.horizontal, courseHorizontalSpacing)
                     if semester % 2 == 1 {
                         Divider()
-                        //                        yearDividerview(semester: semester)
                     }
                 }
                 Spacer().frame(width: 5)
@@ -118,25 +120,6 @@ struct ScheduleView: View {
                 .padding(.trailing, leftEdgePadding)
             }
     }
-    
-    func yearDividerview(semester: Int) -> some View {
-        Divider()
-        //            .foregroundColor(.red)
-        //            .padding(.top, 20)
-        //            .shadow(radius: 100)
-        //            .shadow(color: selectedDivider == semester ? .blue : .primary,
-        //                    radius: selectedDivider == semester ? 10 : 0)
-        ////            .foregroundColor(selectedDivider == semester ? .blue : .primary)
-        //            .contentShape(Rectangle())
-        //            .onTapGesture {
-        //                withAnimation {
-        //                    print("Tapped")
-        //                    self.selectedDivider = semester
-        //            }
-        //    }
-    }
-    
-    
     
     //    var nameEditor: some View {
     //        VStack {

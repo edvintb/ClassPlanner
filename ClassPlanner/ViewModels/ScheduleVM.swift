@@ -87,7 +87,7 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         if let coursePos = model.getPositionInSchedule(for: course) {
             let prereqPosSet = course.prereqs.compactMap { model.getPositionInSchedule(for: $0) }
             for prereqPos in prereqPosSet {
-                if prereqPos.isAfter(coursePos) { return Text("X").foregroundColor(.red) }
+                if prereqPos.isStrictlyAfter(coursePos) { return Text("X").foregroundColor(.red) }
             }
             return Text(courseContainedSymbol).foregroundColor(.green)
         }

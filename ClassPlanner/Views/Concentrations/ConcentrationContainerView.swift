@@ -31,6 +31,14 @@ struct ConcentrationContainerView: View {
         }
     }
     
+    @State private var isShowingCategoryOnboarding: Bool = !UserDefaults.standard.bool(forKey: concentrationEditorOnboardingKey)
+    private func setCategoryOnboarding(show: Bool) {
+        withAnimation {
+            self.isShowingCategoryOnboarding = show
+            UserDefaults.standard.setValue(!show, forKey: concentrationEditorOnboardingKey)
+        }
+    }
+    
     var body: some View {
         let stableConcentrations = concentrations
         GeometryReader { geo in
@@ -47,9 +55,21 @@ struct ConcentrationContainerView: View {
             }
             .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
                 setConcentrationOnboarding(show: show)
+                setCategoryOnboarding(show: show)
+            }
+            .popover(isPresented: $isShowingOnboarding) {
+                ConcentrationOnboardingView(
+                    isShowingOnboarding: $isShowingOnboarding,
+                    setConcentrationOnboarding: setConcentrationOnboarding
+                )
             }
         }
-        .overlay(ConcentrationOnboardingView(isShowingOnboarding: $isShowingOnboarding, setConcentrationOnboarding: setConcentrationOnboarding))
+//        .popover(isPresented: $isShowingCategoryOnboarding, arrowEdge: .bottom){
+//            CategoryOnboardingView(
+//                isShowingOnboarding: $isShowingCategoryOnboarding,
+//                setCategoryOnboarding: setCategoryOnboarding
+//            )
+//        }
     }
     
     func categoryViews(concentration: Concentration) -> some View {
