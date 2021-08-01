@@ -39,10 +39,15 @@ struct ConcentrationContainerView: View {
         }
     }
     
+    private var isCatalina: Bool {
+        if #available(macOS 11.0, *) { return false }
+        else { return true }
+    }
+    
     var body: some View {
         let stableConcentrations = concentrations
         GeometryReader { geo in
-            ScrollView([.vertical, .horizontal]) {
+            ScrollView([.vertical, .horizontal], showsIndicators: isCatalina) {
                 VStack (alignment: .leading, spacing: 4) {
                     Spacer(minLength: 4)
                     ForEach (stableConcentrations) { concentration in
@@ -64,12 +69,6 @@ struct ConcentrationContainerView: View {
                 )
             }
         }
-//        .popover(isPresented: $isShowingCategoryOnboarding, arrowEdge: .bottom){
-//            CategoryOnboardingView(
-//                isShowingOnboarding: $isShowingCategoryOnboarding,
-//                setCategoryOnboarding: setCategoryOnboarding
-//            )
-//        }
     }
     
     func categoryViews(concentration: Concentration) -> some View {

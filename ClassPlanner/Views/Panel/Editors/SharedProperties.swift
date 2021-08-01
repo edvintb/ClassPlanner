@@ -26,8 +26,13 @@ struct EditorNotes: View {
     var notes: String
     var empty: Bool { notes.isEmpty }
     
+    private var isCatalina: Bool {
+        if #available(macOS 11.0, *) { return true }
+        else { return false }
+    }
+    
     var body: some View {
-        ScrollView(showsIndicators: false) {
+        ScrollView(showsIndicators: isCatalina) {
             Text(notes)
                .font(.system(size: 13))
                .opacity(empty ? 0.2 : 0.5)

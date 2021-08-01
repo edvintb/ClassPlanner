@@ -28,15 +28,6 @@ struct ConcentrationView<V>: View  where V: View{
         return false
     }
     
-//    @Binding var isShowingConcentrationOnboarding: Bool
-    @State private var isShowingCategoryOnboarding: Bool = !UserDefaults.standard.bool(forKey: concentrationEditorOnboardingKey)
-    private func setCategoryOnboarding(show: Bool) {
-        withAnimation {
-            self.isShowingCategoryOnboarding = show
-            UserDefaults.standard.setValue(!show, forKey: concentrationEditorOnboardingKey)
-        }
-    }
-    
     private var requiredCourses: Int {
         categories.reduce(into: 0) { acc, category in
             acc += category.numberOfRequired
@@ -72,28 +63,7 @@ struct ConcentrationView<V>: View  where V: View{
         .scaleEffect(isDropping ? 1.01 : 1)
         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0, at: concentration) }
         .onDrag({ NSItemProvider(object: concentration.stringID as NSString) })
-//        .overlay(overlayView())
-        .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
-            setCategoryOnboarding(show: show)
-        }
-        .popover(isPresented: $isShowingCategoryOnboarding, arrowEdge: .bottom) {
-            if concentrationVM.currentConcentrations.count > 0 {
-                if concentrationVM.currentConcentrations[0] == concentration.urlID {
-                    CategoryOnboardingView(
-                        isShowingOnboarding: $isShowingCategoryOnboarding,
-                        setCategoryOnboarding: setCategoryOnboarding
-                    )
-                }
-            }
-        }
     }
-    
-//    @ViewBuilder
-//    func overlayView() -> some View {
-//        if !isShowingConcentrationOnboarding && isShowingOnboarding {
-//            CategoryOnboardingView(isShowingOnboarding: $isShowingOnboarding, setCategoryOnboarding: setCategoryOnboarding).onAppear { print(isShowingConcentrationOnboarding) }
-//        }
-//    }
     
     var container: some View {
         RoundedRectangle(cornerRadius: frameCornerRadius)

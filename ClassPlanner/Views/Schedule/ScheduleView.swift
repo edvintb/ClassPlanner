@@ -27,10 +27,15 @@ struct ScheduleView: View {
 //        CGFloat(schedule.semesters.map { schedule.courses(for: $0).count }.max() ?? 0)
 //    }
     
+    private var isCatalina: Bool {
+        if #available(macOS 11.0, *) { return false }
+        else { return true }
+    }
+    
     // Adopt the frame to scroll less
     var body: some View {
         GeometryReader { geo in
-            ScrollView([.vertical, .horizontal]) {
+            ScrollView([.vertical, .horizontal], showsIndicators: isCatalina) {
                 VStack(alignment: .leading, spacing: 7) {
                     scheduleTop(schedule: schedule)
                     Divider().padding(.bottom, 3)

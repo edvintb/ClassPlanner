@@ -37,6 +37,11 @@ struct CourseEditorView: View {
 //            UserDefaults.standard.setValue(!show, forKey: courseEditorOnboardingKey)
 //        }
 //    }
+    
+    private var isCatalina: Bool {
+        if #available(macOS 11.0, *) { return true }
+        else { return false }
+    }
 //
     @Binding private var isShowingOnboarding: Bool
     private func setCourseEditorOnboarding(show: Bool) {
@@ -172,7 +177,7 @@ struct CourseEditorView: View {
                             suggestionModel: prereqSuggestionVM.suggestionModel)
                 .focusable()
                 .padding(.bottom, 5)
-            ScrollView(showsIndicators: false) {
+            ScrollView(showsIndicators: isCatalina) {
                 ForEach(course.nameSortedPrereqs, id: \.self) { prereq in
                     HStack {
                         Text(prereq.name.isEmpty ? "No name" : prereq.name)
@@ -205,7 +210,7 @@ struct CourseEditorView: View {
                     .padding(.bottom, 3)
                 Divider()
                     .padding(.vertical, 3)
-                ScrollView {
+                ScrollView(showsIndicators: isCatalina){
                     ForEach(course.nameSortedConcentrations, id: \.self) { concentration in
                         Text(concentration.name.isEmpty ? "Unknown" : concentration.name)
                             .foregroundColor(concentration.getColor())
