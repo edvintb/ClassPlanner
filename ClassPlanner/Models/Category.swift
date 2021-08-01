@@ -51,6 +51,7 @@ extension Category {
     
     private func moveInConcentration(to index: Int) {
         if let context = managedObjectContext {
+            if self.concentration == nil { return }
             if index == self.index { return }
             let topIndex = max(self.index, index)
             let bottomIndex = min(self.index, index)

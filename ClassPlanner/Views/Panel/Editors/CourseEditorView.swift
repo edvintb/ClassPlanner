@@ -29,15 +29,6 @@ struct CourseEditorView: View {
     @ObservedObject var searchModel: SearchModel
     @ObservedObject var prereqSearchModel: SearchModel
     
-//    // For onboarding
-//    @State private var isShowingOnboarding: Bool = !UserDefaults.standard.bool(forKey: courseEditorOnboardingKey)
-//    private func setCourseEditorOnboarding(show: Bool) {
-//        withAnimation {
-//            self.isShowingOnboarding = show
-//            UserDefaults.standard.setValue(!show, forKey: courseEditorOnboardingKey)
-//        }
-//    }
-    
     private var isCatalina: Bool {
         if #available(macOS 11.0, *) { return true }
         else { return false }

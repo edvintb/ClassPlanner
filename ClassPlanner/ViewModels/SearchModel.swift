@@ -37,9 +37,7 @@ final class SearchModel: ObservableObject {
             .debounce(for: 0.1, scheduler: RunLoop.main)
             .removeDuplicates()
             .map { text -> [SuggestionGroup<Course>] in
-                guard !text.isEmpty else {
-                    return []
-                }
+                guard !text.isEmpty else { return [] }
                 // prefix gives number of results
                 let courseSuggestions = self.courses.lazy.filter({ $0.name.lowercased().hasPrefix(text.lowercased()) }).prefix(10).map { course -> Suggestion<Course> in
                     Suggestion(text: course.name, value: course)

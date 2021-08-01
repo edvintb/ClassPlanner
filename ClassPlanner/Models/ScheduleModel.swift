@@ -109,8 +109,13 @@ struct ScheduleModel: Codable, Hashable, Equatable {
     }
     
     init? (decoder: JSONDecoder, json: Data?) {
-        if json != nil, let newSchedule = try? decoder.decode(ScheduleModel.self, from: json!) {
-            self = newSchedule
+        if json != nil {
+            if let newSchedule = try? decoder.decode(ScheduleModel.self, from: json!) {
+                self = newSchedule
+            }
+            else {
+                return nil
+            }
         }
         else {
             return nil

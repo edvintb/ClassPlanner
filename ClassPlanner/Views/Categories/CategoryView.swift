@@ -49,10 +49,10 @@ struct CategoryView: View {
                 }
                 else {
                     Spacer(minLength: 4)
-                    Text("Drop\nCourse\nto add")
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .opacity(transparentTextOpacity)
-                        .multilineTextAlignment(.center)
+//                    Text("Drop\nCourse\nto add")
+//                        .frame(maxWidth: .infinity, alignment: .center)
+//                        .opacity(transparentTextOpacity)
+//                        .multilineTextAlignment(.center)
                 }
                 Spacer(minLength: 4)
             }.padding([.top, .leading], isEditingCategory ? 3 : 0)
