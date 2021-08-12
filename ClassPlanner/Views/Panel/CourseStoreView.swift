@@ -13,7 +13,8 @@ struct CourseStoreView: View {
     // Needed to set panel/editor
     // And to remove courses from current schedule
     @EnvironmentObject var shared: SharedVM
-    // Needed to drop-remove courses
+    
+    // Needed to create new courses
     @Environment(\.managedObjectContext) var context
     
     @FetchRequest private var courses: FetchedResults<Course>
@@ -33,7 +34,7 @@ struct CourseStoreView: View {
 
     var body: some View {
         PanelHeaderView(addAction: addCourse, searchQuery: $query) {
-            List {
+            ScrollView {
                 if matchingCourses.isEmpty {
                     noResultsView
                 }
@@ -51,6 +52,7 @@ struct CourseStoreView: View {
                 .onDrag { NSItemProvider(object: course.stringID as NSString) }
                 .scaleEffect(isDropping ? hoverScaleFactor : 1)
         }
+        .padding()
     }
     
     var noResultsView: some View {

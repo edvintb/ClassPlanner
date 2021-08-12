@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct CourseView: View {
     
@@ -26,35 +27,34 @@ struct CourseView: View {
     
     init(course: Course) {
         self.course = course
-        _isFrontUp = State(wrappedValue: course.name != "")
+        _isFrontUp = State(wrappedValue: !course.name.isEmpty)
     }
     
     var body: some View {
         ZStack(alignment: .center) {
             container
-            if course.name.isEmpty && course.isEmpty { EmptyView() }
+            if course.isEmpty { EmptyView() }
             else if isFrontUp      { front }
-            else                   { back }
+            else              { back }
         }
         .onDrag { NSItemProvider(object: course.stringID as NSString) }
         .gesture(tapGesture)
-        .frame(height: courseHeight, alignment: .center)
-        .onReceive(shared.currentSchedule?.$isCourseFrontUp ?? shared.$isShowingOnboarding, perform: { isFrontUp in
+        .frame(height: isFrontUp || course.isEmpty ? courseHeight : courseHeight + 27, alignment: .center)
+        .onReceive(shared.currentSchedule!.$isCourseFrontUp.dropFirst()) { isFrontUp in
             withAnimation {
-                self.isFrontUp = isFrontUp
+                self.isFrontUp = course.name != "" && isFrontUp
             }
-        })
+        }
     }
     
     var container: some View {
-        RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
-            .foregroundColor(course.getColor())
+        let color = course.getColor()
+        return RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
+            .foregroundColor(color)
             .scaleEffect(isEditingCourse ? 1.04 : 1)
             .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
-            .shadow(color: course.getColor(), radius: isDropping ? hoverShadowRadius : 0)
-            .shadow(color: course.getColor(), radius: isDropping ? hoverShadowRadius : 0)
-            .shadow(color: .black, radius: isEditingCourse ? hoverShadowRadius : 0)
-            .shadow(color: .black, radius: isEditingCourse ? hoverShadowRadius : 0)
+            .shadow(color: color, radius: isEditingCourse ? hoverShadowRadius : 0)
+            .shadow(color: color, radius: isEditingCourse ? hoverShadowRadius : 0)
             .opacity(course.name.isEmpty && !isEditingCourse ? emptyHoverOpacity : 1)
     }
     
@@ -75,7 +75,7 @@ struct CourseView: View {
                 Text("+").font(.system(size: 1.2*titleSize, weight: .semibold))
             }
                 .contentShape(Rectangle())
-            .onTapGesture { shared.setEditSelection(to: .course(course: course)) }
+                .onTapGesture { shared.setEditSelection(to: .course(course: course)) }
                 .padding([.horizontal], 7)
             Divider()
                 .padding([.horizontal], 5)
@@ -84,26 +84,29 @@ struct CourseView: View {
                     leftProperties()
                     rightProperties()
                 }
+                Text(" \(dateSymbol) \(DateFormatter.localizedString(from: course.time, dateStyle: .none, timeStyle: .short))" )
+                    .font(.system(size: iconSize, weight: .regular, design: .default))
+                    .padding(.vertical, 3)
             }
             .padding(5)
         }
         .lineLimit(1)
         .truncationMode(.tail)
     }
+    
 
     func leftProperties() -> some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: courseBackSpacing) {
             Text(" \(workloadSymbol) \(NSNumber(value: course.workload), formatter: NumberFormatter.courseFormat)")
-            Text("  \(qscoreSymbol)  ").foregroundColor(.red) + Text("\(NSNumber(value: course.qscore), formatter: NumberFormatter.courseFormat)")
+            Text(" \(qscoreSymbol) ").foregroundColor(.red) + Text("\(NSNumber(value: course.qscore), formatter: NumberFormatter.courseFormat)")
             Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
-            
         }
         .font(.system(size: iconSize, weight: .regular, design: .default))
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     func rightProperties() -> some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: courseBackSpacing) {
             Text(" \(gradeSymbol)").font(.system(size: gradeSymbolSize)) + Text(" \(grade)").foregroundColor(Grade.color[course.enumGrade])
             Text(" \(course.fall ? "\(fallSymbol)" : "  - ") \(course.spring ? "\(springSymbol)" : " -")")
 //            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
@@ -122,7 +125,7 @@ struct CourseView: View {
     
     var tapGesture: some Gesture {
         TapGesture().onEnded {
-            if course.name.isEmpty { shared.setEditSelection(to: .course(course: course)) }
+            if course.name.isEmpty && course.isEmpty { shared.setEditSelection(to: .course(course: course)) }
             else {
                 withAnimation(Animation.easeInOut(duration: 0.2)) {
                     isFrontUp.toggle()

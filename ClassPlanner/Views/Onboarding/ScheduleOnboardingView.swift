@@ -17,7 +17,7 @@ struct ScheduleOnboardingView: View {
         VStack(alignment: .leading, spacing: 20) {
             Text("This is your selected schedule.")
             Text("Schedules are created & selected under the \"Schedules\" tab.")
-            Text("The 8 columns represent 8 school semesters.")
+            Text("Each column represents a semester.")
             Text("\(workloadSymbol) shows total workload. \(fallSymbol) \(springSymbol) show fall spring.")
 //                    Text("To edit a Schedule, click on its name.")
             Text("To add courses to a schedule, click + in a semester or use drag & drop.")

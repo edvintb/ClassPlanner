@@ -33,8 +33,12 @@ struct ConcentrationStoreView: View {
         PanelHeaderView(addAction: addConcentration, searchQuery: $query) {
             ScrollView {
                 ForEach (matchingConcentrations) { concentration in
-                    ConcentrationView(categoryViews: categories, concentration: concentration, concentrationVM: concentrationVM, isShowingConcentrationOnboarding: Binding.constant(true) )
-                        .padding(editorPadding)
+                    ConcentrationView(
+                        categoryViews: categories,
+                        concentration: concentration, concentrationVM: concentrationVM,
+                        isShowingConcentrationOnboarding: Binding.constant(true)
+                    )
+                    .padding(editorPadding)
 //                        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
                 }
             }
@@ -46,10 +50,8 @@ struct ConcentrationStoreView: View {
         return
             VStack {
                 ForEach(categories) { category in
-                    HStack {
-                        categoryTitle(category: category)
-                            .padding(.horizontal, 5)
-                    }
+                    categoryTitle(category: category)
+                        .padding(.horizontal, 5)
                 }
                 Spacer()
             }
@@ -83,7 +85,9 @@ struct ConcentrationStoreView: View {
     }
     
     private func addConcentration() {
-        concentrationVM.addConcentration(context: context)
+        withAnimation {
+            concentrationVM.addConcentration(context: context)
+        }
     }
     
 //    func drop(providers: [NSItemProvider]) -> Bool {

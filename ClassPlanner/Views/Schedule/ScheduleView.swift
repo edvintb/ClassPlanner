@@ -35,7 +35,7 @@ struct ScheduleView: View {
     // Adopt the frame to scroll less
     var body: some View {
         GeometryReader { geo in
-            ScrollView([.vertical, .horizontal], showsIndicators: isCatalina) {
+            ScrollView([.vertical, .horizontal], showsIndicators: true) {
                 VStack(alignment: .leading, spacing: 7) {
                     scheduleTop(schedule: schedule)
                     Divider().padding(.bottom, 3)
@@ -97,7 +97,7 @@ struct ScheduleView: View {
     }
     
     var helpButton: some View {
-        Button(shared.isShowingOnboarding ? "Hide Help" : "Show Help", action: shared.toggleOnboarding)
+        Button("Show Help", action: shared.showOnboarding)
     }
     
     var semesters: some View {

@@ -21,12 +21,18 @@
         <attribute name="color_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="enrollment_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="fall" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="friday" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="grade_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="monday" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="name_" optional="YES" attributeType="String"/>
         <attribute name="notes_" optional="YES" attributeType="String"/>
         <attribute name="qscore" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="semester_" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="spring" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="thursday" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="time_" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="tuesday" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="wednesday" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="workload_" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <relationship name="categories_" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Category" inverseName="courses_" inverseEntity="Category"/>
         <relationship name="concentrations_" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Concentration" inverseName="courses_" inverseEntity="Concentration"/>
@@ -41,7 +47,7 @@
     <elements>
         <element name="Category" positionX="-364.73828125" positionY="-12.85546875" width="128" height="148"/>
         <element name="Concentration" positionX="-65.42578125" positionY="228.24609375" width="128" height="133"/>
-        <element name="Course" positionX="224.1796875" positionY="-125.2109375" width="128" height="254"/>
+        <element name="Course" positionX="224.1796875" positionY="-125.2109375" width="128" height="344"/>
         <element name="Professor" positionX="473.53515625" positionY="205.5234375" width="128" height="58"/>
     </elements>
 </model>

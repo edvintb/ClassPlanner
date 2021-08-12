@@ -8,6 +8,14 @@
 import Foundation
 import SwiftUI
 
+enum Day: Equatable, Hashable {
+    case monday
+    case tuesday
+    case wednesday
+    case thursday
+    case friday
+}
+
 enum PanelOption: Equatable, Hashable, CaseIterable {
     
     case schedules

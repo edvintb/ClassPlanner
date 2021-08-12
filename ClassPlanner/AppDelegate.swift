@@ -53,6 +53,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         let mainScreenFrame = NSScreen.main?.visibleFrame
         
+        NSApp.appearance = NSAppearance(named: .vibrantDark)
+        
         // Create the window and set the content view.
         window = NSWindow(
             contentRect: NSRect(

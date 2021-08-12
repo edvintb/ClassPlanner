@@ -22,7 +22,7 @@ extension Concentration {
     
     static func fetchRequest(_ predicate: NSPredicate) -> NSFetchRequest<Concentration> {
         let request = NSFetchRequest<Concentration>(entityName: "Concentration")
-        request.sortDescriptors = [NSSortDescriptor(key: "index_", ascending: true)]
+        request.sortDescriptors = [NSSortDescriptor(key: "name_", ascending: true)]
         request.predicate = predicate
         return request
     }

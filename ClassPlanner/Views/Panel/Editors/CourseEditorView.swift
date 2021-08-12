@@ -63,29 +63,65 @@ struct CourseEditorView: View {
             .removeDuplicates()
             .assign(to: \.course.name, on: self)
             .store(in: &cancellables)
+        
     }
+    
+    @State private var monday: Bool = false
+    @State private var tuseday: Bool = false
+    @State private var wednesday: Bool = false
+    @State private var thursday: Bool = false
+    @State private var friday: Bool = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             EditorHeader(title: course.name, notes: course.notes, color: course.getColor())
             // Add professor?
-            Form {
-                NameEditor(entryView: nameField)
-                semesterSelector
-                dataEntryFields
-                NoteEditor(text: $course.notes) { course.save() }
-                gradeSelector
-                HStack {
-                    prereqView
-                    concentrationView
+            GeometryReader { geo in
+                Form {
+                    NameEditor(entryView: nameField)
+                    semesterSelector
+                    dataEntryFields
+                    NoteEditor(text: $course.notes) { course.save() }
+                    dayAndDaySelector(size: geo.size)
+                    gradeSelector
+                    HStack {
+                        prereqView
+                        concentrationView
+                    }
+                    EditorColorGrid { course.color = $0; course.save() }
+                    bottomButtons
                 }
-                EditorColorGrid { course.color = $0; course.save() }
-                bottomButtons
+                .padding(editorPadding)
             }
-            .padding(editorPadding)
+
         }
 //        .background(KeyEventHandling(course: self.course, schedule: shared.currentSchedule))
         
+    }
+    
+    
+    
+    func dayAndDaySelector(size: CGSize) -> some View {
+        HStack(spacing: 0) {
+            Text(" \(dateSymbol)")
+            Spacer()
+            Button("Mon", action: { monday.toggle() })
+                .opacity(monday ? 1 : 0.51)
+            Button("Tue", action: { tuseday.toggle() })
+                .opacity(tuseday ? 1 : 0.51)
+            Button("Wed", action: { wednesday.toggle() })
+                .opacity(wednesday ? 1 : 0.51)
+            Button("Thu", action: { thursday.toggle() })
+                .opacity(thursday ? 1 : 0.51)
+            Button( action: { friday.toggle() }, label: { Text("Fri").frame(maxWidth: .infinity) })
+                .opacity(friday ? 1 : 0.51)
+            Spacer()
+            DatePicker("Course Time", selection: $course.time, displayedComponents: .hourAndMinute)
+                .labelsHidden()
+                .frame(width: size.width / 5)
+        }
+        .buttonStyle(DefaultButtonStyle())
+        .padding(.vertical, 5)
     }
     
     var nameField: some View {
@@ -106,6 +142,7 @@ struct CourseEditorView: View {
             Toggle(springSymbol, isOn: $course.spring)
             Spacer()
         }
+        .padding(.vertical, 4)
     }
 
     var dataEntryFields: some View {
@@ -128,8 +165,8 @@ struct CourseEditorView: View {
     
     var qscoreEntry: some View {
         HStack {
-            Text("  \(qscoreSymbol) ").foregroundColor(.red).font(.system(size: 14.5))
-            DoubleTextField("QScore", double: $course.qscore, onCommit: { save() })
+            Text(" \(qscoreSymbol)") // .foregroundColor(.red).font(.system(size: 14.5))
+            DoubleTextField("Rating", double: $course.qscore, onCommit: { save() })
                 .cornerRadius(textFieldCornerRadius)
                 .focusable()
         }

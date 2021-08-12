@@ -49,23 +49,26 @@ struct ConcentrationEditorView: View {
     var categorySectionHeader: some View {
         HStack {
             Text("Categories")
+                .opacity(grayTextOpacity)
             Spacer()
-//            Text("Click to Remove")
+            Button(action: { withAnimation { let _ = concentration.addCategory() }}, label: {
+                if #available(macOS 11.0, *) {
+                    Image(systemName: "plus")
+                } else {
+                    Text("+")
+                }
+            })
         }
-        .opacity(grayTextOpacity)
+        
     }
     
     var categoriesView: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: frameCornerRadius).stroke().opacity(emptyOpacity)
-            GeometryReader{ geo in
-                ScrollView {
-                    Columns(categories, moreView: EmptyView()) { category in
-                        categoryView(category)
-                            .frame(minHeight: 100)
-                    }
-                    EmptyCategoryView(concentration: concentration)
-                    Spacer().frame(height: 20)
+            ScrollView {
+                Columns(categories, moreView: EmptyView()) { category in
+                    categoryView(category)
+                        .frame(minHeight: 100)
                 }
                 .cornerRadius(frameCornerRadius)
             }

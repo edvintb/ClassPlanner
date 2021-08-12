@@ -88,7 +88,17 @@ struct PanelView: View {
             
         case .category(let category):
             VStack(spacing: 0) {
-                Text("Category").font(.system(size: 15)).opacity(grayTextOpacity)
+                ZStack {
+                    Button(action: { if let safeConcentration = category.concentration {
+                            shared.setEditSelection(to: .concentration(concentration: safeConcentration))}
+                    }, label: {
+                        Text("⬅")
+                    })
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.leading, 8)
+                    Text("Category").font(.system(size: 15)).opacity(grayTextOpacity)
+                }
+
                 CategoryEditorView(category: category, categorySuggestionVM: categorySuggestionVM, context: context)
             }
             
@@ -106,11 +116,6 @@ struct PanelView: View {
             VStack(spacing: 0) {
                 Text("Schedule").font(.system(size: 15)).opacity(grayTextOpacity)
                 ScheduleEditorView(schedule: schedule, scheduleStore: scheduleStore)
-                    .alert(item: $scheduleStore.existingNameAlert) { nameString in
-                        Alert(title: Text("Naming Conflict"),
-                              message: Text("Existing schedule with name: \(nameString.value) \nPlease pick another name."),
-                              dismissButton: .default(Text("OK")))
-                    }
             }
             .onDisappear { scheduleStore.setName(schedule.name, for: schedule) }
         case .none:

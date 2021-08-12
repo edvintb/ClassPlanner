@@ -13,8 +13,8 @@ class SharedVM: ObservableObject {
     // Onboarding toggle
     @Published private (set) var isShowingOnboarding: Bool = false
     
-    func toggleOnboarding() {
-        self.isShowingOnboarding.toggle()
+    func showOnboarding() {
+        self.isShowingOnboarding = true
     }
     
     // MARK: - Managing Current Schedule

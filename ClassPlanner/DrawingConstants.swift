@@ -47,8 +47,11 @@ let maxIntegers: Int = 3
 let maxDecimals: Int = 2
 let maxSignificant: Int = 3
 
+
+let courseBackSpacing: CGFloat = 2
+let dateSymbol: String = "📆"
 let enrollmentSymbol: String = "👥"
-let qscoreSymbol: String = "𝗤"
+let qscoreSymbol: String = "⭐️"//"𝗤"
 let workloadSymbol: String = "🕑"
 let noteSymbol: String = "🗒"
 let fallSymbol: String = "🍁"

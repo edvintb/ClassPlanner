@@ -47,8 +47,12 @@ struct DoubleTextField: View {
             },
             set: { input in
                 if let numeric = input.numericValue(allowDecimalSeparator: true, maxDigits: maxSignificant) {
-                    if (numeric.last == "." || numeric.last == ",") { addedSeparator = true }
-                    else { addedSeparator = false }
+                    if (numeric.last == "." || numeric.last == ",") {
+                        addedSeparator = true
+                        
+                    } else {
+                        addedSeparator = false
+                    }
                     if let value = numberFormatter.number(from: numeric) {
                         number = value.doubleValue
                     }

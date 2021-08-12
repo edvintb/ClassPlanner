@@ -31,14 +31,6 @@ struct ConcentrationContainerView: View {
         }
     }
     
-    @State private var isShowingCategoryOnboarding: Bool = !UserDefaults.standard.bool(forKey: concentrationEditorOnboardingKey)
-    private func setCategoryOnboarding(show: Bool) {
-        withAnimation {
-            self.isShowingCategoryOnboarding = show
-            UserDefaults.standard.setValue(!show, forKey: concentrationEditorOnboardingKey)
-        }
-    }
-    
     private var isCatalina: Bool {
         if #available(macOS 11.0, *) { return false }
         else { return true }
@@ -47,11 +39,16 @@ struct ConcentrationContainerView: View {
     var body: some View {
         let stableConcentrations = concentrations
         GeometryReader { geo in
-            ScrollView([.vertical, .horizontal], showsIndicators: isCatalina) {
+            ScrollView([.vertical, .horizontal], showsIndicators: true) {
                 VStack (alignment: .leading, spacing: 4) {
                     Spacer(minLength: 4)
                     ForEach (stableConcentrations) { concentration in
-                        ConcentrationView(categoryViews: categoryViews, concentration: concentration, concentrationVM: concentrationVM, isShowingConcentrationOnboarding: $isShowingOnboarding)
+                        ConcentrationView(
+                            categoryViews: categoryViews,
+                            concentration: concentration,
+                            concentrationVM: concentrationVM,
+                            isShowingConcentrationOnboarding: $isShowingOnboarding
+                        )
                     }
                     EmptyConcentrationView(concentrationVM: concentrationVM)
                         .frame(minWidth: geo.size.width - 40)
@@ -60,7 +57,6 @@ struct ConcentrationContainerView: View {
             }
             .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
                 setConcentrationOnboarding(show: show)
-                setCategoryOnboarding(show: show)
             }
             .popover(isPresented: $isShowingOnboarding) {
                 ConcentrationOnboardingView(

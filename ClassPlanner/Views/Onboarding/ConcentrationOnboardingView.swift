@@ -20,6 +20,6 @@ struct ConcentrationOnboardingView: View {
         }
         .font(.system(size: 20, weight: .light, design: .default))
         .padding()
-        .onDisappear { print("Setting concentration to falses"); setConcentrationOnboarding(false) }
+        .onDisappear { setConcentrationOnboarding(false) }
     }
 }

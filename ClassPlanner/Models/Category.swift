@@ -55,9 +55,10 @@ extension Category {
             if index == self.index { return }
             let topIndex = max(self.index, index)
             let bottomIndex = min(self.index, index)
-            let predicate = NSPredicate(format:
-                                            "concentration == %@ AND index_ <= %@ AND index_ >= %@ AND SELF != %@",
-                                        argumentArray: [self.concentration!, topIndex, bottomIndex, self])
+            let predicate = NSPredicate(
+                format: "concentration == %@ AND index_ <= %@ AND index_ >= %@ AND SELF != %@",
+                argumentArray: [self.concentration!, topIndex, bottomIndex, self]
+            )
             let request = Category.fetchRequest(predicate)
             let otherCategories = (try? context.fetch(request)) ?? []
             let down = self.index < index
@@ -118,7 +119,11 @@ extension Category {
                 // If both in or out order by name
                 return $0.name < $1.name
             }
-            return firstContained
+            else {
+                // If different, return if the first one is in
+                return firstContained
+            }
+            
         })
         return sorted
     }

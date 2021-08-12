@@ -97,7 +97,6 @@ class ScheduleStore: ObservableObject {
         if let name = scheduleNames[schedule] {
             if name == "" { print("Found empty name. THIS CAUSES /Documents/ to DISAPPEAR"); return }
             let url = directory.appendingPathComponent(name)
-            print("Removing...")
             do {
                 try FileManager.default.removeItem(at: url)
             }

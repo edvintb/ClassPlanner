@@ -27,8 +27,8 @@ struct EditorNotes: View {
     var empty: Bool { notes.isEmpty }
     
     private var isCatalina: Bool {
-        if #available(macOS 11.0, *) { return true }
-        else { return false }
+        if #available(macOS 11.0, *) { return false }
+        else { return true }
     }
     
     var body: some View {
@@ -166,11 +166,14 @@ struct EditorButtons: View {
         .alert(isPresented: $isDeleting, content: {
             Alert(title: Text("Are you sure?"),
                   message: Text(
-                    "Deleting will remove the object completely. To keep it in the store, use 'Remove' instead"),       
+                    "Deleting removes the object completely. This action is undoable."),
                   primaryButton:
                     .cancel({ self.isDeleting = false }),
-                  secondaryButton: .destructive(Text("OK"), action: withAnimation { deleteAction })
-        )})
+                  secondaryButton:
+                    .destructive(Text("OK"), action: withAnimation { deleteAction })
+                )
+            }
+        )
     }
 }
 

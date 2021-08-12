@@ -42,6 +42,11 @@ struct ScheduleEditorView: View {
     var nameField: some View {
         TextField("Name", text: $schedule.name, onCommit: { scheduleStore.setName(schedule.name, for: schedule) })
             .cornerRadius(textFieldCornerRadius)
+            .alert(item: $scheduleStore.existingNameAlert) { nameString in
+                Alert(title: Text("Naming Conflict"),
+                      message: Text("Existing schedule with name: \(nameString.value) \nPlease pick another name."),
+                      dismissButton: .default(Text("OK")))
+            }
     }
     
     var sectionHeader: some View {
@@ -75,7 +80,6 @@ struct ScheduleEditorView: View {
     }
     
     func deleteAction() {
-        print("Calling delete action...")
         shared.setEditSelection(to: .none)
         shared.setCurrentSchedule(to: nil)
         scheduleStore.deleteSchedule(schedule)

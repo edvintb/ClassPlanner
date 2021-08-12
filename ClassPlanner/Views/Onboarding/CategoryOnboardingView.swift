@@ -20,7 +20,7 @@ struct CategoryOnboardingView: View {
         }
         .font(.system(size: 18, weight: .light, design: .default))
         .padding()
-        .onDisappear { print("Setting category onboarding false"); setCategoryOnboarding(false) }
+        .onDisappear { setCategoryOnboarding(false) }
     }
 }
 

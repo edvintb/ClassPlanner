@@ -40,6 +40,7 @@ struct CategoryEditorView: View {
         VStack(alignment: .leading, spacing: 0) {
             concentrationName
             Spacer().frame(height: 6)
+
             EditorHeader(title: category.name, notes: category.notes, color: category.getColor() )
             Form {
                 NameEditor(entryView: nameField)
@@ -51,8 +52,7 @@ struct CategoryEditorView: View {
                     coursesView
                 }
                 EditorColorGrid { category.color = $0; category.save() }
-                EditorButtons(deleteAction: deleteAction, closeAction: shared.stopEdit)
-                
+                EditorButtons(deleteAction: deleteAction, closeAction: closeAction)
             }
             .padding(editorPadding)
         }
@@ -126,13 +126,23 @@ struct CategoryEditorView: View {
     
     func deleteAction() {
         shared.stopEdit()
+        if let safeConcentration = category.concentration {
+            shared.setEditSelection(to: .concentration(concentration: safeConcentration))
+        }
+        else {
+            shared.setPanelSelection(to: .concentrations)
+        }
         category.delete()
-        shared.setPanelSelection(to: .concentrations)
+        
     }
     
     func closeAction() {
-        shared.stopEdit()
-        shared.setPanelSelection(to: .concentrations)
+        if let safeConcentration = category.concentration {
+            shared.setEditSelection(to: .concentration(concentration: safeConcentration))
+        }
+        else {
+            shared.setPanelSelection(to: .concentrations)
+        }
     }
 }
 

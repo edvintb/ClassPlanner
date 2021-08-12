@@ -81,7 +81,7 @@ extension Course {
     // MARK: - Property access
     
     var isEmpty: Bool {
-        self.notes == "" && self.workload == 0 && self.enrollment == 0 && self.qscore == 0 && self.color == 0
+        self.name.isEmpty && self.notes.isEmpty && self.workload == 0 && self.enrollment == 0 && self.qscore == 0 && self.fall == false && self.spring == false && self.grade == Grade.Pass.rawValue
     }
     
     var name: String {
@@ -107,6 +107,11 @@ extension Course {
     var grade: Int {
         get { Int(self.grade_) }
         set { self.grade_ = Int16(newValue) }
+    }
+    
+    var time: Date {
+        get { self.time_ ?? Date.init(timeIntervalSinceReferenceDate: 82800) }
+        set { self.time_ = newValue }
     }
     
     var enumGrade: Grade {

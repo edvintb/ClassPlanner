@@ -23,7 +23,7 @@ struct CourseEditorOnboarding: View {
 //                    Text("If the course ") + Text("is not").bold() + Text(" found, the name you type creates a new course.")
 //                    onboardingButton(text: "Dismiss", show: false)
                 }
-                .font(.system(size: 13))
+                .font(.system(size: 15))
                 .padding()
                 .onDisappear { print("Popup disappeared"); setCourseEditorOnboarding(false) }
     }
