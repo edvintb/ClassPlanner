@@ -48,7 +48,8 @@ let maxDecimals: Int = 2
 let maxSignificant: Int = 3
 
 
-let courseBackSpacing: CGFloat = 2
+let horizontalBackPadding: CGFloat = 7
+let courseBackSpacing: CGFloat = 2.5
 let dateSymbol: String = "📆"
 let enrollmentSymbol: String = "👥"
 let qscoreSymbol: String = "⭐️"//"𝗤"

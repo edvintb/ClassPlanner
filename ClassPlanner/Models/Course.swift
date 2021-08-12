@@ -57,17 +57,13 @@ extension Course {
     }
     
     func insertPrereq(prereq: Course) {
-        if let context = self.managedObjectContext {
-            self.prereqs.insert(prereq)
-            try? context.save()
-        }
+        self.prereqs.insert(prereq)
+        safeSave()
     }
     
     func removePrereq(prereq: Course) {
-        if let context = self.managedObjectContext {
-            self.prereqs.remove(prereq)
-            try? context.save()
-        }
+        self.prereqs.remove(prereq)
+        safeSave()
     }
     
     func isPrereqSatisfied(prereq: Course, schedule: ScheduleVM?) -> Bool {
@@ -76,7 +72,37 @@ extension Course {
         guard let prereqPos = schedule!.getPosition(course: prereq) else { return false }
         return selfPos.isAfterOrSameSemester(prereqPos)
     }
-
+    
+    func toggleMonday() {
+        self.monday.toggle()
+        safeSave()
+    }
+    
+    func toggleTuesday() {
+        self.tuesday.toggle()
+        safeSave()
+    }
+    
+    func toggleWednesday() {
+        self.wednesday.toggle()
+        safeSave()
+    }
+    
+    func toggleThursday() {
+        self.thursday.toggle()
+        safeSave()
+    }
+    
+    func toggleFriday() {
+        self.friday.toggle()
+        safeSave()
+    }
+    
+    func safeSave() {
+        if let context = self.managedObjectContext {
+            try? context.save()
+        }
+    }
     
     // MARK: - Property access
     

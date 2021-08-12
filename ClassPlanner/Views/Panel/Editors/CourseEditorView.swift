@@ -66,12 +66,6 @@ struct CourseEditorView: View {
         
     }
     
-    @State private var monday: Bool = false
-    @State private var tuseday: Bool = false
-    @State private var wednesday: Bool = false
-    @State private var thursday: Bool = false
-    @State private var friday: Bool = false
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             EditorHeader(title: course.name, notes: course.notes, color: course.getColor())
@@ -105,16 +99,16 @@ struct CourseEditorView: View {
         HStack(spacing: 0) {
             Text(" \(dateSymbol)")
             Spacer()
-            Button("Mon", action: { monday.toggle() })
-                .opacity(monday ? 1 : 0.51)
-            Button("Tue", action: { tuseday.toggle() })
-                .opacity(tuseday ? 1 : 0.51)
-            Button("Wed", action: { wednesday.toggle() })
-                .opacity(wednesday ? 1 : 0.51)
-            Button("Thu", action: { thursday.toggle() })
-                .opacity(thursday ? 1 : 0.51)
-            Button( action: { friday.toggle() }, label: { Text("Fri").frame(maxWidth: .infinity) })
-                .opacity(friday ? 1 : 0.51)
+            Button("Mon", action: { course.toggleMonday() })
+                .opacity(course.monday ? 1 : 0.51)
+            Button("Tue", action: { course.toggleTuesday() })
+                .opacity(course.tuesday ? 1 : 0.51)
+            Button("Wed", action: { course.toggleWednesday() })
+                .opacity(course.wednesday ? 1 : 0.51)
+            Button("Thu", action: { course.toggleThursday() })
+                .opacity(course.thursday ? 1 : 0.51)
+            Button( action: { course.toggleFriday() }, label: { Text("Fri") })
+                .opacity(course.friday ? 1 : 0.51)
             Spacer()
             DatePicker("Course Time", selection: $course.time, displayedComponents: .hourAndMinute)
                 .labelsHidden()

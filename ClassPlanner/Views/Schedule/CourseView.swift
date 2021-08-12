@@ -76,30 +76,47 @@ struct CourseView: View {
             }
                 .contentShape(Rectangle())
                 .onTapGesture { shared.setEditSelection(to: .course(course: course)) }
-                .padding([.horizontal], 7)
+                .padding(.horizontal, horizontalBackPadding)
             Divider()
-                .padding([.horizontal], 5)
+                .padding(.horizontal, horizontalBackPadding - 2)
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
                     leftProperties()
                     rightProperties()
                 }
-                Text(" \(dateSymbol) \(DateFormatter.localizedString(from: course.time, dateStyle: .none, timeStyle: .short))" )
-                    .font(.system(size: iconSize, weight: .regular, design: .default))
-                    .padding(.vertical, 3)
+                HStack(spacing: 0) {
+                    Text("\(dateSymbol) ")
+                    Text(dayString)
+                    Spacer()
+                    Text(DateFormatter.localizedString(from: course.time, dateStyle: .none, timeStyle: .short))
+                }
+                .font(.system(size: dayString.count < 6 ? iconSize : iconSize - 2  , weight: .regular, design: .default))
+                .padding(.vertical, courseBackSpacing)
             }
-            .padding(5)
+            .padding(.top, 3)
+            .padding(.bottom, horizontalBackPadding)
+            .padding(.horizontal, horizontalBackPadding)
         }
         .lineLimit(1)
         .truncationMode(.tail)
     }
     
+    var dayString: String {
+        var days: String = ""
+        if course.monday { days += "M" }
+        if course.tuesday { days += "Tu" }
+        if course.wednesday { days += "W" }
+        if course.thursday { days += "Th" }
+        if course.friday { days += "F" }
+        return days.isEmpty ? " - " : days
+    }
+    
 
     func leftProperties() -> some View {
         VStack(alignment: .leading, spacing: courseBackSpacing) {
-            Text(" \(workloadSymbol) \(NSNumber(value: course.workload), formatter: NumberFormatter.courseFormat)")
-            Text(" \(qscoreSymbol) ").foregroundColor(.red) + Text("\(NSNumber(value: course.qscore), formatter: NumberFormatter.courseFormat)")
-            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
+            Text("\(workloadSymbol) \(NSNumber(value: course.workload), formatter: NumberFormatter.courseFormat)")
+            Text("\(qscoreSymbol) ").foregroundColor(.red) + Text("\(NSNumber(value: course.qscore), formatter: NumberFormatter.courseFormat)")
+            Text("\(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
         }
         .font(.system(size: iconSize, weight: .regular, design: .default))
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -107,10 +124,10 @@ struct CourseView: View {
     
     func rightProperties() -> some View {
         VStack(alignment: .leading, spacing: courseBackSpacing) {
-            Text(" \(gradeSymbol)").font(.system(size: gradeSymbolSize)) + Text(" \(grade)").foregroundColor(Grade.color[course.enumGrade])
-            Text(" \(course.fall ? "\(fallSymbol)" : "  - ") \(course.spring ? "\(springSymbol)" : " -")")
+            Text("\(gradeSymbol)").font(.system(size: gradeSymbolSize)) + Text(" \(grade)").foregroundColor(Grade.color[course.enumGrade])
+            Text("\(course.fall ? "\(fallSymbol)" : "  - ") \(course.spring ? "\(springSymbol)" : " -")")
 //            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
-            Text("  Pre:  ") + (shared.currentSchedule?.containsPrereqs(for: course) ?? Text("-"))
+            Text(" Pre:  ") + (shared.currentSchedule?.containsPrereqs(for: course) ?? Text("-"))
         }
         .font(.system(size: iconSize, weight: .regular, design: .default))
         .frame(maxWidth: .infinity, alignment: .leading)
