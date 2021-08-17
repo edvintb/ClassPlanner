@@ -47,6 +47,8 @@ let maxIntegers: Int = 3
 let maxDecimals: Int = 2
 let maxSignificant: Int = 3
 
+let quickAnimation = Animation.easeInOut(duration: 0.2)
+
 
 let horizontalBackPadding: CGFloat = 7
 let courseBackSpacing: CGFloat = 2.5
@@ -75,3 +77,4 @@ let concentrationOnboardingKey = "concentrationOnboardingKey"
 let concentrationEditorOnboardingKey = "categoryOnboardingKey"
 let scheduleOnboardingKey = "scheduleOnboardingKey"
 let currentScheduleKey = "currentScheduleKey"
+let completedSemesterKey = "completedSemesterKey"

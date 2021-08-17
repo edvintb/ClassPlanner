@@ -24,7 +24,9 @@ struct ScheduleOnboardingView: View {
             Text("To move courses in a schedule, use drag & drop")
         }
         .font(.system(size: 18, weight: .regular, design: .default))
+        .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, height: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
         .padding()
-        .onDisappear { setScheduleOnboarding(false) }
+        .onAppear { print("Schedule onboarding appeared")}
+//        .onDisappear { setScheduleOnboarding(false) }
     }
 }

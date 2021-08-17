@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 import Combine
 
 class SharedVM: ObservableObject {
@@ -22,8 +23,9 @@ class SharedVM: ObservableObject {
     @Published private (set) var currentSchedule: ScheduleVM?
     
     func setCurrentSchedule(to schedule: ScheduleVM?) {
-        self.currentSchedule = schedule
-        
+//        withAnimation(Animation.easeInOut(duration: 0.2)) {
+            self.currentSchedule = schedule
+//        }
     }
     
 
@@ -35,16 +37,22 @@ class SharedVM: ObservableObject {
     @Published private (set) var currentEditSelection: EditOption = .none
     
     func setPanelSelection(to newSelection: PanelOption) {
-        self.currentPanelSelection = newSelection
+        withAnimation(quickAnimation) {
+            self.currentPanelSelection = newSelection
+        }
     }
     
     func setEditSelection(to newSelection: EditOption) {
-        self.currentEditSelection = newSelection
-        currentPanelSelection = .editor
+        withAnimation(Animation.easeInOut(duration: 0.15)) {
+            self.currentEditSelection = newSelection
+            currentPanelSelection = .editor
+        }
     }
     
     func stopEdit() {
-        currentEditSelection = .none
+        withAnimation(quickAnimation) {
+            currentEditSelection = .none
+        }
     }
 }
 

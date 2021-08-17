@@ -14,6 +14,23 @@ struct SemesterView: View {
     
     @Environment(\.managedObjectContext) var context
     @ObservedObject var schedule: ScheduleVM
+    @ObservedObject var store: ScheduleStore
+    
+    private var isSemesterCompleted: Binding<Bool> {
+        Binding<Bool>(
+            get: {
+                return store.completedSemesterDict[semester] == self.courses.map({ course in course.urlID })
+            },
+            set: { newValue in
+                if newValue {
+                    store.setSemesterAsCompleted(semester: semester, courseArray: courses)
+                }
+                else {
+                    store.setSemesterAsCompleted(semester: semester, courseArray: nil)
+                }
+            }
+        )
+    }
     
     private var courses: [Course] { schedule.courses(for: semester) }
     
@@ -34,15 +51,20 @@ struct SemesterView: View {
     }
     
     var topView: some View {
-        HStack(spacing: 0) {
-            Text(String(format: "\(workloadSymbol) %.1f", totalWorkload))
-            Spacer()
-            Text(semester % 2 == 0 ? fallSymbol : springSymbol)
-//            ZStack {
-//                Circle().stroke()
-//                    .frame(height: 15)
-//                Text("\(semester + 1)")
-//            }
+        VStack(spacing: courseVerticalSpacing) {
+            if isSemesterCompleted.wrappedValue {
+                Text("Finished!").popover(isPresented: .constant(true), content: {
+                    Text("A finished semester will be copied to any new schedules you create").padding()
+                })
+            }
+            HStack(spacing: 0) {
+                Text(String(format: "\(workloadSymbol) %.1f", totalWorkload))
+                Spacer()
+                Text(semester % 2 == 0 ? fallSymbol : springSymbol)
+                    .padding(.trailing, 3)
+                Toggle("", isOn: isSemesterCompleted.animation(quickAnimation))
+            }
+
         }
     }
     

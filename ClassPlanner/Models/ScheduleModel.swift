@@ -99,12 +99,11 @@ struct ScheduleModel: Codable, Hashable, Equatable {
     
     // MARK: - Initializing
     
-    init() {
+    init(completedSemesterDict: [Int:[URL]]) {
         self.color = 0
         self.notes = ""
         [0, 1 ,2, 3, 4, 5, 6, 7].forEach { semester in
-            schedule[semester] = []
-            schedule[semester]?.reserveCapacity(6)
+            schedule[semester] = completedSemesterDict[semester] ?? []
         }
     }
     

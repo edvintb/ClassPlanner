@@ -37,7 +37,7 @@ struct EditorNotes: View {
                .font(.system(size: 13))
                .opacity(empty ? 0.2 : 0.5)
                .fixedSize(horizontal: false, vertical: false)
-               .padding([.horizontal], 10)
+               .padding(.horizontal, 10)
         }.frame(height: CGFloat(min((notes.count / 3 + 20), 130)))
     }
 }

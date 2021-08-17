@@ -31,19 +31,36 @@ struct CourseView: View {
     }
     
     var body: some View {
-        ZStack(alignment: .center) {
-            container
-            if course.isEmpty { EmptyView() }
-            else if isFrontUp      { front }
-            else              { back }
-        }
-        .onDrag { NSItemProvider(object: course.stringID as NSString) }
-        .gesture(tapGesture)
-        .frame(height: isFrontUp || course.isEmpty ? courseHeight : courseHeight + 27, alignment: .center)
-        .onReceive(shared.currentSchedule!.$isCourseFrontUp.dropFirst()) { isFrontUp in
-            withAnimation {
-                self.isFrontUp = course.name != "" && isFrontUp
+        if let schedule = shared.currentSchedule {
+            ZStack(alignment: .center) {
+                container
+                if course.isEmpty { EmptyView() }
+                else if isFrontUp      { front }
+                else              { back }
             }
+            .onDrag { NSItemProvider(object: course.stringID as NSString) }
+            .onTapGesture(course: course, firstTap: onSingleTap, secondTap: onDoubleTap)
+    //        .tapRecognizer(tapSensitivity: 0.1, singleTapAction: onSingleTap, doubleTapAction: onDoubleTap)
+    //        .gesture(tapGesture)
+            .frame(height: isFrontUp || course.isEmpty ? courseHeight : courseHeight + 27, alignment: .center)
+            .onReceive(schedule.$isCourseFrontUp.dropFirst()) { isFrontUp in
+                withAnimation {
+                    self.isFrontUp = course.name != "" && isFrontUp
+                }
+            }
+        }
+        else {
+            ZStack(alignment: .center) {
+                container
+                if course.isEmpty { EmptyView() }
+                else if isFrontUp      { front }
+                else              { back }
+            }
+            .onDrag { NSItemProvider(object: course.stringID as NSString) }
+            .onTapGesture(course: course, firstTap: onSingleTap, secondTap: onDoubleTap)
+    //        .tapRecognizer(tapSensitivity: 0.1, singleTapAction: onSingleTap, doubleTapAction: onDoubleTap)
+    //        .gesture(tapGesture)
+            .frame(height: isFrontUp || course.isEmpty ? courseHeight : courseHeight + 27, alignment: .center)
         }
     }
     
@@ -140,16 +157,34 @@ struct CourseView: View {
         return "-"
     }
     
-    var tapGesture: some Gesture {
-        TapGesture().onEnded {
-            if course.name.isEmpty && course.isEmpty { shared.setEditSelection(to: .course(course: course)) }
-            else {
-                withAnimation(Animation.easeInOut(duration: 0.2)) {
-                    isFrontUp.toggle()
-                }
+    func onSingleTap() {
+        print("Single tap")
+        if course.isEmpty { shared.setEditSelection(to: .course(course: course))}
+        else {
+            withAnimation(Animation.easeInOut(duration: 0.2)) {
+                isFrontUp.toggle()
             }
         }
     }
+    
+    func onDoubleTap() {
+        print("Double tap")
+        shared.setEditSelection(to: .course(course: course))
+        withAnimation {
+            isFrontUp = false
+        }
+    }
+    
+//    var tapGesture: some Gesture {
+//        TapGesture().onEnded {
+//            if course.name.isEmpty && course.isEmpty { shared.setEditSelection(to: .course(course: course)) }
+//            else {
+//                withAnimation(Animation.easeInOut(duration: 0.2)) {
+//                    isFrontUp.toggle()
+//                }
+//            }
+//        }
+//    }
 }
 
 

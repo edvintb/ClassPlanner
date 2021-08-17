@@ -41,6 +41,7 @@
 		5C8D51E92608D26F00CDEAB5 /* ScheduleVM.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8D51E82608D26F00CDEAB5 /* ScheduleVM.swift */; };
 		5C8D51EC260907C400CDEAB5 /* CourseEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8D51EB260907C400CDEAB5 /* CourseEditorView.swift */; };
 		5C8D51F0260BE3F100CDEAB5 /* SemesterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8D51EF260BE3F100CDEAB5 /* SemesterView.swift */; };
+		5C8E2E3826CA574E006A09A3 /* TapRecognizerViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8E2E3726CA574E006A09A3 /* TapRecognizerViewModifier.swift */; };
 		5C8E5CF92652CCFF00FC3CAC /* SharedProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8E5CF82652CCFF00FC3CAC /* SharedProperties.swift */; };
 		5C9340A22632D508006AF281 /* EmptyCourseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C9340A12632D507006AF281 /* EmptyCourseView.swift */; };
 		5C9340A526332592006AF281 /* ConcentrationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C9340A426332592006AF281 /* ConcentrationView.swift */; };
@@ -110,6 +111,7 @@
 		5C8D51E82608D26F00CDEAB5 /* ScheduleVM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleVM.swift; sourceTree = "<group>"; };
 		5C8D51EB260907C400CDEAB5 /* CourseEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CourseEditorView.swift; sourceTree = "<group>"; };
 		5C8D51EF260BE3F100CDEAB5 /* SemesterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SemesterView.swift; sourceTree = "<group>"; };
+		5C8E2E3726CA574E006A09A3 /* TapRecognizerViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapRecognizerViewModifier.swift; sourceTree = "<group>"; };
 		5C8E5CF82652CCFF00FC3CAC /* SharedProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedProperties.swift; sourceTree = "<group>"; };
 		5C9340A12632D507006AF281 /* EmptyCourseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyCourseView.swift; sourceTree = "<group>"; };
 		5C9340A426332592006AF281 /* ConcentrationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcentrationView.swift; sourceTree = "<group>"; };
@@ -280,6 +282,7 @@
 				5C671359264C259200491C1C /* SearchTextField.swift */,
 				5CB9A33C265E338000DFB021 /* CustomTabView.swift */,
 				5CE46F542651379200350D7C /* DragVM.swift */,
+				5C8E2E3726CA574E006A09A3 /* TapRecognizerViewModifier.swift */,
 			);
 			path = Others;
 			sourceTree = "<group>";
@@ -428,6 +431,7 @@
 				5C5574FE26063D6E001C1037 /* Course.swift in Sources */,
 				5C172DF72653BDC500BC0A87 /* ScheduleStore.swift in Sources */,
 				5CAA1EA4266A961700E7F0D8 /* ConcentrationEditorView.swift in Sources */,
+				5C8E2E3826CA574E006A09A3 /* TapRecognizerViewModifier.swift in Sources */,
 				5C8E5CF92652CCFF00FC3CAC /* SharedProperties.swift in Sources */,
 				5CE7393D264FD2A300221D81 /* CourseStoreView.swift in Sources */,
 				5CEC81CA264C1A1800B2B03E /* NetworkSearch.swift in Sources */,

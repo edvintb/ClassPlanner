@@ -23,15 +23,6 @@ struct ScheduleView: View {
         }
     }
     
-//    private var maxNumberCoursesInSemester: CGFloat {
-//        CGFloat(schedule.semesters.map { schedule.courses(for: $0).count }.max() ?? 0)
-//    }
-    
-    private var isCatalina: Bool {
-        if #available(macOS 11.0, *) { return false }
-        else { return true }
-    }
-    
     // Adopt the frame to scroll less
     var body: some View {
         GeometryReader { geo in
@@ -43,9 +34,6 @@ struct ScheduleView: View {
                     Spacer().frame(height: geo.size.height - 215)
                 }
                 .frame(minWidth: geo.size.width - 15, alignment: .topLeading)
-                .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
-                    setScheduleOnboarding(show: show)
-                }
                 //            }
                 //            ScrollView([.vertical, .horizontal]) {
                 //                if isShowingContent {
@@ -85,19 +73,38 @@ struct ScheduleView: View {
             helpButton
             Spacer()
         }
-        .contentShape(Rectangle())
-        .onTapGesture { shared.setEditSelection(to: .schedule(schedule: schedule)) }
-        .padding([.horizontal, .top], leftEdgePadding)
-        .popover(isPresented: $isShowingOnboarding) {
+        .popover(isPresented: .constant(true)) {
+//            Text("Testing popover")
             ScheduleOnboardingView(
                 isShowingOnboarding: $isShowingOnboarding,
                 setScheduleOnboarding: self.setScheduleOnboarding
             )
         }
+        .contentShape(Rectangle())
+        .onTapGesture { shared.setEditSelection(to: .schedule(schedule: schedule)) }
+        .padding([.horizontal, .top], leftEdgePadding)
+        .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
+            print("Setting show in scheudle to \(show)")
+            setScheduleOnboarding(show: show)
+        }
     }
     
     var helpButton: some View {
-        Button("Show Help", action: shared.showOnboarding)
+        Button(
+            action: {
+                shared.showOnboarding()
+                self.isShowingOnboarding = true
+            },
+            label: {
+                if #available(macOS 11.0, *) {
+                    Image(systemName: "info.circle")
+                } else {
+                    Text("Help")
+                }
+        })
+
+
+
     }
     
     var semesters: some View {
@@ -106,7 +113,7 @@ struct ScheduleView: View {
             HStack {
                 Spacer().frame(width: 5)
                 ForEach (semesters, id: \.self) { semester in
-                    SemesterView(semester: semester, schedule: schedule)
+                    SemesterView(semester: semester, schedule: schedule, store: store)
                         .padding(.horizontal, courseHorizontalSpacing)
                     if semester % 2 == 1 {
                         Divider()

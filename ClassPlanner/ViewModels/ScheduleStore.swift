@@ -31,17 +31,42 @@ class ScheduleStore: ObservableObject {
         scheduleNames[schedule, default: "Schedule"]
     }
     
+    // The type has to be this to save in user defaults
+    private (set) var completedSemesterDict: [Int:[URL]]
+    
+    func setSemesterAsCompleted(semester: Int, courseArray: [Course]?) {
+        self.completedSemesterDict[semester] = courseArray?.map({ course in course.urlID }) ?? nil
+        var dictToSave = [String:[String]]()
+        completedSemesterDict.forEach( { dictPair in
+            let (intKey, urlArray) = dictPair
+            dictToSave[String(intKey)] = urlArray.map { url in url.absoluteString }
+        })
+        UserDefaults.standard.set(dictToSave, forKey: completedSemesterKey)
+        withAnimation(quickAnimation) {
+            objectWillChange.send()
+        }
+    }
+    
     private var cancellables: Set<AnyCancellable> = []
     
     init(directory: URL, context: NSManagedObjectContext, shared: SharedVM) {
         self.shared = shared
         self.context = context
         self.directory = directory
+        completedSemesterDict = [:]
+        let savedDict = UserDefaults.standard.dictionary(forKey: completedSemesterKey) ?? [:]
+        savedDict.forEach { savedDictPair in
+            let (stringKey, any) = savedDictPair
+            if let intKey = Int(stringKey), let stringArray = any as? [String] {
+                completedSemesterDict[intKey] = stringArray.compactMap({ stringURL in URL(string: stringURL)})
+            }
+        }
+        
         do {
             let schedules = try FileManager.default.contentsOfDirectory(atPath: directory.path)
             for schedule in schedules {
                 let url = directory.appendingPathComponent(schedule)
-                let scheduleVM = ScheduleVM(url: url, context: context)
+                let scheduleVM = ScheduleVM(completedSemesterDict: completedSemesterDict, url: url, context: context)
                 scheduleNames[scheduleVM] = schedule
             }
         }
@@ -78,7 +103,6 @@ class ScheduleStore: ObservableObject {
             schedule.name = name(for: schedule)
             return false
         }
-        
         return true
     }
     
@@ -89,7 +113,7 @@ class ScheduleStore: ObservableObject {
         let uniqueName = name.uniqued(withRespectTo: scheduleNames.values)
         let schedule: ScheduleVM
         let url = directory.appendingPathComponent(uniqueName)
-        schedule = ScheduleVM(url: url, context: context)
+        schedule = ScheduleVM(completedSemesterDict: completedSemesterDict, url: url, context: context)
         scheduleNames[schedule] = uniqueName
     }
 
@@ -103,12 +127,9 @@ class ScheduleStore: ObservableObject {
             catch {
                 print("Error deleting schedule at url: \(url), \(error.localizedDescription)")
             }
-            
         }
         scheduleNames.removeValue(forKey: schedule)
     }
-    
-
 }
 
 

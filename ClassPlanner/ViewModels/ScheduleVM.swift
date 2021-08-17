@@ -23,12 +23,13 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     
     private var cancellables = Set<AnyCancellable>()
     
-    init(url: URL, context: NSManagedObjectContext) {
+    init(completedSemesterDict: [Int:[URL]], url: URL, context: NSManagedObjectContext) {
         self.context = context
         self.name = url.lastPathComponent
         self.id = UUID()
         self.url = url
-        self.model = ScheduleModel(decoder: JSONDecoder(), json: try? Data(contentsOf: url)) ?? ScheduleModel()
+        self.model = ScheduleModel(decoder: JSONDecoder(), json: try? Data(contentsOf: url)) ??
+                        ScheduleModel(completedSemesterDict: completedSemesterDict)
         
         // Autosave cancellable
         $model.sink { [unowned self] _ in
