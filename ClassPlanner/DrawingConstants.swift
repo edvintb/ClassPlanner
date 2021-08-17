@@ -52,6 +52,8 @@ let quickAnimation = Animation.easeInOut(duration: 0.2)
 
 let horizontalBackPadding: CGFloat = 7
 let courseBackSpacing: CGFloat = 2.5
+
+let professorSymbol: String = "🥸"
 let dateSymbol: String = "📆"
 let enrollmentSymbol: String = "👥"
 let qscoreSymbol: String = "⭐️"//"𝗤"

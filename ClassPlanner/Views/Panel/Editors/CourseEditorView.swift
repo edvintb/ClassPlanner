@@ -144,6 +144,7 @@ struct CourseEditorView: View {
             workloadEntry
             qscoreEntry
             enrollmentEntry
+            professorEntry
         }
         .cornerRadius(textFieldCornerRadius)
     }
@@ -170,6 +171,17 @@ struct CourseEditorView: View {
         HStack {
             Text(" \(enrollmentSymbol)")
             IntTextField("Enrollment", integer: $course.enrollment, onCommit: { save() })
+                .cornerRadius(textFieldCornerRadius)
+                .focusable()
+        }
+    }
+    
+    @State private var professorName: String = ""
+    
+    var professorEntry: some View {
+        HStack {
+            Text(" \(professorSymbol)")
+            TextField("Professor", text: $professorName)
                 .cornerRadius(textFieldCornerRadius)
                 .focusable()
         }
