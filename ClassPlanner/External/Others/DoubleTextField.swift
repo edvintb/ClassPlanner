@@ -15,6 +15,8 @@ struct DoubleTextField: View {
     
     @Binding private var number: Double
     @State private var string: String
+    
+    @State private var addedZeroCount: Int = 0
     @State private var addedSeparator: Bool = false
     
     init(_ placeholder: String, double: Binding<Double>, onCommit: @escaping () -> ()) {
@@ -42,16 +44,32 @@ struct DoubleTextField: View {
         Binding<String>(
             get: {
                 if number == 0 { return "" }
-                return ((numberFormatter.string(from: NSNumber(value: number)) ?? "")
-                        + (addedSeparator ? (Locale.current.decimalSeparator ?? ".") : ""))
+                let stringNumber = numberFormatter.string(from: NSNumber(value: number)) ?? ""
+                let separator = addedSeparator ? (Locale.current.decimalSeparator ?? ".") : ""
+                let zeroString = String(repeating: "0", count: addedZeroCount)
+                return stringNumber + separator + zeroString
             },
             set: { input in
                 if let numeric = input.numericValue(allowDecimalSeparator: true, maxDigits: maxSignificant) {
                     if (numeric.last == "." || numeric.last == ",") {
+                        // When a separator is written, we add it and start counting zeros
                         addedSeparator = true
-                        
-                    } else {
+                        addedZeroCount = 0
+                    } else if (numeric.last == "0") && addedSeparator {
+                        // If we had two zeros already and the 
+                        if addedZeroCount == 2 {
+                            addedZeroCount -= 1
+                        }
+                        else {
+                            addedZeroCount += 1
+                        }
+                    } else if (numeric.last == "0") && !addedSeparator {
+                        addedSeparator = true
+                        addedZeroCount = 1
+                    }
+                    else {
                         addedSeparator = false
+                        addedZeroCount = 0
                     }
                     if let value = numberFormatter.number(from: numeric) {
                         number = value.doubleValue

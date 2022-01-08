@@ -22,24 +22,16 @@ struct CourseEditorView: View {
     @ObservedObject var course: Course
     
     // Storing course name subscription
-    private var cancellables = Set<AnyCancellable>()
+    // private var cancellables = Set<AnyCancellable>()
     
     @ObservedObject var courseSuggestionVM: CourseSuggestionVM
     @ObservedObject var prereqSuggestionVM: PrereqSuggestionVM
     @ObservedObject var searchModel: SearchModel
     @ObservedObject var prereqSearchModel: SearchModel
     
-    private var isCatalina: Bool {
-        if #available(macOS 11.0, *) { return true }
-        else { return false }
-    }
-//
     @Binding private var isShowingOnboarding: Bool
     private func setCourseEditorOnboarding(show: Bool) {
-        withAnimation {
-            self.isShowingOnboarding = show
-            UserDefaults.standard.setValue(!show, forKey: courseEditorOnboardingKey)
-        }
+        self.isShowingOnboarding = show
     }
     
     init(course: Course,
@@ -59,45 +51,55 @@ struct CourseEditorView: View {
         self.prereqSearchModel = SearchModel(startingText: "", context: context, avoid: course.objectID)
 
         // Updating the name of the course as we type it in
-        searchModel.$currentText
-            .removeDuplicates()
-            .assign(to: \.course.name, on: self)
-            .store(in: &cancellables)
+//        searchModel.$currentText
+//            .removeDuplicates()
+//            .assign(to: \.course.name, on: self)
+//            .store(in: &cancellables)
         
+    }
+    
+    private var professorAndNotes: String {
+        if course.professorName.isEmpty {
+            return course.notes
+        }
+        else if course.course_id.isEmpty {
+            return "\(course.professorName)\n\(course.notes)"
+        }
+        else {
+            return "\(course.course_id) - \(course.professorName)\n\(course.notes)"
+        }
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            EditorHeader(title: course.name, notes: course.notes, color: course.getColor())
-            // Add professor?
+            EditorTypeView(editorName: "Course", infoTappedAction: { setCourseEditorOnboarding(show: true) }, createBackButton: createBackButton)
+            Spacer().frame(height: 9)
+            EditorHeader(title: course.name, notes: professorAndNotes, color: course.colorOption.color, isCourse: true)
             GeometryReader { geo in
                 Form {
-                    NameEditor(entryView: nameField)
+                    searchField
                     semesterSelector
+                    NameEditor(entryView: nameField)
                     dataEntryFields
                     NoteEditor(text: $course.notes) { course.save() }
-                    dayAndDaySelector(size: geo.size)
+                    dayAndTimeSelector(size: geo.size)
                     gradeSelector
+                    EditorColorGrid { course.colorOption = $0; course.save() }
                     HStack {
                         prereqView
                         concentrationView
                     }
-                    EditorColorGrid { course.color = $0; course.save() }
                     bottomButtons
                 }
                 .padding(editorPadding)
             }
-
         }
 //        .background(KeyEventHandling(course: self.course, schedule: shared.currentSchedule))
-        
     }
     
-    
-    
-    func dayAndDaySelector(size: CGSize) -> some View {
+    func dayAndTimeSelector(size: CGSize) -> some View {
         HStack(spacing: 0) {
-            Text(" \(dateSymbol)")
+            Text(" \(dateSymbol)").font(.system(size: editorIconFontSize))
             Spacer()
             Button("Mon", action: { course.toggleMonday() })
                 .opacity(course.monday ? 1 : 0.51)
@@ -107,10 +109,14 @@ struct CourseEditorView: View {
                 .opacity(course.wednesday ? 1 : 0.51)
             Button("Thu", action: { course.toggleThursday() })
                 .opacity(course.thursday ? 1 : 0.51)
-            Button( action: { course.toggleFriday() }, label: { Text("Fri") })
+            Button("Fri", action: { course.toggleFriday() })
                 .opacity(course.friday ? 1 : 0.51)
             Spacer()
-            DatePicker("Course Time", selection: $course.time, displayedComponents: .hourAndMinute)
+            DatePicker("Course Time",
+                       selection: $course.time.onChange { _ in course.save(); print(course.time) },
+                       in: Date.oneDayRange,
+                       displayedComponents: .hourAndMinute)
+                .environment(\.timeZone, TimeZone(secondsFromGMT: 0)!)
                 .labelsHidden()
                 .frame(width: size.width / 5)
         }
@@ -118,31 +124,83 @@ struct CourseEditorView: View {
         .padding(.vertical, 5)
     }
     
-    var nameField: some View {
+
+    
+    var searchField: some View {
         SuggestionInput(text: $searchModel.currentText,
                         suggestionGroups: searchModel.suggestionGroups,
                         suggestionModel: courseSuggestionVM.suggestionModel)
             .focusable()
             .popover(isPresented: $isShowingOnboarding, content: {
-                CourseEditorOnboarding(isShowingOnboarding: $isShowingOnboarding, setCourseEditorOnboarding: setCourseEditorOnboarding)
+                CourseNamingOnboarding()
             })
     }
     
+    var nameField: some View {
+        TextField("Name", text: $course.name, onEditingChanged: { _ in course.save() })
+            .cornerRadius(textFieldCornerRadius)
+            .focusable()
+    }
+    
+    @ViewBuilder
     var semesterSelector: some View {
-        HStack(alignment: .center, spacing: 10) {
-            Spacer()
-            Toggle(fallSymbol, isOn: $course.fall)
-            Spacer()
-            Toggle(springSymbol, isOn: $course.spring)
-            Spacer()
+        if shared.isSemesterSystem {
+            HStack(alignment: .center, spacing: 10) {
+                Spacer()
+                Toggle(fallSymbol, isOn: $course.fall.onChange({ _ in course.save() }))
+                Spacer()
+                Toggle(springSymbol, isOn: $course.spring.onChange({ _ in course.save() }))
+                Spacer()
+                Toggle(isOn: $course.isFinished.onChange({ _ in course.save() }), label: {
+                    Text(courseContainedSymbol).foregroundColor(.green)
+                })
+                Spacer()
+            }
+            .padding(.vertical, 4)
+            .popover(
+                isPresented: $isShowingOnboarding,
+                attachmentAnchor: .point(.bottom),
+                arrowEdge: .bottom, content: {
+                    CourseSemesterOnboarding()
+                }
+            )
         }
-        .padding(.vertical, 4)
+        else {
+            HStack(alignment: .center, spacing: 10) {
+                Group {
+                    Spacer()
+                    Toggle("1", isOn: $course.isQuarter1.onChange({ _ in course.save() }))
+                    Spacer()
+                    Toggle("2", isOn: $course.isQuarter2.onChange({ _ in course.save() }))
+                    Spacer()
+                    Toggle("3", isOn: $course.isQuarter3.onChange({ _ in course.save() }))
+                    Spacer()
+                    Toggle("4", isOn: $course.isQuarter4.onChange({ _ in course.save() }))
+                    Spacer()
+                }
+                Toggle(
+                    isOn: $course.isFinished.onChange
+                        { _ in course.save(); course.categories.forEach { $0.objectWillChange.send() }},
+                    label: {
+                        Text(courseContainedSymbol).foregroundColor(.green)
+                })
+                Spacer()
+            }
+            .padding(.vertical, 4)
+            .popover(
+                isPresented: $isShowingOnboarding,
+                attachmentAnchor: .point(.bottom),
+                arrowEdge: .bottom, content: {
+                    CourseSemesterOnboarding()
+                }
+            )
+        }
     }
 
     var dataEntryFields: some View {
         Form {
-            workloadEntry
             qscoreEntry
+            workloadEntry
             enrollmentEntry
             professorEntry
         }
@@ -151,8 +209,11 @@ struct CourseEditorView: View {
     
     var workloadEntry: some View {
         HStack {
-            Text(" \(workloadSymbol)")
-            DoubleTextField("Workload", double: $course.workload, onCommit: { save() })
+            Text(" \(workloadSymbol)").font(.system(size: editorIconFontSize))
+            DoubleTextField("Workload", double: $course.workload, onCommit: {
+                course.save()
+                shared.currentSchedule?.objectWillChange.send()
+            })
                 .cornerRadius(textFieldCornerRadius)
                 .focusable()
         }
@@ -160,8 +221,8 @@ struct CourseEditorView: View {
     
     var qscoreEntry: some View {
         HStack {
-            Text(" \(qscoreSymbol)") // .foregroundColor(.red).font(.system(size: 14.5))
-            DoubleTextField("Rating", double: $course.qscore, onCommit: { save() })
+            Text(" \(qscoreSymbol)").font(.system(size: editorIconFontSize)) // .foregroundColor(.red).font(.system(size: 14.5))
+            DoubleTextField("Rating", double: $course.qscore, onCommit: { course.save() })
                 .cornerRadius(textFieldCornerRadius)
                 .focusable()
         }
@@ -169,29 +230,26 @@ struct CourseEditorView: View {
     
     var enrollmentEntry: some View {
         HStack {
-            Text(" \(enrollmentSymbol)")
-            IntTextField("Enrollment", integer: $course.enrollment, onCommit: { save() })
+            Text(" \(enrollmentSymbol)").font(.system(size: editorIconFontSize))
+            IntTextField("Enrollment", integer: $course.enrollment, onCommit: { course.save() })
                 .cornerRadius(textFieldCornerRadius)
                 .focusable()
         }
     }
     
-    @State private var professorName: String = ""
-    
     var professorEntry: some View {
         HStack {
-            Text(" \(professorSymbol)")
-            TextField("Professor", text: $professorName)
+            Text(" \(professorSymbol)").font(.system(size: editorIconFontSize))
+            TextField("Professor", text: $course.professorName, onCommit: { course.save() })
                 .cornerRadius(textFieldCornerRadius)
                 .focusable()
         }
     }
     
     var gradeSelector: some View {
-        Picker("", selection: $course.grade) {
+        Picker("", selection: $course.grade.onChange({ _ in shared.currentSchedule?.objectWillChange.send(); course.save() })) {
             ForEach(Grade.allCases, id: \.self) { grade in
-                Text(Grade.gradeString[grade] ?? "")
-                    .foregroundColor(Grade.color[grade])
+                Text(grade.string)
                     .tag(grade.id)
             }
         }.pickerStyle(SegmentedPickerStyle())
@@ -312,8 +370,14 @@ struct CourseEditorView: View {
         }
     }
     
-    func save() {
-        course.save()
+    func createBackButton() -> some View {
+        Button(action: {
+            course.safeSave()
+            shared.setPanelSelection(to: .courses)
+        }, label: {
+            Text("⬅")
+        })
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     //struct CourseInfo {

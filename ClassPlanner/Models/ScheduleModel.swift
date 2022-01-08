@@ -23,9 +23,13 @@ struct CoursePosition: Codable, Hashable, Equatable {
 
 struct ScheduleModel: Codable, Hashable, Equatable {
     
-    var color: Int
     var notes: String
     
+    private (set) var color: Int
+    mutating func setColor(newColor: ColorOption) {
+        self.color = newColor.id
+    }
+    // Potentially save the course_id instead?
     private (set) var schedule = [Int:[URL]]()
     
     var json: Data? {
@@ -44,12 +48,14 @@ struct ScheduleModel: Codable, Hashable, Equatable {
     mutating func replaceCourse(oldCourse: Course, with newCourse: Course) {
         // If the new course is already in the schedule we will remove it
         if let currentPos = getPositionInSchedule(for: newCourse) {
+            // print("Removing \(oldCourse.name)")
             remove(at: currentPos)
         }
         
         // Update at the position of the old course
         if let pos = getPositionInSchedule(for: oldCourse) {
             update(to: newCourse, at: pos)
+            
             // If we just replaced an empty course we will delete it
             if oldCourse.isEmpty { oldCourse.delete() }
         }
@@ -83,8 +89,7 @@ struct ScheduleModel: Codable, Hashable, Equatable {
     }
     
     private mutating func update(to course: Course, at pos: CoursePosition) {
-        let id = course.urlID
-        schedule[pos.semester]![pos.index] = id
+        schedule[pos.semester]![pos.index] = course.urlID
     }
     
     
@@ -99,9 +104,9 @@ struct ScheduleModel: Codable, Hashable, Equatable {
     
     // MARK: - Initializing
     
-    init(completedSemesterDict: [Int:[URL]]) {
-        self.color = 0
-        self.notes = ""
+    init(completedSemesterDict: [Int:[URL]], notes: String? = nil, color: Int? = nil) {
+        self.color = color ?? 0
+        self.notes = notes ?? ""
         [0, 1 ,2, 3, 4, 5, 6, 7].forEach { semester in
             schedule[semester] = completedSemesterDict[semester] ?? []
         }

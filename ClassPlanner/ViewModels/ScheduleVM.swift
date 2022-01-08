@@ -23,16 +23,17 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     
     private var cancellables = Set<AnyCancellable>()
     
-    init(completedSemesterDict: [Int:[URL]], url: URL, context: NSManagedObjectContext) {
+    init(completedSemesterDict: [Int:[URL]], url: URL, context: NSManagedObjectContext, notes: String? = nil, color: ColorOption? = nil) {
         self.context = context
         self.name = url.lastPathComponent
         self.id = UUID()
         self.url = url
         self.model = ScheduleModel(decoder: JSONDecoder(), json: try? Data(contentsOf: url)) ??
-                        ScheduleModel(completedSemesterDict: completedSemesterDict)
-        
+        ScheduleModel(completedSemesterDict: completedSemesterDict, notes: notes, color: color?.id)
         // Autosave cancellable
-        $model.sink { [unowned self] _ in
+        $model
+            .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
+            .sink { [unowned self] _ in
             self.save()
         }
         .store(in: &cancellables)
@@ -40,12 +41,30 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     
     // MARK: - Access to Model
     
+    // Used to create copies of the current schedule
+    var schedule: [Int:[URL]] {
+        model.schedule
+    }
+    
     var semesters: [Int] {
         Array(model.schedule.keys.sorted())
     }
     
-    var color: Color {
-        Color.colorSelection[model.color % Color.colorSelection.count]
+    func fetchCreateSemesters(for numbers: Range<Int>) -> [Int] {
+        let existingSemesterArray = self.semesters
+        for number in numbers {
+            if existingSemesterArray.contains(number) {
+                continue
+            }
+            else {
+                model.addSemester()
+            }
+        }
+        return Array(numbers)
+    }
+    
+    var colorOption: ColorOption {
+        ColorOption(rawValue: model.color) ?? .primary
     }
     
     var notes: String {
@@ -65,7 +84,7 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
         let totalGrade = courseUrlSet.reduce(into: 0.0) { acc, url in
                 if let course = Course.fromURI(uri: url, context: context) as? Course {
                     if course.enumGrade == .Pass { return }
-                    acc += Grade.gradeNumber[course.enumGrade] ?? 0
+                    acc += course.enumGrade.value
                     coursesWithGrade += 1
                 }
             }
@@ -108,16 +127,14 @@ class ScheduleVM: ObservableObject, Hashable, Equatable, Identifiable {
     
     func replaceCourse(old: Course, with newCourse: Course) {
         model.replaceCourse(oldCourse: old, with: newCourse)
-        save()
     }
     
     func addCourse(_ course: Course, at newPos: CoursePosition) {
         model.moveCourse(course, to: newPos)
-        save()
     }
     
-    func setColor(to index: Int) {
-        model.color = index
+    func setColor(to newOption: ColorOption) {
+        model.setColor(newColor: newOption)
     }
     
     func addEmptyCourse(to semester: Int, context: NSManagedObjectContext) {

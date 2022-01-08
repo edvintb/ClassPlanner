@@ -21,7 +21,6 @@ struct EmptyCourseView: View {
         return false
     }
     
-    
     var body: some View {
         ZStack {
             Text("+")
@@ -41,10 +40,12 @@ struct EmptyCourseView: View {
     
     func tapped() {
         if let schedule = shared.currentSchedule {
-            schedule.addEmptyCourse(to: semester, context: context)
-            if let course = schedule.courses(for: semester).last {
-                shared.setPanelSelection(to: .editor)
-                shared.setEditSelection(to: .course(course: course))
+            withAnimation(quickAnimation) {
+                schedule.addEmptyCourse(to: semester, context: context)
+                if let course = schedule.courses(for: semester).last {
+                    shared.setPanelSelection(to: .editor)
+                    shared.setEditSelection(to: .course(course: course))
+                }
             }
         }
     }

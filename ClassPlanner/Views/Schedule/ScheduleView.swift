@@ -9,91 +9,71 @@ import SwiftUI
 
 struct ScheduleView: View {
     
-    let leftEdgePadding: CGFloat = 8
     @EnvironmentObject var shared: SharedVM
     @ObservedObject var store: ScheduleStore
     @ObservedObject var schedule: ScheduleVM
     
-    // For onboarding
-    @State private var isShowingOnboarding: Bool = !UserDefaults.standard.bool(forKey: scheduleOnboardingKey)
-    private func setScheduleOnboarding(show: Bool) {
-        withAnimation {
-            self.isShowingOnboarding = show
-            UserDefaults.standard.setValue(!show, forKey: scheduleOnboardingKey)
-        }
-    }
+    @State private var isCopied: Bool = false
+    @State private var isShowingSettings: Bool = false
     
-    // Adopt the frame to scroll less
     var body: some View {
-        GeometryReader { geo in
-            ScrollView([.vertical, .horizontal], showsIndicators: true) {
-                VStack(alignment: .leading, spacing: 7) {
-                    scheduleTop(schedule: schedule)
-                    Divider().padding(.bottom, 3)
-                    semesters
-                    Spacer().frame(height: geo.size.height - 215)
+        VStack(spacing: topSectionStackSpacing) {
+            scheduleTop(schedule: schedule).frame(height: topSectionheight)
+            Divider().padding(.bottom, 3)
+            GeometryReader { geo in
+                ScrollView([.vertical, .horizontal], showsIndicators: true) {
+                    VStack(alignment: .leading, spacing: topSectionStackSpacing) {
+                        semestersView
+                    }
+                    .frame(minHeight: geo.size.height)
                 }
-                .frame(minWidth: geo.size.width - 15, alignment: .topLeading)
-                //            }
-                //            ScrollView([.vertical, .horizontal]) {
-                //                if isShowingContent {
-                //                    scrollViewContent
-                //                        .frame(minWidth: geo.size.width, alignment: .topLeading)
-                //                }
-                //            }
-                //            .onAppear { isShowingContent = true }
             }
+        }.sheet(isPresented: $isShowingSettings) {
+            VStack(alignment: .trailing, spacing: 10) {
+                Text("Settings")
+                    .font(.title)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                SettingsView()
+                Button(action: { isShowingSettings = false }, label: { Text("Close") })
+            }
+            .padding(20)
         }
-        
     }
-    
-    //    var scrollViewContent: some View {
-    //        VStack(alignment: .leading, spacing: 2) {
-    //            scheduleName(schedule: schedule)
-    //            Divider().padding([.leading, .bottom], 3)
-    //                .frame(width: (courseWidth + 8)*CGFloat(schedule.semesters.count))
-    //            semesters
-    ////            Spacer().frame(height: geo.size.height)
-    //        }
-    //    }
     
     func scheduleTop(schedule: ScheduleVM) -> some View {
         HStack(spacing: 20) {
             Text(schedule.name)
                 .font(.system(size: 20))
-                .foregroundColor(schedule.color)
+                .foregroundColor(schedule.colorOption.color)
             Text(String(format: "\(gradeSymbol) %.2f", schedule.gradeAverage))
                 .font(.system(size: 17))
-            Text("\(schedule.courseUrlSet.count) Course\(schedule.courseUrlSet.count == 1 ? "" : "s")")
-                .font(.system(size: 17))
-            Button(
-                action: { schedule.turnCourseViews() },
-                label: { Text("⟳") }
-            )
+//            Text("\(schedule.courseUrlSet.count) Course\(schedule.courseUrlSet.count == 1 ? "" : "s")")
+//                .font(.system(size: 17))
+            turnAllCoursesButton
             helpButton
+            copyButton
+            if isCopied {
+                Text("A copy can be found in the Schedules tab")
+            }
             Spacer()
-        }
-        .popover(isPresented: .constant(true)) {
-//            Text("Testing popover")
-            ScheduleOnboardingView(
-                isShowingOnboarding: $isShowingOnboarding,
-                setScheduleOnboarding: self.setScheduleOnboarding
-            )
+            settingsButton
         }
         .contentShape(Rectangle())
         .onTapGesture { shared.setEditSelection(to: .schedule(schedule: schedule)) }
-        .padding([.horizontal, .top], leftEdgePadding)
-        .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
-            print("Setting show in scheudle to \(show)")
-            setScheduleOnboarding(show: show)
-        }
+        .padding([.horizontal, .top], topSectionPadding)
+    }
+    
+    var turnAllCoursesButton: some View {
+        Button(
+            action: { schedule.turnCourseViews() },
+            label: { Text("▲▼") }
+        )
     }
     
     var helpButton: some View {
         Button(
             action: {
-                shared.showOnboarding()
-                self.isShowingOnboarding = true
+                shared.showWelcomeSheet()
             },
             label: {
                 if #available(macOS 11.0, *) {
@@ -102,32 +82,58 @@ struct ScheduleView: View {
                     Text("Help")
                 }
         })
-
-
-
     }
     
-    var semesters: some View {
-        let semesters = schedule.semesters
-        return
-            HStack {
-                Spacer().frame(width: 5)
-                ForEach (semesters, id: \.self) { semester in
-                    SemesterView(semester: semester, schedule: schedule, store: store)
-                        .padding(.horizontal, courseHorizontalSpacing)
-                    if semester % 2 == 1 {
-                        Divider()
-                    }
+    var copyButton: some View {
+        Button(
+            action: {
+                store.copySchedule(schedule: schedule)
+                withAnimation {
+                    isCopied = true
                 }
-                Spacer().frame(width: 5)
-                VStack {
-                    Button(action: schedule.addSemester, label: {
-                        Text("Add Semester")
-                    })
-                    Spacer()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: {withAnimation {
+                    isCopied = false
+                }})
+            },
+            label: {
+                if #available(macOS 11.0, *) {
+                    Image(systemName: "doc.on.doc")
+                } else {
+                    Text("Copy")
                 }
-                .padding(.trailing, leftEdgePadding)
+        })
+    }
+    
+    var settingsButton: some View {
+        Button(
+            action: { isShowingSettings.toggle() },
+            label: {
+                if #available(macOS 11.0, *) {
+                    Image(systemName: "gearshape")
+                } else {
+                    Text("Settings")
+                }
             }
+        )
+    }
+    
+    
+    
+    var semestersView: some View {
+        HStack {
+            Spacer().frame(width: 5)
+            ForEach (schedule.fetchCreateSemesters(for: 0..<shared.semestersToShow), id: \.self) { semester in
+                SemesterView(semester: semester, shouldShowOnboarding: semester == 0, schedule: schedule, store: store)
+                    .padding(.horizontal, courseHorizontalSpacing)
+                if shared.isSemesterSystem && semester % 2 == 1 && semester != shared.semestersToShow - 1 {
+                    Divider()
+                }
+                else if !shared.isSemesterSystem && semester % 4 == 3 && semester != shared.semestersToShow - 1 {
+                    Divider()
+                }
+            }
+            Spacer().frame(width: 5)
+        }
     }
     
     //    var nameEditor: some View {

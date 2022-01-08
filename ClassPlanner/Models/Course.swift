@@ -21,17 +21,62 @@ extension Course {
     
     // MARK: - Static functions
     
+    static func fetchFromId(context: NSManagedObjectContext, course_id: String) -> Course? {
+        let predicate: NSPredicate = NSPredicate(format: "course_id_ == %@", argumentArray: [course_id])
+        let request = Course.fetchRequest(predicate)
+        let courseArray = (try? context.fetch(request)) ?? []
+        return courseArray.first
+    }
+    
+    static func fetchFromName(name: String, context: NSManagedObjectContext) -> Course? {
+        let predicate: NSPredicate = NSPredicate(format: "name_ = %@", argumentArray: [name])
+        let request = Course.fetchRequest(predicate)
+        let courseArray = (try? context.fetch(request)) ?? []
+        return courseArray.first
+    }
+    
     static func create(context: NSManagedObjectContext) -> Course {
         let course = Course(context: context)
         course.grade = Grade.Pass.rawValue
         return course
     }
     
+    static func existsWithId(context: NSManagedObjectContext, course_id: String) -> Bool {
+        let predicate: NSPredicate = NSPredicate(format: "course_id_ == %@", argumentArray: [course_id])
+        let request = Course.fetchRequest(predicate)
+        let courseArray = (try? context.fetch(request)) ?? []
+        return courseArray.first != nil
+    }
+    
+    // Make this work with id instead -- create a course id
+    static func fetchCreate(course_id: String, context: NSManagedObjectContext) -> Course {
+        let predicate: NSPredicate = NSPredicate(format: "course_id_ == %@", argumentArray: [course_id])
+        let request = Course.fetchRequest(predicate)
+        let courseArray = (try? context.fetch(request)) ?? []
+        if courseArray.isEmpty {
+            let course = Course.create(context: context)
+            course.course_id = course_id
+            return course
+        }
+        else {
+            return courseArray.first!
+        }
+    }
+    
     static func fetchRequest(_ predicate: NSPredicate) -> NSFetchRequest<Course> {
         let request = NSFetchRequest<Course>(entityName: "Course")
-        request.sortDescriptors = [NSSortDescriptor(key: "name_", ascending: true)]
+        request.sortDescriptors = [NSSortDescriptor(key: "course_id_", ascending: true), NSSortDescriptor(key: "name_", ascending: true)]
         request.predicate = predicate
         return request
+    }
+    
+    static func deleteFromSchool(context: NSManagedObjectContext, school: School) {
+        let predicate = NSPredicate(format: "school_ = %@", argumentArray: [school.rawValue])
+        let request = Course.fetchRequest(predicate)
+        let courseArray = (try? context.fetch(request)) ?? []
+        for course in courseArray {
+            course.delete()
+        }
     }
     
     static func fromURIs(uri: [URL], context: NSManagedObjectContext) -> [Course] {
@@ -101,6 +146,7 @@ extension Course {
     func safeSave() {
         if let context = self.managedObjectContext {
             try? context.save()
+            print("Saved")
         }
     }
     
@@ -113,6 +159,11 @@ extension Course {
     var name: String {
         get { self.name_ ?? ""}
         set { self.name_ = newValue }
+    }
+    
+    var course_id: String {
+        get { self.course_id_ ?? "" }
+        set { self.course_id_ = newValue }
     }
     
     var notes: String {
@@ -135,18 +186,57 @@ extension Course {
         set { self.grade_ = Int16(newValue) }
     }
     
+    var rating_year: Int {
+        get { Int(self.rating_year_) }
+        set { self.rating_year_ = Int16(newValue) }
+    }
+    
+    var professorName: String {
+        get { self.professorName_ ?? "" }
+        set { self.professorName_ = newValue }
+    }
+    
     var time: Date {
-        get { self.time_ ?? Date.init(timeIntervalSinceReferenceDate: 82800) }
+        get { self.time_ ?? Date.init(timeIntervalSinceReferenceDate: 0)}
         set { self.time_ = newValue }
     }
     
-    var enumGrade: Grade {
-        Grade.init(rawValue: grade) ?? Grade.A
+    var timeInterval: DateInterval {
+        if let stopTime = self.stopTime_ {
+            if self.time < stopTime {
+                return DateInterval(start: self.time, end: stopTime)
+            }
+        }
+        return DateInterval(
+            start: self.time,
+            duration: 60 * UserDefaults.standard.double(forKey: courseLengthKey)
+        )
     }
     
-    var color: Int {
-        get { Int(self.color_) }
-        set { self.color_ = Int16(newValue) }
+    var idName: String {
+        self.course_id.isEmpty ? self.name : "\(self.course_id) - \(self.name)"
+    }
+    
+    var idOrName: String {
+        self.course_id.isEmpty ? self.name : self.course_id
+    }
+    
+    var enumGrade: Grade {
+        Grade.init(rawValue: grade) ?? Grade.Pass
+    }
+    
+    var school: School {
+        get { School.init(rawValue: Int(self.school_)) ?? .other }
+        set { self.school_ = Int16(newValue.rawValue) }
+    }
+    
+    var colorOption: ColorOption {
+        get { ColorOption(rawValue: Int(self.color_)) ?? .primary }
+        set { self.color_ = Int16(newValue.id) }
+    }
+    
+    func getColor() -> Color {
+        return self.colorOption.color
     }
     
     var prereqs: Set<Course> {
@@ -163,14 +253,14 @@ extension Course {
         set { self.concentrations_ = newValue as NSSet}
     }
     
+    var categories: Set<Category> {
+        get { (self.categories_ as? Set<Category> ?? [])}
+        set { self.categories_ = newValue as NSSet}
+    }
+    
     var nameSortedConcentrations: Array<Concentration> {
         self.concentrations.sorted(by: {$0.name < $1.name})
     }
-    
-    func getColor() -> Color {
-        Color.colorSelection[self.color % Color.colorSelection.count]
-    }
-    
     
 }
 

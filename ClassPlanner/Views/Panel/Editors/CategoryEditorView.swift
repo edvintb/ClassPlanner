@@ -22,41 +22,60 @@ struct CategoryEditorView: View {
     @ObservedObject var categorySuggestionVM: CategorySuggestionVM
     @ObservedObject var searchModel: SearchModel
     
-
+    @Binding var isShowingOnboarding: Bool
+    @State private var isDroppingCourse: Bool = false
+    
     // Sort courses depending on current schedule
     private var courses: [Course] { category.coursesSortedBySchedule(schedule: shared.currentSchedule) }
     
     private var color: Color { category.getColor() }
     
-    init(category: Category, categorySuggestionVM: CategorySuggestionVM, context: NSManagedObjectContext) {
+    init(category: Category, categorySuggestionVM: CategorySuggestionVM, context: NSManagedObjectContext, isShowingOnboarding: Binding<Bool>) {
         self.categorySuggestionVM = categorySuggestionVM
         self.category = category
+        self._isShowingOnboarding = isShowingOnboarding
         // Breaks when we delete a course
         self.searchModel = SearchModel(startingText: "", context: context)
-
+        
     }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
+            EditorTypeView(editorName: "Category", infoTappedAction: { isShowingOnboarding = true }, createBackButton: createBackButton)
             concentrationName
             Spacer().frame(height: 6)
-
             EditorHeader(title: category.name, notes: category.notes, color: category.getColor() )
             Form {
                 NameEditor(entryView: nameField)
                 requiredField
                 NoteEditor(text: $category.notes) { category.save() }
-                Spacer().frame(height: 25)
+                Spacer().frame(height: 5)
+                EditorColorGrid { category.colorOption = $0; category.save() }
+                Spacer().frame(height: 15)
                 Section(header: header) {
                     courseSearchField
                     coursesView
                 }
-                EditorColorGrid { category.color = $0; category.save() }
+                
                 EditorButtons(deleteAction: deleteAction, closeAction: closeAction)
             }
             .padding(editorPadding)
         }
         
+    }
+    
+    func createBackButton() -> some View {
+        Button(action: {
+            if let safeConcentration = category.concentration {
+                shared.setEditSelection(to: .concentration(concentration: safeConcentration))
+            }
+            else {
+                shared.setPanelSelection(to: .concentrations)
+            }
+        }, label: {
+            Text("⬅")
+        })
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     var concentrationName: some View {
@@ -69,11 +88,14 @@ struct CategoryEditorView: View {
     var nameField: some View {
         TextField("Name...", text: $category.name, onCommit: { category.save() })
             .cornerRadius(textFieldCornerRadius)
+            .popover(isPresented: $isShowingOnboarding, content: {
+                CategoryFunctionOnboarding()
+            })
     }
     
     var requiredField: some View {
         HStack {
-            Text(numberRequiredSymbol).font(.system(size: 17.5, weight: .thin, design: .default)).foregroundColor(.yellow)
+            Text(numberRequiredSymbol).font(.system(size: 20, weight: .thin, design: .default)).foregroundColor(.yellow)
             IntTextField("Number of required courses", integer: $category.numberOfRequired, onCommit: { category.save() })
                 .cornerRadius(textFieldCornerRadius)
                 .focusable()
@@ -98,10 +120,10 @@ struct CategoryEditorView: View {
                         suggestionModel: categorySuggestionVM.suggestionModel)
             .focusable()
     }
-
+    
     
     var coursesView: some View {
-        ScrollView(showsIndicators: false) {
+        ScrollView(showsIndicators: isCatalina) {
             Columns(courses, moreView: EmptyView()) { course in
                 HStack {
                     Text(course.name == "" ? "No name" : course.name)
@@ -115,6 +137,7 @@ struct CategoryEditorView: View {
                 .padding(.vertical, 7)
                 .padding(.horizontal, 10)
                 .contentShape(Rectangle())
+
                 .onTapGesture {
                     withAnimation {
                         category.removeCourse(course)
@@ -122,6 +145,8 @@ struct CategoryEditorView: View {
                 }
             }
         }
+        .contentShape(Rectangle())
+        .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDroppingCourse) { drop(providers: $0) }
     }
     
     func deleteAction() {
@@ -143,6 +168,21 @@ struct CategoryEditorView: View {
         else {
             shared.setPanelSelection(to: .concentrations)
         }
+    }
+    
+    func drop(providers: [NSItemProvider]) -> Bool {
+        let found = providers.loadFirstObject(ofType: String.self) { url in
+            if let uri = URL(string: url) {
+                if let context = category.managedObjectContext {
+                    if let course = NSManagedObject.fromURI(uri: uri, context: context) as? Course {
+                        withAnimation {
+                            category.addCourse(course)
+                        }
+                    }
+                }
+            }
+        }
+        return found
     }
 }
 

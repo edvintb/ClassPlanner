@@ -32,15 +32,16 @@ final class SearchModel: ObservableObject {
         self.currentText = startingText
         self.currentCourseID = id
         
-        
         self.$currentText
             .debounce(for: 0.1, scheduler: RunLoop.main)
             .removeDuplicates()
             .map { text -> [SuggestionGroup<Course>] in
                 guard !text.isEmpty else { return [] }
                 // prefix gives number of results
-                let courseSuggestions = self.courses.lazy.filter({ $0.name.lowercased().hasPrefix(text.lowercased()) }).prefix(10).map { course -> Suggestion<Course> in
-                    Suggestion(text: course.name, value: course)
+                let courseSuggestions = self.courses.lazy.filter(
+                    { $0.name.lowercased().contains(text.lowercased()) || $0.course_id.contains(text.uppercased()) })
+                    .prefix(10).map { course -> Suggestion<Course> in
+                    Suggestion(text: course.idName, value: course)
                 }
                 var suggestionGroups: [SuggestionGroup<Course>] = []
                 

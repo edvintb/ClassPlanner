@@ -26,15 +26,16 @@ struct ConcentrationEditorView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            EditorHeader(title: concentration.name, notes: concentration.notes, color: concentration.getColor())
+            EditorTypeView(editorName: "Major", infoTappedAction: { isShowingOnboarding = true }, createBackButton: { EmptyView() })
+            EditorHeader(title: concentration.name, notes: concentration.notes, color: concentration.colorOption.color)
             Form {
                 NameEditor(entryView: nameField)
                 NoteEditor(text: $concentration.notes) { concentration.save() }
-                Spacer().frame(height: 30)
+                EditorColorGrid { concentration.colorOption = $0; concentration.save() }
+                // Spacer().frame(height: 30)
                 Section(header: categorySectionHeader) {
                     categoriesView
                 }
-                EditorColorGrid { concentration.color = $0; concentration.save() }
                 bottomButtons
             }
             .padding(editorPadding)
@@ -72,11 +73,9 @@ struct ConcentrationEditorView: View {
                 }
                 .cornerRadius(frameCornerRadius)
             }
-        }.popover(isPresented: $isShowingOnboarding) {
-            CategoryOnboardingView(
-                isShowingOnboarding: $isShowingOnboarding,
-                setCategoryOnboarding: setConcEditorOnboarding
-            )
+        }
+        .popover(isPresented: $isShowingOnboarding) {
+            ConcentrationEditorOnboarding()
         }
     }
     

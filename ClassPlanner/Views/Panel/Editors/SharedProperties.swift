@@ -7,6 +7,35 @@
 
 import SwiftUI
 
+struct EditorTypeView<V>: View where V: View{
+    let editorName: String
+    let infoTappedAction: () -> ()
+    let isCategory: Bool = false
+    let createBackButton: () -> V
+    
+    var body: some View {
+        ZStack {
+            createBackButton()
+            Text(editorName)
+                .font(.system(size: 15))
+                .opacity(grayTextOpacity)
+                .frame(maxWidth: .infinity, alignment: .center)
+            if #available(macOS 11.0, *) {
+                Image(systemName: "info.circle")
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    .onTapGesture {
+                        infoTappedAction()
+                    }
+            } else {
+                Button("Info", action: infoTappedAction)
+                    .frame(maxWidth: .infinity, alignment: .trailing)
+            }
+        }
+        .padding(.horizontal, 10)
+    }
+    
+}
+
 struct EditorTitleView: View {
     
     let title: String
@@ -23,57 +52,130 @@ struct EditorTitleView: View {
 
 struct EditorNotes: View {
     
-    var notes: String
-    var empty: Bool { notes.isEmpty }
-    
-    private var isCatalina: Bool {
-        if #available(macOS 11.0, *) { return false }
-        else { return true }
-    }
+    let notes: String
+    let isCourse: Bool
     
     var body: some View {
         ScrollView(showsIndicators: isCatalina) {
             Text(notes)
-               .font(.system(size: 13))
-               .opacity(empty ? 0.2 : 0.5)
-               .fixedSize(horizontal: false, vertical: false)
-               .padding(.horizontal, 10)
-        }.frame(height: CGFloat(min((notes.count / 3 + 20), 130)))
+                .font(.system(size: 13))
+                .opacity(0.5)
+                .transition(.opacity)
+                .fixedSize(horizontal: false, vertical: false)
+                .lineSpacing(2)
+                .padding(.horizontal, 10)
+                
+        }.frame(height: CGFloat(min((notes.count / 3 + 30), isCourse ? 100 : 135)))
+    }
+}
+
+struct EditorHeader: View {
+    
+    init(title: String, notes: String, color: Color, isCourse: Bool = false) {
+        self.title = title
+        self.notes = notes
+        self.color = color
+        self.isCourse = isCourse
+    }
+    
+    let title: String
+    let notes: String
+    let color: Color
+    let isCourse: Bool
+    
+    
+    var body: some View {
+        EditorTitleView(title: title).foregroundColor(color)
+        Divider().padding(5)
+        EditorNotes(notes: notes, isCourse: isCourse)
+        Spacer().frame(height: 12)
+    }
+}
+
+
+struct NoteEditor: View {
+    
+    @Binding var text: String
+    
+    let onCommit: () -> ()
+    
+    var body: some View {
+        HStack {
+            Text(" \(noteSymbol)").font(.system(size: editorIconFontSize))
+            TextField("Notes...", text: $text, onCommit: onCommit)
+                .cornerRadius(textFieldCornerRadius)
+                .focusable()
+        }
+    }
+}
+
+
+struct NameEditor<V>: View where V: View {
+    
+    let entryView: V
+    
+    var body: some View {
+        HStack {
+            Text(" \(nameSymbol)").font(.system(size: editorIconFontSize))
+            entryView
+        }
     }
 }
 
 struct EditorColorGrid: View {
     
-    // Make them all colorpickers for Big Sur
-    let tapAction: (Int) -> ()
+    let tapAction: (ColorOption) -> ()
+    
+    static let colorOrder: [ColorOption] = [.white, .lightBlue, .darkBlue, .purple, .lightPink, .darkPink, .red, .yellow, .orange, .brown, .oliveGreen, .jungleGreen]
     
     var body: some View {
-        Spacer()
-        VStack(spacing: 3) {
-            gridRow([1, 2, 3])
-            gridRow([4, 5 ,6])
-            gridRow([7, 8, 9])
-            gridRow([10, 11, 12])
-        }
-        .frame(minHeight: editorColorGridHeight / 2, maxHeight: editorColorGridHeight)
-    }
-    
-    private func gridRow(_ indices: [Int]) -> some View {
-        HStack(spacing: 3) {
-            ForEach(indices, id: \.self) { index in
-                gridView(index: index)
+        HStack(spacing: 2) {
+            ForEach(EditorColorGrid.colorOrder) { option in
+                gridView(colorOption: option)
             }
         }
+        .frame(height: editorColorGridHeight)
+        .padding(.vertical, 4)
     }
     
-    private func gridView(index: Int) -> some View {
+    private func gridView(colorOption: ColorOption) -> some View {
         RoundedRectangle(cornerRadius: frameCornerRadius)
-            .foregroundColor(Color.colorSelection[index])
-            .onTapGesture { tapAction(index) }
+            .foregroundColor(colorOption.color)
+            .onTapGesture { tapAction(colorOption) }
             .padding(3)
     }
     
 }
+
+//struct EditorColorPicker: View {
+//
+//    @Binding var selection: Int
+//
+//    var body: some View {
+//        if #available(macOS 11.0, *) {
+//            Picker("", selection: $selection) {
+//                ForEach(Color.colorSelection, id: \.self) { currentColor in
+//                    // RoundedRectangle(cornerRadius: frameCornerRadius)
+//                    Text("Text")
+//                        .frame(maxWidth: .infinity)
+//                        .overlay(Rectangle())
+//                        .foregroundColor(currentColor)
+//                        .background(currentColor)
+//                        .tag(Color.colorSelection.firstIndex(of: currentColor) ?? 0)
+//                }
+//            }
+//            .pickerStyle(.menu)
+//            Text("Selected color \(selection)")
+//        } else {
+//            Picker("Select a paint color", selection: $selection) {
+//                ForEach(Color.colorSelection, id: \.self) { currentColor in
+//                    RoundedRectangle(cornerRadius: frameCornerRadius)
+//                        .foregroundColor(currentColor)
+//                }
+//            }
+//        }
+//    }
+//}
 
 struct CourseRowView: View {
     
@@ -90,58 +192,6 @@ struct CourseRowView: View {
                     .foregroundColor(checkMarkColor)
             }
         }
-    }
-}
-
-struct NoteEditor: View {
-    
-    @Binding var text: String
-    
-    let onCommit: () -> ()
-    
-    var body: some View {
-        HStack {
-            Text(" \(noteSymbol)")
-            ZStack {
-//                if #available(OSX 11.0, *) {
-//                    TextEditor(text: $text)
-//                        .cornerRadius(textFieldCornerRadius)
-//                        .focusable()
-//                } else {
-                    TextField("Notes...", text: $text, onCommit: onCommit)
-                        .cornerRadius(textFieldCornerRadius)
-                        .focusable()
-//                }
-            }
-        }
-    }
-}
-
-
-struct NameEditor<V>: View where V: View {
-    
-    let entryView: V
-    
-    var body: some View {
-        HStack {
-            Text(" \(nameSymbol)") // .font(.system(size: 16, weight: .thin, design: .serif))
-            entryView
-        }
-    }
-}
-
-struct EditorHeader: View {
-    
-    let title: String
-    let notes: String
-    let color: Color
-    
-    
-    var body: some View {
-        EditorTitleView(title: title).foregroundColor(color)
-        Divider().padding(5)
-        EditorNotes(notes: notes)
-        Spacer().frame(height: 12)
     }
 }
 
@@ -166,7 +216,7 @@ struct EditorButtons: View {
         .alert(isPresented: $isDeleting, content: {
             Alert(title: Text("Are you sure?"),
                   message: Text(
-                    "Deleting removes the object completely. This action is undoable."),
+                    "Deleting removes the object completely."),
                   primaryButton:
                     .cancel({ self.isDeleting = false }),
                   secondaryButton:

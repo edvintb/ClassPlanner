@@ -31,11 +31,6 @@ struct ConcentrationContainerView: View {
         }
     }
     
-    private var isCatalina: Bool {
-        if #available(macOS 11.0, *) { return false }
-        else { return true }
-    }
-    
     var body: some View {
         let stableConcentrations = concentrations
         GeometryReader { geo in
@@ -57,12 +52,6 @@ struct ConcentrationContainerView: View {
             }
             .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
                 setConcentrationOnboarding(show: show)
-            }
-            .popover(isPresented: $isShowingOnboarding) {
-                ConcentrationOnboardingView(
-                    isShowingOnboarding: $isShowingOnboarding,
-                    setConcentrationOnboarding: setConcentrationOnboarding
-                )
             }
         }
     }

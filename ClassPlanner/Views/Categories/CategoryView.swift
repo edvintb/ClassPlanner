@@ -18,7 +18,7 @@ struct CategoryView: View {
 
     @State private var isDropping: Bool = false
     
-    private var color: Color { category.getColor() }
+    private var color: Color { category.colorOption.color }
     
     private var isEditingCategory: Bool {
         if case let .category(editingCategory) = shared.currentEditSelection {
@@ -33,6 +33,11 @@ struct CategoryView: View {
         if category.numberOfRequired == 0 { return false }
         return category.numberOfContainedCourses(schedule: schedule) >= category.numberOfRequired
     }
+    
+//    private var moreFinishedThanRequired: Bool {
+//        if category.numberOfRequired == 0 { return false }
+//        return category.numberOfContainedAndFinishedCourses(schedule: schedule) >= category.numberOfRequired
+//    }
     
     var body: some View {
         ZStack {
@@ -70,9 +75,12 @@ struct CategoryView: View {
                 .opacity(category.name == "" ? grayTextOpacity : 1)
                 .foregroundColor(color)
             Spacer()
+//            Text("\(category.numberOfContainedAndFinishedCourses(schedule: schedule))")
+//                    .opacity(moreFinishedThanRequired ? 1 : grayTextOpacity)
+//                    .foregroundColor(moreFinishedThanRequired ? .green : .primary)
             Text("\(category.numberOfContainedCourses(schedule: schedule))")
                 .opacity(moreContainedThanRequired ? 1 : grayTextOpacity)
-                .foregroundColor(moreContainedThanRequired ? .green : .primary)
+                .foregroundColor(moreContainedThanRequired ? checkMarkColor : .primary)
             Text("/\(category.numberOfRequired)")
                 .opacity(category.numberOfRequired == 0 ? grayTextOpacity : 1)
                 
@@ -87,14 +95,14 @@ struct CategoryView: View {
     
     func courseView(course: Course) -> some View {
         HStack {
-            Text(course.name)
+            Text(course.idOrName)
                 .font(categoryCourseFont)
-                .foregroundColor(course.getColor())
+                .foregroundColor(course.colorOption.color)
             Spacer()
             if let schedule = shared.currentSchedule {
                 if schedule.courseUrlSet.contains(course.urlID) {
                     Text(courseContainedSymbol)
-                        .foregroundColor(checkMarkColor)
+                        .foregroundColor(course.isFinished ? checkMarkColor : .gray)
                 }
             }
         }

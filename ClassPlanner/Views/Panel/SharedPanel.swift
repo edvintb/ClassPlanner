@@ -11,6 +11,8 @@ struct PanelHeaderView<V>: View where V: View{
     
     let addAction: () -> ()
     
+    let includeAddButton: Bool
+    
     @Binding var searchQuery: String
     
     let panelContent: () -> V
@@ -20,20 +22,29 @@ struct PanelHeaderView<V>: View where V: View{
             HStack {
                 SearchTextField(query: _searchQuery)
                 Spacer()
-                Button(action: { addAction() }, label: {
-                    if #available(macOS 11.0, *) {
-                        Image.init(systemName: "plus")
-                    }
-                    else {
-                        Text("+").font(.system(size: 17))
-                    }
-                })
-               
+                if includeAddButton {
+                    Button(action: { addAction() }, label: {
+                        if #available(macOS 11.0, *) {
+                            Image.init(systemName: "plus")
+                        }
+                        else {
+                            Text("+").font(.system(size: 17))
+                        }
+                    })
+                }
             }
             .padding(.horizontal, 5)
             .padding(.bottom, 2)
             
             panelContent()
         }
+    }
+}
+
+struct NoResultsView: View {
+    
+    var body: some View {
+            Text("No Results").opacity(transparentTextOpacity).font(.system(size: 20))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 }

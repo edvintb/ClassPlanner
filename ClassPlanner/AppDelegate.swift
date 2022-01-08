@@ -26,7 +26,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         
         let context = persistentContainer.viewContext
         
-        createGeneralRequirements(context: context)
+        // createGeneralRequirements(context: context)
+        
+        // Course.deleteAutomatic(context: context)
         
         let shared = SharedVM()
         
@@ -36,13 +38,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let prereqSuggestionVM = PrereqSuggestionVM(shared: shared)
         let categorySuggestionVM = CategorySuggestionVM(context: context, shared: shared)
                 
-        let courseStore = CourseStore(context: context)
+        let courseStoreVM = CourseStoreVM()
         
         let scheduleStore = ScheduleStore(directory: url, context: context, shared: shared)
         
         let contentView = ContentView(
             scheduleStore: scheduleStore,
-            courseStore: courseStore,
+            courseStoreVM: courseStoreVM,
             concentrationVM: concentrationVM,
             courseSuggestionVM: courseSuggestionVM,
             categorySuggestionVM: categorySuggestionVM,

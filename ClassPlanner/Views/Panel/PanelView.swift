@@ -12,7 +12,7 @@ struct PanelView: View {
     @EnvironmentObject var shared: SharedVM
     
     @ObservedObject var scheduleStore: ScheduleStore
-    @ObservedObject var courseStore: CourseStore
+    @ObservedObject var courseStoreVM: CourseStoreVM
     @ObservedObject var courseSuggestionVM: CourseSuggestionVM
     @ObservedObject var categorySuggestionVM: CategorySuggestionVM
     @ObservedObject var concentrationVM: ConcentrationVM
@@ -24,21 +24,26 @@ struct PanelView: View {
     @State private var isDropping: Bool = false
     
     // For onboarding
-    @State private var isShowingCourseEditorOnboarding: Bool = !UserDefaults.standard.bool(forKey: courseEditorOnboardingKey)
-    @State private var isShowingConcEditorOnboarding: Bool = !UserDefaults.standard.bool(forKey: concentrationEditorOnboardingKey)
+    @State private var isShowingCourseEditorOnboarding: Bool = false
+    @State private var isShowingConcEditorOnboarding: Bool = false
+    @State private var isShowingCategoryEditorOnboarding: Bool = false
+    
+    @State private var isShowingMajorStoreOnboarding: Bool = false
 
     
     var body: some View {
-        VStack(spacing: 7) {
-            Spacer().frame(height: 6)
+        VStack(spacing: topSectionStackSpacing) {
             symbolsView
-            Divider()
+                .frame(height: topSectionheight, alignment: .center)
+            Divider().padding(.bottom, 3)
             getPanelContent(shared.currentPanelSelection)
         }
         .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
         .onReceive(shared.$isShowingOnboarding.dropFirst()) { show in
             isShowingCourseEditorOnboarding = show
             isShowingConcEditorOnboarding = show
+            isShowingCategoryEditorOnboarding = show
+            isShowingMajorStoreOnboarding = show
         }
     }
     
@@ -47,7 +52,7 @@ struct PanelView: View {
         HStack {
             Spacer()
             ForEach (PanelOption.allCases, id: \.self) { option in
-                Text(PanelOption.symbols[option] ?? "X")
+                Text(option.string)
                     .foregroundColor(shared.currentPanelSelection == option ? .blue : nil)
                     .contentShape(Rectangle())
                     .onTapGesture { shared.setPanelSelection(to: option) }
@@ -55,6 +60,7 @@ struct PanelView: View {
                 Spacer()
             }
         }
+        .padding(.top, topSectionPadding)
     }
     
     
@@ -64,9 +70,9 @@ struct PanelView: View {
         case .editor:
             getEditor(shared.currentEditSelection)
         case .courses:
-            CourseStoreView()
+            CourseStoreView(storeVM: courseStoreVM)
         case .concentrations:
-            ConcentrationStoreView(concentrationVM: concentrationVM)
+            ConcentrationStoreView(concentrationVM: concentrationVM, isShowingOnboarding: $isShowingMajorStoreOnboarding)
         case .schedules:
             ScheduleStoreView(store: scheduleStore)
         }
@@ -76,48 +82,31 @@ struct PanelView: View {
     func getEditor(_ selection: EditOption) -> some View {
         switch selection {
         case .course(let course):
-            VStack(spacing: 0) {
-                Text("Course").font(.system(size: 15)).opacity(grayTextOpacity)
-                CourseEditorView(
-                    course: course,
-                    courseSuggestionVM: courseSuggestionVM,
-                    prereqSuggestionVM: prereqSuggestionVM,
-                    context: context,
-                    isShowingOnboarding: $isShowingCourseEditorOnboarding)
-            }
+            CourseEditorView(
+                course: course,
+                courseSuggestionVM: courseSuggestionVM,
+                prereqSuggestionVM: prereqSuggestionVM,
+                context: context,
+                isShowingOnboarding: $isShowingCourseEditorOnboarding)
             
         case .category(let category):
-            VStack(spacing: 0) {
-                ZStack {
-                    Button(action: { if let safeConcentration = category.concentration {
-                            shared.setEditSelection(to: .concentration(concentration: safeConcentration))}
-                    }, label: {
-                        Text("⬅")
-                    })
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.leading, 8)
-                    Text("Category").font(.system(size: 15)).opacity(grayTextOpacity)
-                }
-
-                CategoryEditorView(category: category, categorySuggestionVM: categorySuggestionVM, context: context)
-            }
+                CategoryEditorView(
+                    category: category,
+                    categorySuggestionVM: categorySuggestionVM,
+                    context: context,
+                    isShowingOnboarding: $isShowingCategoryEditorOnboarding
+                )
             
         case .concentration(let concentration):
-            VStack(spacing: 0) {
-                Text("Major").font(.system(size: 15)).opacity(grayTextOpacity)
                 ConcentrationEditorView(
                     concentration: concentration,
                     concentrationVM: concentrationVM,
                     schedule: schedule,
                     isShowingOnboarding: $isShowingConcEditorOnboarding
                 )
-            }
         case .schedule(let schedule):
-            VStack(spacing: 0) {
-                Text("Schedule").font(.system(size: 15)).opacity(grayTextOpacity)
                 ScheduleEditorView(schedule: schedule, scheduleStore: scheduleStore)
-            }
-            .onDisappear { scheduleStore.setName(schedule.name, for: schedule) }
+                    .onDisappear { scheduleStore.setName(schedule.name, for: schedule) }
         case .none:
             Text("No Selection")
                 .font(.system(size: 15))
@@ -140,10 +129,10 @@ struct PanelView: View {
                                 concentrationVM.removeFromCurrentConcentrations(concentration)
                                 return
                             }
-                            if let category = droppedObject as? Category {
-                                category.delete()
-                                return
-                            }
+//                            if let category = droppedObject as? Category {
+//                                category.delete()
+//                                return
+//                            }
                         }
                     }
                 }

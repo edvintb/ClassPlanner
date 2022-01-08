@@ -10,6 +10,32 @@ import SwiftUI
 import CoreData
 import CoreImage.CIFilterBuiltins
 
+extension Date {
+    static var oneDayRange: ClosedRange<Date> = {
+        Date.init(timeIntervalSinceReferenceDate: 0)
+            ...
+        Date.init(timeIntervalSinceReferenceDate: 24 * 3600)
+    }()
+    
+    var minute: Int {
+        var calendar = Calendar.current
+        if let newTimeZone = TimeZone(secondsFromGMT: 0) {
+            calendar.timeZone = newTimeZone
+        }
+        return calendar.component(.minute, from: self)
+    }
+}
+
+extension DateFormatter {
+    
+    static var courseTime: DateFormatter {
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeStyle = .short
+        dateFormatter.dateStyle = .none
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        return dateFormatter
+    }
+}
 
 extension NumberFormatter {
     
@@ -19,21 +45,94 @@ extension NumberFormatter {
         numberFormatter.maximumFractionDigits = maxDecimals
         numberFormatter.maximumSignificantDigits = maxSignificant
         numberFormatter.roundingMode = .down
-        numberFormatter.zeroSymbol = ""
+        numberFormatter.zeroSymbol = " - "
         numberFormatter.localizesFormat = true
         return numberFormatter
     }
 }
 
+enum ColorOption: Int, Identifiable, Equatable {
+    
+    case primary
+    case white
+    case lightBlue
+    case darkBlue
+    case oliveGreen
+    case jungleGreen
+    case brown
+    case yellow
+    case orange
+    case red
+    case lightPink
+    case purple
+    case darkPink
+    
+    var id: Int { self.rawValue }
+    
+    var color: Color {
+        switch self {
+            case .primary: return .primary
+            case .white: return .white
+            case .lightBlue: return .brighterBlue
+            case .darkBlue: return .darkerBlue
+            case .oliveGreen: return .oliveGreen
+            case .jungleGreen: return .jungleGreen
+            case .brown: return .brown
+            case .yellow: return .yellow
+            case .orange: return .newOrange
+            case .red: return .red
+            case .lightPink: return .pink
+            case .purple: return .newPurple
+            case .darkPink: return .wildStrawberry
+        }
+    }
+}
+
+extension StringProtocol {
+    subscript(offset: Int) -> Character {
+        self[index(startIndex, offsetBy: offset)]
+    }
+}
+
 extension Color {
     
-    static var lightBlue = Color.init(red: 0.2, green: 0.3, blue: 0.8)
-    static var brown = Color.init(red: 0.8, green: 0.6, blue: 0.6)
-    static var pink = Color.init(red: 1, green: 0.7, blue: 0.8)
-    static var teal = Color.init(NSColor.systemTeal)
+    init(r: Int, g: Int, b: Int) {
+        let doubleDivider: Double = 255.0
+        let redDouble = Double(r) / doubleDivider
+        let greenDouble = Double(g) / doubleDivider
+        let blueDouble = Double(b) / doubleDivider
+        self.init(red: redDouble, green: greenDouble, blue: blueDouble)
+    }
     
-    static var colorSelection: [Color] {
-        [.primary, .black, .white, teal, .red, lightBlue, .yellow, .green, .orange, .purple, .gray, pink, brown]
+    static var darkerBlue = Color.init(r: 29, g: 172, b: 241)
+    static var brighterBlue = Color.init(r: 128, g: 218, b: 235)
+    
+    static var jungleGreen = Color.init(r: 59, g: 176, b: 143)
+    static var oliveGreen = Color.init(r: 186, g: 184, b: 108)
+    
+    static var newRed = Color.init(r: 255, g: 73, b: 52)
+    static var newOrange = Color.init(r: 255, g: 163, b: 67)
+    
+    static var brown = Color.init(r: 180, g: 103, b: 77)
+    static var pink = Color.init(r: 252, g: 180, b: 213)
+    static var newPurple = Color.init(r: 157, g: 129, b: 200)
+    
+    static var wildStrawberry = Color.init(r: 255, g: 92, b: 203)
+    
+//    static var colorSelection: [Color] {
+//        [.primary, .white, brighterBlue, darkerBlue, newPurple, pink, wildStrawberry, newRed, .yellow, newOrange, brown, oliveGreen, jungleGreen]
+//    }
+}
+
+// MARK: the third way
+extension Binding {
+    func onChange(_ handler: @escaping (Value) -> Void) -> Binding<Value> {
+        return Binding(
+            get: { self.wrappedValue },
+            set: { selection in
+                self.wrappedValue = selection
+                handler(selection)
+        })
     }
 }
 
@@ -57,7 +156,7 @@ extension NSManagedObject {
     func save() {
         if let context = self.managedObjectContext {
             do {
-                self.objectWillChange.send()
+                // self.objectWillChange.send()
                 try context.save()
             } catch {
                 print("Unexpected Error when saving managed object")

@@ -40,15 +40,6 @@ struct EmptyCategoryView: View {
                 .frame(width: categoryWidth)
                 .onDrop(of: ["public.utf8-plain-text"], isTargeted: $isDropping) { drop(providers: $0) }
         }
-//        .onReceive(shared.$isShowingOnboarding, perform: { show in
-//            self.setCategoryOnboarding(show: show)
-//        })
-//        .popover(isPresented: $isShowingCategoryOnboarding){
-//            CategoryOnboardingView(
-//                isShowingOnboarding: $isShowingCategoryOnboarding,
-//                setCategoryOnboarding: setCategoryOnboarding
-//            )
-//        }
     }
     
     func addCategory() {

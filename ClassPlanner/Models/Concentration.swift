@@ -90,13 +90,13 @@ extension Concentration {
         set { self.courses_ = newValue as NSSet}
     }
     
-    var color: Int {
-        get { Int(self.color_) }
-        set { self.color_ = Int16(newValue) }
+    var colorOption: ColorOption {
+        get { ColorOption(rawValue: Int(self.color_)) ?? .primary }
+        set { self.color_ = Int16(newValue.id) }
     }
     
     func getColor() -> Color {
-        Color.colorSelection[self.color % Color.colorSelection.count]
+        return self.colorOption.color
     }
 
     

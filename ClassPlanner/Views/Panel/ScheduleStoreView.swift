@@ -23,7 +23,7 @@ struct ScheduleStoreView: View {
     }
     
     var body: some View {
-        PanelHeaderView(addAction: store.addSchedule, searchQuery: $query) {
+        PanelHeaderView(addAction: store.addSchedule, includeAddButton: true, searchQuery: $query) {
             List {
                 ForEach (matchingSchedules) { schedule in
                     scheduleView(for: schedule)
@@ -39,7 +39,7 @@ struct ScheduleStoreView: View {
                 .contentShape(RoundedRectangle(cornerRadius: frameCornerRadius))
                 .opacity(emptyOpacity)
             Text(store.name(for: schedule))
-                .foregroundColor(schedule.color)
+                .foregroundColor(schedule.colorOption.color)
                 .padding([.leading], 5)
         }
         .frame(height: panelScheduleHeight)

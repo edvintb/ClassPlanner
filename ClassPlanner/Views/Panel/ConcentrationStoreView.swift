@@ -18,11 +18,14 @@ struct ConcentrationStoreView: View {
     
 //    @State private var isDropping: Bool = false
     @State private var query: String = ""
+    @Binding private var isShowingOnboarding: Bool
     
-    init(concentrationVM: ConcentrationVM) {
+    init(concentrationVM: ConcentrationVM, isShowingOnboarding: Binding<Bool>) {
         self.concentrationVM = concentrationVM
+        self._isShowingOnboarding = isShowingOnboarding
         let request = Concentration.fetchRequest(.all)
         _concentrations = FetchRequest(fetchRequest: request)
+        
     }
     
     var matchingConcentrations: [Concentration] {
@@ -30,8 +33,8 @@ struct ConcentrationStoreView: View {
     }
     
     var body: some View {
-        PanelHeaderView(addAction: addConcentration, searchQuery: $query) {
-            ScrollView {
+        PanelHeaderView(addAction: addConcentration, includeAddButton: false, searchQuery: $query) {
+            ScrollView(showsIndicators: isCatalina) {
                 ForEach (matchingConcentrations) { concentration in
                     ConcentrationView(
                         categoryViews: categories,
@@ -43,6 +46,9 @@ struct ConcentrationStoreView: View {
                 }
             }
         }
+        .popover(isPresented: $isShowingOnboarding, content: {
+            ConcentrationStoreOnboarding()
+        })
     }
     
     private func categories(concentration: Concentration) -> some View {

@@ -20,7 +20,7 @@ class ScheduleStore: ObservableObject {
     // Duplicate needed for editing & later verification
     @Published private (set) var scheduleNames = [ScheduleVM:String]()
     
-    // Publishes user tries to set to an existing name
+    // Publish when user sets to an existing name
     @Published var existingNameAlert: IdentifiableString?
     
     var schedules: [ScheduleVM] {
@@ -31,23 +31,42 @@ class ScheduleStore: ObservableObject {
         scheduleNames[schedule, default: "Schedule"]
     }
     
-    // The type has to be this to save in user defaults
     private (set) var completedSemesterDict: [Int:[URL]]
     
     func setSemesterAsCompleted(semester: Int, courseArray: [Course]?) {
-        self.completedSemesterDict[semester] = courseArray?.map({ course in course.urlID }) ?? nil
+//        if let safeCourseArray = courseArray {
+//            safeCourseArray.forEach { course in
+//                course.isFinished = true
+//                withAnimation(quickAnimation) {
+//                    course.objectWillChange.send()
+//                }
+//            }
+//        }
+//        else if let finishedCourseArray = completedSemesterDict[semester] {
+//            finishedCourseArray.compactMap { url in
+//                Course.fromCourseURI(uri: url, context: context)
+//            }.forEach { course in
+//                course.isFinished = false
+//                withAnimation(quickAnimation) {
+//                    course.objectWillChange.send()
+//                }
+//            }
+//        }
+        self.completedSemesterDict[semester] = courseArray?.map({ course in course.urlID })
+        withAnimation(quickAnimation) {
+            objectWillChange.send()
+        }
+        
+        // You can only save String-String dicts in user defaults
         var dictToSave = [String:[String]]()
         completedSemesterDict.forEach( { dictPair in
             let (intKey, urlArray) = dictPair
             dictToSave[String(intKey)] = urlArray.map { url in url.absoluteString }
         })
         UserDefaults.standard.set(dictToSave, forKey: completedSemesterKey)
-        withAnimation(quickAnimation) {
-            objectWillChange.send()
-        }
     }
     
-    private var cancellables: Set<AnyCancellable> = []
+//    private var cancellables: Set<AnyCancellable> = []
     
     init(directory: URL, context: NSManagedObjectContext, shared: SharedVM) {
         self.shared = shared
@@ -66,6 +85,10 @@ class ScheduleStore: ObservableObject {
             let schedules = try FileManager.default.contentsOfDirectory(atPath: directory.path)
             for schedule in schedules {
                 let url = directory.appendingPathComponent(schedule)
+                if schedule == "iChat" {
+                    try FileManager.default.removeItem(at: url)
+                    continue
+                }
                 let scheduleVM = ScheduleVM(completedSemesterDict: completedSemesterDict, url: url, context: context)
                 scheduleNames[scheduleVM] = schedule
             }
@@ -115,6 +138,18 @@ class ScheduleStore: ObservableObject {
         let url = directory.appendingPathComponent(uniqueName)
         schedule = ScheduleVM(completedSemesterDict: completedSemesterDict, url: url, context: context)
         scheduleNames[schedule] = uniqueName
+    }
+    
+    func copySchedule(schedule: ScheduleVM) {
+        let semesterDict: [Int:[URL]] = schedule.schedule
+        let color = schedule.colorOption
+        let notes = schedule.notes
+        
+        let name = schedule.name + " - Copy"
+        let uniqueName = name.uniqued(withRespectTo: scheduleNames.values)
+        let url = directory.appendingPathComponent(uniqueName)
+        let newSchedule = ScheduleVM(completedSemesterDict: semesterDict, url: url, context: context, notes: notes, color: color)
+        scheduleNames[newSchedule] = uniqueName
     }
 
     func deleteSchedule(_ schedule: ScheduleVM) {

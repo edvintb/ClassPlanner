@@ -16,7 +16,7 @@ struct SuggestionView<V: Equatable>: View {
     
     private var color: Color {
         if let course = suggestion.value as? Course {
-            return course.getColor()
+            return course.colorOption.color
         }
         else {
             return .primary

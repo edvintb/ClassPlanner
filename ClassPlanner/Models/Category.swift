@@ -99,7 +99,7 @@ extension Category {
             newCategory.name = self.name
             newCategory.notes = self.notes
             newCategory.courses = self.courses
-            newCategory.color = self.color
+            newCategory.colorOption = self.colorOption
             newCategory.numberOfRequired = self.numberOfRequired
             return newCategory
         }
@@ -108,7 +108,7 @@ extension Category {
     
     
     func coursesSortedBySchedule(schedule: ScheduleVM?) -> [Course] {
-        if schedule == nil { return self.courses.sorted(by: { $0.name < $1.name }) }
+        if schedule == nil { return self.courses.sorted(by: { $0.idOrName < $1.idOrName }) }
         let urls = schedule!.courseUrlSet
         let sorted = self.courses.sorted(by: {
             let firstURL = $0.objectID.uriRepresentation()
@@ -117,7 +117,7 @@ extension Category {
             let secondContained = urls.contains(secondURL)
             if firstContained == secondContained {
                 // If both in or out order by name
-                return $0.name < $1.name
+                return $0.idOrName < $1.idOrName
             }
             else {
                 // If different, return if the first one is in
@@ -136,6 +136,16 @@ extension Category {
         }
         return containedCourses
     }
+    
+//    func numberOfContainedAndFinishedCourses(schedule: ScheduleVM?) -> Int {
+//        if schedule == nil { return 0 }
+//        let courseUrlSet = schedule!.courseUrlSet
+//        let containedCourses = self.courses.reduce(into: 0) { acc, course in
+//            acc += Int(courseUrlSet.contains(course.urlID) && course.isFinished)
+//        }
+//        return containedCourses
+//    }
+
     
     // MARK: - Property Access
     
@@ -165,13 +175,13 @@ extension Category {
         set { self.notes_ = newValue }
     }
     
-    var color: Int {
-        get { Int(self.color_) }
-        set { self.color_ = Int16(newValue) }
+    var colorOption: ColorOption {
+        get { ColorOption(rawValue: Int(self.color_)) ?? .primary }
+        set { self.color_ = Int16(newValue.id) }
     }
     
     func getColor() -> Color {
-        Color.colorSelection[self.color % Color.colorSelection.count]
+        return self.colorOption.color
     }
 }
 

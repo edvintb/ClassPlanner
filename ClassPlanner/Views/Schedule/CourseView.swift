@@ -40,12 +40,14 @@ struct CourseView: View {
             }
             .onDrag { NSItemProvider(object: course.stringID as NSString) }
             .onTapGesture(course: course, firstTap: onSingleTap, secondTap: onDoubleTap)
-    //        .tapRecognizer(tapSensitivity: 0.1, singleTapAction: onSingleTap, doubleTapAction: onDoubleTap)
-    //        .gesture(tapGesture)
-            .frame(height: isFrontUp || course.isEmpty ? courseHeight : courseHeight + 27, alignment: .center)
+            .frame(
+                height: isFrontUp || course.isEmpty ? courseHeight : courseHeight + 27,
+                alignment: .center
+            )
             .onReceive(schedule.$isCourseFrontUp.dropFirst()) { isFrontUp in
+                if course.isEmpty { return }
                 withAnimation {
-                    self.isFrontUp = course.name != "" && isFrontUp
+                    self.isFrontUp = isFrontUp
                 }
             }
         }
@@ -58,14 +60,12 @@ struct CourseView: View {
             }
             .onDrag { NSItemProvider(object: course.stringID as NSString) }
             .onTapGesture(course: course, firstTap: onSingleTap, secondTap: onDoubleTap)
-    //        .tapRecognizer(tapSensitivity: 0.1, singleTapAction: onSingleTap, doubleTapAction: onDoubleTap)
-    //        .gesture(tapGesture)
             .frame(height: isFrontUp || course.isEmpty ? courseHeight : courseHeight + 27, alignment: .center)
         }
     }
     
     var container: some View {
-        let color = course.getColor()
+        let color = course.colorOption.color
         return RoundedRectangle(cornerRadius: frameCornerRadius).stroke()
             .foregroundColor(color)
             .scaleEffect(isEditingCourse ? 1.04 : 1)
@@ -73,24 +73,30 @@ struct CourseView: View {
             .shadow(color: color, radius: isEditingCourse ? hoverShadowRadius : 0)
             .shadow(color: color, radius: isEditingCourse ? hoverShadowRadius : 0)
             .opacity(course.name.isEmpty && !isEditingCourse ? emptyHoverOpacity : 1)
+            .overlay(
+                Text(courseContainedSymbol)
+                    .opacity(course.isFinished ? 1 : 0)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+                    .padding(7)
+                    .foregroundColor(.green)
+            )
     }
     
     var front: some View {
-        Text("\(course.name)")
+        Text(course.idOrName)
             .font(.system(size: 1.3*titleSize))
             .allowsTightening(true)
             .lineLimit(3)
             .multilineTextAlignment(.center)
-            .truncationMode(.tail)
             .padding(5)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     var back: some View {
         VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                Text("\(course.name)").font(.system(size: titleSize)).frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                Text("+").font(.system(size: 1.2*titleSize, weight: .semibold))
-            }
+            Text(course.idOrName)
+                .font(.system(size: titleSize))
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
                 .contentShape(Rectangle())
                 .onTapGesture { shared.setEditSelection(to: .course(course: course)) }
                 .padding(.horizontal, horizontalBackPadding)
@@ -105,14 +111,18 @@ struct CourseView: View {
                     Text("\(dateSymbol) ")
                     Text(dayString)
                     Spacer()
-                    Text(DateFormatter.localizedString(from: course.time, dateStyle: .none, timeStyle: .short))
+                    Text(DateFormatter.courseTime.string(from: course.time))
                 }
-                .font(.system(size: dayString.count < 6 ? iconSize : iconSize - 2  , weight: .regular, design: .default))
+                .font(
+                    .system(
+                        size: dayString.count < 6 ? courseIconSize : courseIconSize - 2  ,
+                        weight: .regular,
+                        design: .default)
+                )
                 .padding(.vertical, courseBackSpacing)
             }
             .padding(.top, 3)
-            .padding(.bottom, horizontalBackPadding)
-            .padding(.horizontal, horizontalBackPadding)
+            .padding([.bottom, .horizontal], horizontalBackPadding)
         }
         .lineLimit(1)
         .truncationMode(.tail)
@@ -135,42 +145,44 @@ struct CourseView: View {
             Text("\(qscoreSymbol) ").foregroundColor(.red) + Text("\(NSNumber(value: course.qscore), formatter: NumberFormatter.courseFormat)")
             Text("\(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
         }
-        .font(.system(size: iconSize, weight: .regular, design: .default))
+        .font(.system(size: courseIconSize, weight: .regular, design: .default))
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     func rightProperties() -> some View {
         VStack(alignment: .leading, spacing: courseBackSpacing) {
-            Text("\(gradeSymbol)").font(.system(size: gradeSymbolSize)) + Text(" \(grade)").foregroundColor(Grade.color[course.enumGrade])
-            Text("\(course.fall ? "\(fallSymbol)" : "  - ") \(course.spring ? "\(springSymbol)" : " -")")
-//            Text(" \(enrollmentSymbol) \(NSNumber(value: course.enrollment), formatter: NumberFormatter.courseFormat)")
+            Text("\(gradeSymbol)").font(.system(size: gradeSymbolSize)) + Text(" \(grade)").foregroundColor(course.enumGrade.color)
+            if shared.isSemesterSystem {
+                Text("\(course.fall ? "\(fallSymbol)" : "  - ") \(course.spring ? "\(springSymbol)" : " -")")
+            }
+            else {
+                Text("  \(course.isQuarter1 ? "1" : "-") \(course.isQuarter2 ? "2" : "-") \(course.isQuarter3 ? "3" : "-") \(course.isQuarter4 ? "4" : "- ")")
+            }
             Text(" Pre:  ") + (shared.currentSchedule?.containsPrereqs(for: course) ?? Text("-"))
         }
-        .font(.system(size: iconSize, weight: .regular, design: .default))
+        .font(.system(size: courseIconSize, weight: .regular, design: .default))
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     var grade: String {
         if let grade = Grade.init(rawValue: course.grade) {
-            return Grade.gradeString[grade] ?? "-"
+            return grade.string
         }
-        return "-"
+        return "SAT"
     }
     
     func onSingleTap() {
-        print("Single tap")
         if course.isEmpty { shared.setEditSelection(to: .course(course: course))}
         else {
-            withAnimation(Animation.easeInOut(duration: 0.2)) {
+            withAnimation(quickAnimation) {
                 isFrontUp.toggle()
             }
         }
     }
     
     func onDoubleTap() {
-        print("Double tap")
-        shared.setEditSelection(to: .course(course: course))
         withAnimation {
+            shared.setEditSelection(to: .course(course: course))
             isFrontUp = false
         }
     }

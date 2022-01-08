@@ -33,20 +33,27 @@ class CourseSuggestionVM: ObservableObject {
             }
             .store(in: &cancellables)
         
-        suggestionModel.suggestionsCancelled
-            .sink { [unowned self] _ in
-                if case let .course(oldCourse) = shared.currentEditSelection {
-                    let predicate = NSPredicate(format: "name_ =[c] %@ AND SELF != %@", argumentArray: [self.suggestionModel.textBinding?.wrappedValue ?? "", oldCourse])
-                    let request = Course.fetchRequest(predicate)
-                    let courses = (try? context.fetch(request)) ?? []
-                    if let newCourse = courses.first,
-                       let schedule = shared.currentSchedule {
-                            schedule.replaceCourse(old: oldCourse, with: newCourse)
-                            shared.setEditSelection(to: .course(course: newCourse))
-                    }
-                }
-            }
-            .store(in: &cancellables)
+//        suggestionModel.suggestionsCancelled
+//            .sink { [unowned self] _ in
+//                if case let .course(oldCourse) = shared.currentEditSelection {
+//                    print("Cancel called")
+//                    let predicate = NSPredicate(format: "name_ = [c] %@ AND SELF != %@", argumentArray: [self.suggestionModel.textBinding?.wrappedValue ?? "", oldCourse])
+//                    let request = Course.fetchRequest(predicate)
+//                    print("Request")
+//                    print(request)
+//                    let courses = (try? context.fetch(request)) ?? []
+//                    print("Courses")
+//                    print(courses)
+//                    if let newCourse = courses.first,
+//                       let schedule = shared.currentSchedule {
+//                            print("New Course")
+//                        print(newCourse)
+//                            schedule.replaceCourse(old: oldCourse, with: newCourse)
+//                            shared.setEditSelection(to: .course(course: newCourse))
+//                    }
+//                }
+//            }
+//            .store(in: &cancellables)
     }
     
     //        suggestionModel.$suggestionConfirmed

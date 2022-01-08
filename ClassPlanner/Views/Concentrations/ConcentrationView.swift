@@ -77,12 +77,12 @@ struct ConcentrationView<V>: View  where V: View{
     var title: some View {
         HStack {
             titleText
-            Spacer()
             Text("\(coursesContained)/\(requiredCourses)")
+                .foregroundColor(Color.primary)
         }
         .padding(7)
         .contentShape(Rectangle())
-        .foregroundColor(concentration.getColor())
+        .foregroundColor(concentration.colorOption.color)
         .onTapGesture {
             shared.setEditSelection(to: .concentration(concentration: concentration))
         }

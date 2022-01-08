@@ -19,26 +19,29 @@ struct ScheduleEditorView: View {
 //    @ObservedObject var courseStore: CourseStore
 
     @Environment(\.managedObjectContext) var context
+    
+    @State private var isShowingOnboarding: Bool = false
 
 //    private var courses: [Course] { Course.fromURIs(uri: Array(schedule.courseURLs), context: context) }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            EditorHeader(title: schedule.name, notes: schedule.notes, color: schedule.color)
+            EditorTypeView(editorName: "Schedule", infoTappedAction: { isShowingOnboarding = true }, createBackButton: { EmptyView() })
+            EditorHeader(title: schedule.name, notes: schedule.notes, color: schedule.colorOption.color)
             Form {
                 NameEditor(entryView: nameField)
                 NoteEditor(text: $schedule.notes) {}
-                Spacer().frame(height: 20)
+                EditorColorGrid { schedule.setColor(to: $0); }
                 Section(header: sectionHeader) {
                     coursesView
                 }
-                EditorColorGrid { schedule.setColor(to: $0) }
+                Spacer()
                 EditorButtons(deleteAction: deleteAction, closeAction: closeAction)
             }
             .padding(editorPadding)
         }
     }
-    
+
     var nameField: some View {
         TextField("Name", text: $schedule.name, onCommit: { scheduleStore.setName(schedule.name, for: schedule) })
             .cornerRadius(textFieldCornerRadius)
@@ -69,7 +72,7 @@ struct ScheduleEditorView: View {
                     Text(semester % 2 == 0 ? fallSymbol : springSymbol)
                     ForEach (schedule.courses(for: semester)) { course in
                         Text(course.name)
-                            .foregroundColor(course.getColor())
+                            .foregroundColor(course.colorOption.color)
                             .lineLimit(1)
                     }
                     Spacer()
@@ -77,6 +80,9 @@ struct ScheduleEditorView: View {
                 }
             }
         }
+        .popover(isPresented: $isShowingOnboarding, content: {
+            Text("This is an overview of the entire schedule").padding()
+        })
     }
     
     func deleteAction() {

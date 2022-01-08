@@ -11,32 +11,43 @@ import CoreData
 struct SemesterView: View {
     
     let semester: Int
+    let shouldShowOnboarding: Bool
+    
+    // Needed to show quarter/semester
+    @EnvironmentObject var shared: SharedVM
     
     @Environment(\.managedObjectContext) var context
     @ObservedObject var schedule: ScheduleVM
     @ObservedObject var store: ScheduleStore
     
-    private var isSemesterCompleted: Binding<Bool> {
-        Binding<Bool>(
-            get: {
-                return store.completedSemesterDict[semester] == self.courses.map({ course in course.urlID })
-            },
-            set: { newValue in
-                if newValue {
-                    store.setSemesterAsCompleted(semester: semester, courseArray: courses)
-                }
-                else {
-                    store.setSemesterAsCompleted(semester: semester, courseArray: nil)
-                }
-            }
-        )
-    }
+    @State private var isTopTapped: Bool = false
+    @State private var isShowingOnboarding: Bool = !UserDefaults.standard.bool(forKey: semesterTopOnboardingKey)
+    
+//    private var isSemesterCompleted: Binding<Bool> {
+//        Binding<Bool>(
+//            get: {
+//                return store.completedSemesterDict[semester] == self.courses.map({ course in course.urlID })
+//            },
+//            set: { newValue in
+//                if newValue {
+//                    store.setSemesterAsCompleted(semester: semester, courseArray: courses)
+//                    withAnimation {
+//                        showSemesterFinished = true
+//                    }
+//                    DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: { withAnimation {
+//                        showSemesterFinished = false
+//                    }})
+//                }
+//                else {
+//                    store.setSemesterAsCompleted(semester: semester, courseArray: nil)
+//                }
+//            }
+//        )
+//    }
     
     private var courses: [Course] { schedule.courses(for: semester) }
     
     private var totalWorkload: Double { courses.reduce(into: 0) { acc, course in acc += course.workload }}
-    
-    private var totalGrade: Double { courses.reduce(into: 0) { acc, course in acc += Grade.gradeNumber[course.enumGrade] ?? 0 }}
     
     var body: some View {
         VStack(spacing: courseVerticalSpacing) {
@@ -52,22 +63,40 @@ struct SemesterView: View {
     
     var topView: some View {
         VStack(spacing: courseVerticalSpacing) {
-            if isSemesterCompleted.wrappedValue {
-                Text("Finished!").popover(isPresented: .constant(true), content: {
-                    Text("A finished semester will be copied to any new schedules you create").padding()
-                })
-            }
             HStack(spacing: 0) {
                 Text(String(format: "\(workloadSymbol) %.1f", totalWorkload))
                 Spacer()
-                Text(semester % 2 == 0 ? fallSymbol : springSymbol)
-                    .padding(.trailing, 3)
-                Toggle("", isOn: isSemesterCompleted.animation(quickAnimation))
-            }
-
+                if shouldShowOnboarding && isShowingOnboarding {
+                    Text("Click here!")
+                        .font(.system(size: 9))
+                        .allowsTightening(true)
+                    Spacer()
+                }
+                if shared.isSemesterSystem {
+                    Text(semester % 2 == 0 ? fallSymbol : springSymbol)
+                        .padding(.trailing, 3)
+                }
+                else {
+                    Text("\(semester % 4 + 1)")
+                        .padding(.trailing, 3)
+                }
+            }.lineLimit(1)
         }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            isTopTapped.toggle()
+            isShowingOnboarding = false
+        }
+        .onReceive(shared.$isShowingOnboarding) { self.isShowingOnboarding = $0 }
+        .sheet(isPresented: $isTopTapped, onDismiss: {}) {
+            WeekView(isPresented: $isTopTapped, courseArray: courses)
+                .padding()
+        }
+
+//            Text("\(workloadSymbol) shows total workload. \n \(semester % 2 == 0 ? fallSymbol : springSymbol) means \(semester % 2 == 0 ? "fall" : "spring"). \n The checkbox shows if the semester is finished. \n Finished semester are copied to new schedules. ")
     }
-    
+}
+
 //    func delete(course: Course) -> some View {
 //        print(course.qscore)
 //        course.delete()
@@ -182,8 +211,6 @@ struct SemesterView: View {
 //        .opacity(0.6)
 //
 //    }
-    
-}
 
 //        .onDrop(of: ["public.text"], isTargeted: nil) { providers in
 //            print("Dropped")

@@ -23,18 +23,13 @@ enum PanelOption: Equatable, Hashable, CaseIterable {
     case concentrations
     case editor
     
-//    static var symbols: [PanelOption:String] {
-//         [.schedules : "􀈕",
-//          .concentrations : "􀈥",
-//          .courses : "􀧵",
-//          .editor : "􀈎"]
-//    }
-    
-    static var symbols: [PanelOption:String] {
-         [.schedules : "Schedules",
-          .concentrations : "Majors",
-          .courses : "Courses",
-          .editor : "Editor"]
+    var string: String {
+        switch self {
+            case .schedules: return "Schedules"
+            case .courses: return "Courses"
+            case .concentrations: return "Majors"
+            case .editor: return "Editor"
+        }
     }
 }
 
@@ -45,7 +40,37 @@ enum EditOption: Equatable, Hashable {
     case concentration(concentration: Concentration)
     case schedule(schedule: ScheduleVM)
     case none
+}
+
+
+enum SortOrder: CaseIterable {
     
+    case ascending
+    case descending
+    
+    var description: String {
+        switch self {
+            case .ascending: return "▼"
+            case .descending: return "▲"
+        }
+    }
+}
+
+enum SortOption: CaseIterable {
+    
+    case alphabetic
+    case score
+    case workload
+    case enrollment
+    
+    var description: String {
+        switch self {
+            case .alphabetic: return "A-Z"
+            case .score: return qscoreSymbol
+            case .workload: return workloadSymbol
+            case .enrollment: return enrollmentSymbol
+        }
+    }
 }
 
 
@@ -53,7 +78,6 @@ enum Grade: Int, Equatable, CaseIterable, Identifiable {
     
     var id: Int { self.rawValue }
     
-//    case APlus
     case A
     case AMinus
     case BPlus
@@ -65,49 +89,48 @@ enum Grade: Int, Equatable, CaseIterable, Identifiable {
     case Pass
     case Fail
     
-    static var gradeString: [Grade:String] {
-        [
-//            APlus: "A+",
-            A: "A",
-            AMinus: "A-",
-            BPlus: "B+",
-            B: "B",
-            BMinus: "B-",
-            CPlus: "C+",
-            C :"C",
-            CMinus: "C-",
-            Pass: "SAT",
-            Fail: "-"
-        ]
+    var string: String {
+        switch self {
+            case .A: return "A"
+            case .AMinus: return "A-"
+            case .BPlus: return "B+"
+            case .B: return "B"
+            case .BMinus: return "B-"
+            case .CPlus: return "C+"
+            case .C : return "C"
+            case .CMinus: return "C-"
+            case .Pass: return "SAT"
+            case .Fail: return "F"
+        }
     }
     
-    static var gradeNumber: [Grade:Double] {
-        [
-//            APlus: 4,
-            A: 4,
-            AMinus: 3.67,
-            BPlus: 3.33,
-            B: 3.00,
-            BMinus: 2.67,
-            CPlus: 2.33,
-            C: 2,
-            CMinus: 1.67,
-            Pass: 0,
-            Fail: 0
-        ]
+    var value: Double {
+        switch self {
+            case .A: return 4
+            case .AMinus: return 3.67
+            case .BPlus: return 3.33
+            case .B: return 3.00
+            case .BMinus: return 2.67
+            case .CPlus: return 2.33
+            case .C: return 2
+            case .CMinus: return 1.67
+            case .Pass: return 0
+            case .Fail: return 0
+        }
     }
-    
-    static var color: [Grade:Color] {
-        [
-//            APlus: .green,
-            A: .green,
-            AMinus: .green,
-            BPlus: .orange,
-            B: .orange,
-            BMinus: .orange,
-            CPlus: .red,
-            C: .red,
-            CMinus: .red,
-        ]
+
+    var color: Color {
+        switch self {
+            case .A: return .green
+            case .AMinus: return .green
+            case .BPlus: return .orange
+            case .B: return .orange
+            case .BMinus: return .orange
+            case .CPlus: return .red
+            case .C: return .red
+            case .CMinus: return .red
+            case .Pass: return .white
+            case .Fail: return .red
+        }
     }
 }

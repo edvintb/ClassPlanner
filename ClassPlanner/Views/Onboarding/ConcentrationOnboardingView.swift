@@ -9,8 +9,7 @@ import SwiftUI
 
 struct ConcentrationOnboardingView: View {
     
-    @Binding var isShowingOnboarding: Bool
-    var setConcentrationOnboarding: (Bool) -> ()
+//    var setConcentrationOnboarding: (Bool) -> ()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -20,6 +19,6 @@ struct ConcentrationOnboardingView: View {
         }
         .font(.system(size: 20, weight: .light, design: .default))
         .padding()
-        .onDisappear { setConcentrationOnboarding(false) }
+//        .onDisappear { setConcentrationOnboarding(false) }
     }
 }
